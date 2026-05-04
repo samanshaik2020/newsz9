@@ -19,11 +19,11 @@ export default async function CategoryPage({
     <div className="min-h-screen bg-white text-zinc-950">
       <Header categories={categories} />
       <main className="mx-auto grid max-w-7xl gap-6 px-4 py-8">
-        <div className="border-b border-zinc-200 pb-4">
-          <p className="text-sm font-black uppercase tracking-[0.18em] text-red-700">
+        <div className="border-b-2 border-zinc-950 pb-4">
+          <p className="text-sm font-black uppercase text-red-600">
             Category
           </p>
-          <h1 className="mt-2 text-4xl font-black">
+          <h1 className="mt-2 text-4xl font-black leading-tight">
             {category?.name ?? "News"}
           </h1>
         </div>

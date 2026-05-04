@@ -20,18 +20,27 @@ export default async function Home() {
     getTrendingArticles(5),
   ]);
   const [leadArticle, ...latestArticles] = articles;
+  const tickerItems = breakingNews.length
+    ? breakingNews
+    : articles.slice(0, 5).map((article) => ({
+        created_at: article.created_at,
+        headline: article.title,
+        id: `article-ticker-${article.id}`,
+        is_active: true,
+        url: `/article/${article.slug}`,
+      }));
 
   return (
     <div className="min-h-screen bg-white text-zinc-950">
       <Header categories={categories} />
-      <BreakingTicker items={breakingNews} />
-      <main className="mx-auto grid max-w-7xl gap-10 px-4 py-8">
+      <BreakingTicker items={tickerItems} />
+      <main className="mx-auto grid max-w-7xl gap-8 px-4 pb-10">
         {leadArticle ? <HeroSection article={leadArticle} /> : null}
-        <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
-          <div className="grid gap-10">
-            <section className="grid gap-4">
-              <div className="flex items-end justify-between border-b border-zinc-200 pb-2">
-                <h2 className="text-2xl font-black">Latest News</h2>
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid gap-8">
+            <section className="grid gap-1 border-t-2 border-zinc-950 pt-1">
+              <div className="flex items-end justify-between border-b border-zinc-200 bg-zinc-50 px-3 py-2">
+                <h2 className="text-xl font-black">Latest News</h2>
               </div>
               <ArticleGrid articles={latestArticles.slice(0, 6)} />
             </section>

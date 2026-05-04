@@ -83,6 +83,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-ui);
+  letter-spacing: 0;
 }
 
 h1,
@@ -105,6 +106,30 @@ label,
 .category-label {
   font-family: var(--font-label);
   letter-spacing: 0;
+}
+
+.site-title {
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.line-clamp-1,
+.line-clamp-2,
+.line-clamp-3 {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+}
+
+.line-clamp-1 {
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  -webkit-line-clamp: 3;
 }
 
 .article-body {
