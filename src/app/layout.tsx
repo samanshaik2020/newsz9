@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Telugu } from "next/font/google";
+import { Inter, Lora, Montserrat, Noto_Sans_Telugu } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -12,9 +12,20 @@ const notoTelugu = Noto_Sans_Telugu({
   subsets: ["telugu"],
 });
 
+const lora = Lora({
+  variable: "--font-lora",
+  subsets: ["latin"],
+});
+
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
+  subsets: ["latin"],
+});
+
 export const metadata: Metadata = {
-  title: "New Project",
-  description: "Next.js app with Telugu-ready typography.",
+  title: "newsz9 | English & Telugu News",
+  description:
+    "Fast bilingual news for English and Telugu readers across national, regional, business, sports, and technology coverage.",
 };
 
 export default function RootLayout({
@@ -24,7 +35,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${notoTelugu.variable} antialiased`}>
+      <body
+        className={`${inter.variable} ${lora.variable} ${montserrat.variable} ${notoTelugu.variable} antialiased`}
+      >
         {children}
       </body>
     </html>

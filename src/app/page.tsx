@@ -1,29 +1,52 @@
-import { Languages } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArticleGrid } from "@/components/site/ArticleGrid";
+import { BreakingTicker } from "@/components/site/BreakingTicker";
+import { CategoryRow } from "@/components/site/CategoryRow";
+import { Footer } from "@/components/site/Footer";
+import { Header } from "@/components/site/Header";
+import { HeroSection } from "@/components/site/HeroSection";
+import { Sidebar } from "@/components/site/Sidebar";
+import {
+  getBreakingNews,
+  getCategories,
+  getPublishedArticles,
+  getTrendingArticles,
+} from "@/lib/data";
 
-export default function Home() {
+export default async function Home() {
+  const [categories, breakingNews, articles, trending] = await Promise.all([
+    getCategories(),
+    getBreakingNews(),
+    getPublishedArticles(12),
+    getTrendingArticles(5),
+  ]);
+  const [leadArticle, ...latestArticles] = articles;
+
   return (
-    <main className="min-h-screen bg-background px-6 py-10 text-foreground">
-      <section className="mx-auto flex max-w-3xl flex-col gap-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-card">
-          <Languages className="h-6 w-6" aria-hidden="true" />
+    <div className="min-h-screen bg-white text-zinc-950">
+      <Header categories={categories} />
+      <BreakingTicker items={breakingNews} />
+      <main className="mx-auto grid max-w-7xl gap-10 px-4 py-8">
+        {leadArticle ? <HeroSection article={leadArticle} /> : null}
+        <div className="grid gap-10 lg:grid-cols-[1fr_320px]">
+          <div className="grid gap-10">
+            <section className="grid gap-4">
+              <div className="flex items-end justify-between border-b border-zinc-200 pb-2">
+                <h2 className="text-2xl font-black">Latest News</h2>
+              </div>
+              <ArticleGrid articles={latestArticles.slice(0, 6)} />
+            </section>
+            {categories.slice(0, 6).map((category) => (
+              <CategoryRow
+                articles={articles}
+                category={category}
+                key={category.id}
+              />
+            ))}
+          </div>
+          <Sidebar articles={trending} />
         </div>
-        <div className="space-y-3">
-          <h1 className="text-4xl font-semibold tracking-normal">
-            Next.js project ready
-          </h1>
-          <p className="max-w-2xl text-base leading-7 text-muted-foreground">
-            App Router, TypeScript, Tailwind CSS, shadcn/ui foundations,
-            Zustand, Lucide React, Inter, and Noto Telugu are wired in.
-          </p>
-          <p className="font-[var(--font-noto-telugu)] text-lg leading-8">
-            తెలుగు అక్షరాలు స్పష్టంగా కనిపించేలా ఫాంట్ సిద్ధంగా ఉంది.
-          </p>
-        </div>
-        <div>
-          <Button>Start building</Button>
-        </div>
-      </section>
-    </main>
+      </main>
+      <Footer />
+    </div>
   );
 }

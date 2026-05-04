@@ -4,6 +4,9 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --font-ui: var(--font-inter), var(--font-noto-telugu), Arial, sans-serif;
+  --font-reading: var(--font-lora), var(--font-noto-telugu), Georgia, serif;
+  --font-label: var(--font-montserrat), var(--font-inter), Arial, sans-serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -79,4 +82,53 @@
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-ui);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
+nav,
+label,
+.site-title,
+.admin-nav {
+  font-family: var(--font-ui);
+}
+
+.site-title,
+.news-label,
+.ticker-label,
+.category-label {
+  font-family: var(--font-label);
+  letter-spacing: 0;
+}
+
+.article-body {
+  color: rgb(39 39 42);
+  font-family: var(--font-reading);
+  font-size: 1.125rem;
+  line-height: 1.9;
+}
+
+.article-body p + p {
+  margin-top: 1.4rem;
+}
+
+.article-body a {
+  color: rgb(185 28 28);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.article-body h2,
+.article-body h3 {
+  font-family: var(--font-ui);
+  font-weight: 900;
+  line-height: 1.15;
+  margin-top: 2rem;
 }
