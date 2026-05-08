@@ -1,4 +1,4 @@
-import { Newspaper, PanelLeft, Radio, Tags } from "lucide-react";
+import { Newspaper, PanelLeft, Radio, Tags, Users } from "lucide-react";
 import Link from "next/link";
 import { isAdminAuthEnabled } from "@/lib/admin-auth";
 import { LogoutButton } from "./LogoutButton";
@@ -7,6 +7,7 @@ const links = [
   { href: "/admin", label: "Dashboard", icon: PanelLeft },
   { href: "/admin/articles", label: "Articles", icon: Newspaper },
   { href: "/admin/categories", label: "Categories", icon: Tags },
+  { href: "/admin/authors", label: "Authors", icon: Users },
   { href: "/admin/breaking-news", label: "Breaking News", icon: Radio },
 ];
 

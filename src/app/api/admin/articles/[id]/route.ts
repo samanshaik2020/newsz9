@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
+import { clearCache } from "@/lib/cache";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
 import type {
   ArticleFormInput,
@@ -73,7 +74,10 @@ export async function PATCH(
   if (!supabase) return response;
 
   const { id } = await params;
-  const body = (await request.json()) as Partial<ArticleFormInput>;
+  const body = (await request.json()) as Partial<ArticleFormInput> & {
+    tag_ids?: string[];
+    author_id?: string | null;
+  };
   const payload = normalizeArticlePayload(body);
 
   if (!payload.title || !payload.slug || !payload.content) {
@@ -83,9 +87,15 @@ export async function PATCH(
     );
   }
 
+  // Include author_id in update if provided
+  const updatePayload = {
+    ...payload,
+    ...(body.author_id !== undefined ? { author_id: body.author_id || null } : {}),
+  };
+
   const { data, error } = await supabase
     .from("articles")
-    .update(payload)
+    .update(updatePayload)
     .eq("id", id)
     .select("id, slug")
     .single();
@@ -93,6 +103,29 @@ export async function PATCH(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Sync article tags
+  if (body.tag_ids !== undefined) {
+    await supabase.from("article_tags").delete().eq("article_id", id);
+    if (body.tag_ids.length > 0) {
+      const tagRows = body.tag_ids.map((tagId) => ({
+        article_id: id,
+        tag_id: tagId,
+      }));
+      await supabase.from("article_tags").insert(tagRows);
+    }
+  }
+
+  // Clear Redis caches when an article is updated
+  const keysToInvalidate = [
+    "homepage:articles:12",
+    "homepage:articles:20",
+    "trending:articles:5",
+  ];
+  if (payload.slug) {
+    keysToInvalidate.push(`article:${payload.slug}`);
+  }
+  await clearCache(...keysToInvalidate);
 
   return NextResponse.json({ article: data });
 }
@@ -108,11 +141,30 @@ export async function DELETE(
   if (!supabase) return response;
 
   const { id } = await params;
+
+  // Fetch the article first so we can clear its specific cache key
+  const { data: existing } = await supabase
+    .from("articles")
+    .select("slug")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase.from("articles").delete().eq("id", id);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  // Clear Redis caches after deletion
+  const keysToInvalidate = [
+    "homepage:articles:12",
+    "homepage:articles:20",
+    "trending:articles:5",
+  ];
+  if (existing?.slug) {
+    keysToInvalidate.push(`article:${existing.slug}`);
+  }
+  await clearCache(...keysToInvalidate);
 
   return NextResponse.json({ deleted: true });
 }

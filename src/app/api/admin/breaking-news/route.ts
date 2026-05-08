@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
 import { getAdminBreakingNews } from "@/lib/data";
+import { sendPushNotification } from "@/lib/onesignal";
 import type { BreakingNewsFormInput } from "@/types";
 
 export async function GET(request: Request) {
@@ -41,6 +42,16 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  // Send push notification for active breaking news
+  if (data && (body.is_active ?? true)) {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
+    sendPushNotification({
+      title: "🔴 BREAKING NEWS",
+      message: headline,
+      url: body.url?.trim() || siteUrl,
+    }).catch(() => {});
   }
 
   return NextResponse.json({ item: data }, { status: 201 });

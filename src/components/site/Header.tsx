@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import type { Category } from "@/types";
 import { CategoryNav } from "./CategoryNav";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const topicToSlug: Record<string, string> = {
   Business: "business",
@@ -76,10 +77,7 @@ export function Header({ categories }: { categories: Category[] }) {
               <span className="text-zinc-900">IN</span>
               <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
             </button>
-            <button className="flex h-9 shrink-0 items-center gap-2 border-r border-zinc-200 px-4 text-left font-medium">
-              <span>English</span>
-              <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
-            </button>
+            <LanguageSwitcher />
             <span className="hidden h-9 shrink-0 items-center border-r border-zinc-200 px-4 md:flex">
               {formatUpdatedAt()}
             </span>

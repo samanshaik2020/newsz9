@@ -1,5 +1,6 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { maybeCreateClient, maybeCreateServiceClient } from "@/lib/supabase";
+import { getCached } from "@/lib/cache";
 import { articles, breakingNews, categories } from "@/lib/sample-data";
 import type { Article, ArticleFormInput, BreakingNewsItem, Category } from "@/types";
 
@@ -18,13 +19,19 @@ export async function getCategories(): Promise<Category[]> {
 
   if (!supabase) return categories;
 
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("name", { ascending: true });
+  return getCached(
+    "categories:all",
+    async () => {
+      const { data, error } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name", { ascending: true });
 
-  if (error || !data) return categories;
-  return data as Category[];
+      if (error || !data) return categories;
+      return data as Category[];
+    },
+    600 // cache 10 minutes
+  );
 }
 
 export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
@@ -33,15 +40,21 @@ export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
 
   if (!supabase) return breakingNews;
 
-  const { data, error } = await supabase
-    .from("breaking_news")
-    .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
-    .limit(8);
+  return getCached(
+    "breaking:news",
+    async () => {
+      const { data, error } = await supabase
+        .from("breaking_news")
+        .select("*")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false })
+        .limit(8);
 
-  if (error || !data) return breakingNews;
-  return data as BreakingNewsItem[];
+      if (error || !data) return breakingNews;
+      return data as BreakingNewsItem[];
+    },
+    60 // cache 1 minute
+  );
 }
 
 export async function getPublishedArticles(limit = 12): Promise<Article[]> {
@@ -50,15 +63,21 @@ export async function getPublishedArticles(limit = 12): Promise<Article[]> {
 
   if (!supabase) return articles.slice().sort(byNewest).slice(0, limit);
 
-  const { data, error } = await supabase
-    .from("articles")
-    .select(articleSelect)
-    .eq("status", "published")
-    .order("published_at", { ascending: false })
-    .limit(limit);
+  return getCached(
+    `homepage:articles:${limit}`,
+    async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select(articleSelect)
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(limit);
 
-  if (error || !data) return articles.slice().sort(byNewest).slice(0, limit);
-  return data as Article[];
+      if (error || !data) return articles.slice().sort(byNewest).slice(0, limit);
+      return data as Article[];
+    },
+    300 // cache 5 minutes
+  );
 }
 
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
@@ -69,18 +88,24 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     return articles.find((article) => article.slug === slug) ?? null;
   }
 
-  const { data, error } = await supabase
-    .from("articles")
-    .select(articleSelect)
-    .eq("slug", slug)
-    .eq("status", "published")
-    .single();
+  return getCached(
+    `article:${slug}`,
+    async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select(articleSelect)
+        .eq("slug", slug)
+        .eq("status", "published")
+        .single();
 
-  if (error || !data) {
-    return articles.find((article) => article.slug === slug) ?? null;
-  }
+      if (error || !data) {
+        return articles.find((article) => article.slug === slug) ?? null;
+      }
 
-  return data as Article;
+      return data as Article;
+    },
+    1800 // cache 30 minutes
+  );
 }
 
 export async function getArticlesByCategory(slug: string): Promise<Article[]> {
@@ -93,20 +118,26 @@ export async function getArticlesByCategory(slug: string): Promise<Article[]> {
       .sort(byNewest);
   }
 
-  const { data, error } = await supabase
-    .from("articles")
-    .select(articleSelect)
-    .eq("status", "published")
-    .eq("categories.slug", slug)
-    .order("published_at", { ascending: false });
+  return getCached(
+    `category:${slug}`,
+    async () => {
+      const { data, error } = await supabase
+        .from("articles")
+        .select(articleSelect)
+        .eq("status", "published")
+        .eq("categories.slug", slug)
+        .order("published_at", { ascending: false });
 
-  if (error || !data) {
-    return articles
-      .filter((article) => article.categories?.slug === slug)
-      .sort(byNewest);
-  }
+      if (error || !data) {
+        return articles
+          .filter((article) => article.categories?.slug === slug)
+          .sort(byNewest);
+      }
 
-  return data as Article[];
+      return data as Article[];
+    },
+    300 // cache 5 minutes
+  );
 }
 
 export async function searchArticles(query: string): Promise<Article[]> {
@@ -126,6 +157,7 @@ export async function searchArticles(query: string): Promise<Article[]> {
     );
   }
 
+  // Search results are not cached — they are too dynamic
   const { data, error } = await supabase
     .from("articles")
     .select(articleSelect)
@@ -138,8 +170,14 @@ export async function searchArticles(query: string): Promise<Article[]> {
 }
 
 export async function getTrendingArticles(limit = 5): Promise<Article[]> {
-  const allArticles = await getPublishedArticles(20);
-  return allArticles.slice().sort((a, b) => b.views - a.views).slice(0, limit);
+  return getCached(
+    `trending:articles:${limit}`,
+    async () => {
+      const allArticles = await getPublishedArticles(20);
+      return allArticles.slice().sort((a, b) => b.views - a.views).slice(0, limit);
+    },
+    600 // cache 10 minutes
+  );
 }
 
 export async function getAdminArticles(limit = 100): Promise<Article[]> {
@@ -148,6 +186,7 @@ export async function getAdminArticles(limit = 100): Promise<Article[]> {
 
   if (!supabase) return articles.slice().sort(byNewest).slice(0, limit);
 
+  // Admin data is NOT cached — always fresh
   const { data, error } = await supabase
     .from("articles")
     .select(articleSelect)

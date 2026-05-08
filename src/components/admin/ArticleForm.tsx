@@ -10,10 +10,18 @@ import type {
   ArticleFormInput,
   ArticleStatus,
   ArticleTemplate,
+  Author,
   Category,
   Language,
 } from "@/types";
+import { TagInput } from "./TagInput";
 import { TemplatePicker } from "./TemplatePicker";
+
+interface Tag {
+  id: string;
+  name: string;
+  slug: string;
+}
 
 const previewAuthor = {
   id: "preview-author",
@@ -39,11 +47,17 @@ function formFromArticle(article?: Article): ArticleFormInput {
 
 export function ArticleForm({
   article,
+  authors = [],
+  availableTags = [],
   categories,
+  initialTagIds = [],
   mode = "create",
 }: {
   article?: Article;
+  authors?: Author[];
+  availableTags?: Tag[];
   categories: Category[];
+  initialTagIds?: string[];
   mode?: "create" | "edit";
 }) {
   const router = useRouter();
@@ -54,6 +68,10 @@ export function ArticleForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialTagIds);
+  const [selectedAuthorId, setSelectedAuthorId] = useState<string>(
+    article?.author_id ?? "",
+  );
 
   const selectedCategory = categories.find(
     (category) => category.id === form.category_id,
@@ -99,7 +117,11 @@ export function ArticleForm({
     const response = await fetch(endpoint, {
       method: mode === "edit" ? "PATCH" : "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
+      body: JSON.stringify({
+        ...form,
+        author_id: selectedAuthorId || null,
+        tag_ids: selectedTagIds,
+      }),
     });
     const payload = (await response.json()) as {
       article?: { id: string; slug: string };
@@ -112,6 +134,17 @@ export function ArticleForm({
       setMessage(payload.error ?? "Article could not be saved.");
       return;
     }
+
+    // Clear Redis caches so readers see fresh content
+    await fetch("/api/revalidate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        path: "/",
+        slug: form.slug,
+        categorySlug: selectedCategory?.slug,
+      }),
+    });
 
     setMessage(mode === "edit" ? "Article updated." : "Article saved.");
     router.refresh();
@@ -352,6 +385,28 @@ export function ArticleForm({
               </select>
             </label>
           </div>
+          {/* Author selector */}
+          <label className="grid gap-2 text-sm font-bold text-zinc-800">
+            Author
+            <select
+              className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
+              onChange={(event) => setSelectedAuthorId(event.target.value)}
+              value={selectedAuthorId}
+            >
+              <option value="">newsz9 Desk (default)</option>
+              {authors.map((author) => (
+                <option key={author.id} value={author.id}>
+                  {author.name} ({author.role})
+                </option>
+              ))}
+            </select>
+          </label>
+          {/* Tags */}
+          <TagInput
+            availableTags={availableTags}
+            selectedTagIds={selectedTagIds}
+            onChange={setSelectedTagIds}
+          />
           <div className="flex flex-wrap items-center gap-3">
             <Button disabled={isSaving} onClick={handleSubmit}>
               <Save aria-hidden="true" />

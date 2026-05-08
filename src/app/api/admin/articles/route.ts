@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
+import { clearCache } from "@/lib/cache";
 import { getAdminArticles } from "@/lib/data";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
 import type {
@@ -53,7 +54,10 @@ export async function POST(request: Request) {
   const { supabase, response } = requireServiceClient();
   if (!supabase) return response;
 
-  const body = (await request.json()) as Partial<ArticleFormInput>;
+  const body = (await request.json()) as Partial<ArticleFormInput> & {
+    tag_ids?: string[];
+    author_id?: string | null;
+  };
   const payload = normalizeArticlePayload(body);
 
   if (!payload.title || !payload.slug || !payload.content) {
@@ -63,17 +67,22 @@ export async function POST(request: Request) {
     );
   }
 
-  const { data: botAuthor } = await supabase
-    .from("authors")
-    .select("id")
-    .eq("email", "bot@newsz9.com")
-    .maybeSingle();
+  // Use provided author_id, or fall back to bot author
+  let authorId = body.author_id ?? null;
+  if (!authorId) {
+    const { data: botAuthor } = await supabase
+      .from("authors")
+      .select("id")
+      .eq("email", "bot@newsz9.com")
+      .maybeSingle();
+    authorId = botAuthor?.id ?? null;
+  }
 
   const { data, error } = await supabase
     .from("articles")
     .insert({
       ...payload,
-      author_id: botAuthor?.id ?? null,
+      author_id: authorId,
       created_at: new Date().toISOString(),
     })
     .select("id, slug")
@@ -81,6 +90,36 @@ export async function POST(request: Request) {
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+
+  // Save article tags
+  if (data && body.tag_ids?.length) {
+    const tagRows = body.tag_ids.map((tagId) => ({
+      article_id: data.id,
+      tag_id: tagId,
+    }));
+    await supabase.from("article_tags").insert(tagRows);
+  }
+
+  // Clear Redis caches when a published article is created
+  if (payload.status === "published") {
+    await clearCache(
+      "homepage:articles:12",
+      "homepage:articles:20",
+      "trending:articles:5",
+      "breaking:news",
+    );
+
+    // Notify Google Indexing API for immediate crawling
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
+    fetch(`${siteUrl}/api/google-indexing`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url: `${siteUrl}/article/${data.slug}`,
+        type: "URL_UPDATED",
+      }),
+    }).catch(() => {});
   }
 
   return NextResponse.json({ article: data }, { status: 201 });

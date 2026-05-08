@@ -30,6 +30,7 @@ export function Footer() {
           <div className="mt-3 grid gap-2 text-sm font-medium text-zinc-600">
             <Link href="/admin">Admin</Link>
             <Link href="/sitemap.xml">Sitemap</Link>
+            <Link href="/feed.xml">RSS Feed</Link>
             <span>newsz9.com</span>
           </div>
         </div>
