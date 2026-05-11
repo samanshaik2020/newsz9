@@ -105,7 +105,7 @@ export function Header({ categories }: { categories: Category[] }) {
             >
               Subscribe To NZ9+
             </Link>
-            <Link className="hidden font-medium hover:text-red-600 sm:inline" href="/admin">
+            <Link className="hidden font-medium hover:text-red-600 sm:inline" href="/admin/login">
               Sign In
             </Link>
             <div className="hidden items-center gap-2 lg:flex">

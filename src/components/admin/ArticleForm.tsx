@@ -16,6 +16,7 @@ import type {
 } from "@/types";
 import { TagInput } from "./TagInput";
 import { TemplatePicker } from "./TemplatePicker";
+import { RichTextEditor } from "./RichTextEditor";
 
 interface Tag {
   id: string;
@@ -263,17 +264,11 @@ export function ArticleForm({
               value={form.summary ?? ""}
             />
           </label>
-          <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Full Article
-            <textarea
-              className="min-h-72 rounded-md border border-zinc-300 px-4 py-3 font-mono text-sm font-normal outline-none focus:border-red-700"
-              onChange={(event) =>
-                setForm({ ...form, content: event.target.value })
-              }
-              placeholder="Paste plain text or HTML. Plain text is converted into paragraphs on save."
-              value={form.content}
-            />
-          </label>
+          <RichTextEditor
+            value={form.content}
+            onChange={(html) => setForm({ ...form, content: html })}
+            placeholder="Write your article content here — use the toolbar above to format text, add links, headings, and more."
+          />
           <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
             <div className="grid gap-3">
               <label className="grid gap-2 text-sm font-bold text-zinc-800">

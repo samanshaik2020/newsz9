@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Montserrat, Noto_Sans_Telugu } from "next/font/google";
+import { Inter, Lora, Montserrat, Noto_Sans_Telugu, Roboto, Roboto_Condensed } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -21,6 +21,19 @@ const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
 });
+
+const roboto = Roboto({
+  variable: "--font-roboto",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
+});
+
+const robotoCondensed = Roboto_Condensed({
+  variable: "--font-roboto-condensed",
+  subsets: ["latin"],
+  weight: ["300", "400", "600", "700", "800", "900"],
+});
+
 
 export const metadata: Metadata = {
   title: "newsz9 | English & Telugu News",
@@ -59,7 +72,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${lora.variable} ${montserrat.variable} ${notoTelugu.variable} antialiased`}
+        className={`${inter.variable} ${lora.variable} ${montserrat.variable} ${notoTelugu.variable} ${roboto.variable} ${robotoCondensed.variable} antialiased`}
       >
         {children}
       </body>

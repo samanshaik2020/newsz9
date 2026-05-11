@@ -1,4 +1,4 @@
-import { ArticleGrid } from "@/components/site/ArticleGrid";
+import { InfiniteArticleGrid } from "@/components/site/InfiniteArticleGrid";
 import { BreakingTicker } from "@/components/site/BreakingTicker";
 import { CategoryRow } from "@/components/site/CategoryRow";
 import { Footer } from "@/components/site/Footer";
@@ -42,7 +42,7 @@ export default async function Home() {
               <div className="flex items-end justify-between border-b border-zinc-200 bg-zinc-50 px-3 py-2">
                 <h2 className="text-xl font-black">Latest News</h2>
               </div>
-              <ArticleGrid articles={latestArticles.slice(0, 6)} />
+              <InfiniteArticleGrid initialArticles={latestArticles.slice(0, 6)} />
             </section>
             {categories.slice(0, 6).map((category) => (
               <CategoryRow

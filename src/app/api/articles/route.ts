@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { getPublishedArticles } from "@/lib/data";
 
-export async function GET() {
-  const articles = await getPublishedArticles(50);
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const offset = parseInt(searchParams.get("offset") || "0", 10);
+  const limit = parseInt(searchParams.get("limit") || "12", 10);
+  
+  const articles = await getPublishedArticles(limit, offset);
   return NextResponse.json({ articles });
 }
 

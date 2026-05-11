@@ -19,9 +19,5 @@ export default async function AdminLoginPage() {
     redirect("/admin");
   }
 
-  return (
-    <main className="grid min-h-screen place-items-center bg-zinc-50 px-4 text-zinc-950">
-      <LoginForm />
-    </main>
-  );
+  return <LoginForm />;
 }

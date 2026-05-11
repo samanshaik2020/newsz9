@@ -71,14 +71,6 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       </section>
-      <section className="rounded-md border border-zinc-200 bg-white p-5">
-        <h2 className="text-lg font-black">Build Notes</h2>
-        <div className="mt-4 grid gap-2 text-sm leading-6 text-zinc-600">
-          <p>Run the SQL in supabase/newsz9_schema.sql before connecting live data.</p>
-          <p>Add ADMIN_PASSWORD before deploying the admin panel publicly.</p>
-          <p>Auto-imported scraper stories should enter review status first.</p>
-        </div>
-      </section>
     </div>
   );
 }

@@ -57,23 +57,23 @@ export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
   );
 }
 
-export async function getPublishedArticles(limit = 12): Promise<Article[]> {
+export async function getPublishedArticles(limit = 12, offset = 0): Promise<Article[]> {
   noStore();
   const supabase = maybeCreateClient();
 
-  if (!supabase) return articles.slice().sort(byNewest).slice(0, limit);
+  if (!supabase) return articles.slice().sort(byNewest).slice(offset, offset + limit);
 
   return getCached(
-    `homepage:articles:${limit}`,
+    `homepage:articles:${limit}:${offset}`,
     async () => {
       const { data, error } = await supabase
         .from("articles")
         .select(articleSelect)
         .eq("status", "published")
         .order("published_at", { ascending: false })
-        .limit(limit);
+        .range(offset, offset + limit - 1);
 
-      if (error || !data) return articles.slice().sort(byNewest).slice(0, limit);
+      if (error || !data) return articles.slice().sort(byNewest).slice(offset, offset + limit);
       return data as Article[];
     },
     300 // cache 5 minutes

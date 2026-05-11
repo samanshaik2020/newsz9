@@ -4,9 +4,10 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-ui: var(--font-inter), var(--font-noto-telugu), Arial, sans-serif;
-  --font-reading: var(--font-lora), var(--font-noto-telugu), Georgia, serif;
-  --font-label: var(--font-montserrat), var(--font-inter), Arial, sans-serif;
+  --font-ui:       var(--font-inter), var(--font-noto-telugu), Arial, sans-serif;
+  --font-reading:  var(--font-roboto), var(--font-noto-telugu), Arial, sans-serif;
+  --font-headline: var(--font-roboto-condensed), var(--font-inter), var(--font-noto-telugu), Arial, sans-serif;
+  --font-label:    var(--font-montserrat), var(--font-inter), Arial, sans-serif;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -132,11 +133,13 @@ label,
   -webkit-line-clamp: 3;
 }
 
+/* ── Article reading styles ── */
 .article-body {
   color: rgb(39 39 42);
   font-family: var(--font-reading);
-  font-size: 1.125rem;
-  line-height: 1.9;
+  font-size: 1.0625rem;
+  line-height: 1.85;
+  letter-spacing: 0.01em;
 }
 
 .article-body p + p {
@@ -150,10 +153,52 @@ label,
   text-underline-offset: 0.2em;
 }
 
+/* Roboto Condensed for all article sub-headings */
 .article-body h2,
 .article-body h3 {
-  font-family: var(--font-ui);
-  font-weight: 900;
+  font-family: var(--font-headline);
+  font-weight: 800;
   line-height: 1.15;
   margin-top: 2rem;
+  letter-spacing: -0.01em;
+}
+
+/* Roboto Condensed for article main title (in all templates) */
+article h1 {
+  font-family: var(--font-headline) !important;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+
+/* ── Inline article images inserted via the editor ── */
+.article-img {
+  border-radius: 6px;
+  height: auto;
+  max-width: 100%;
+}
+
+.article-img--small  { width: 33%; }
+.article-img--medium { width: 60%; }
+.article-img--full   { width: 100%; }
+.article-img--wide   { width: min(100vw - 2rem, 1200px); }
+
+.article-body figure {
+  margin: 1.8rem 0;
+}
+
+.article-body figcaption {
+  font-family: var(--font-ui);
+  font-size: 0.8rem;
+  color: #71717a;
+  text-align: center;
+  margin-top: 0.4rem;
+  font-style: italic;
+}
+
+.article-body img {
+  border-radius: 6px;
+  max-width: 100%;
+  height: auto;
+  margin: 1.4rem 0;
 }
