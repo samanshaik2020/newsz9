@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArticleGallery } from "@/components/templates/ArticleGallery";
 import { formatDate, getImageSrc, processArticleHtml } from "@/lib/utils";
 import type { Article } from "@/types";
 
@@ -30,6 +31,7 @@ export default function Template2({ article }: { article: Article }) {
             ) : null}
           </div>
           <p className="mt-2 text-center text-xs text-zinc-500">Photo: {article.title}</p>
+          <ArticleGallery article={article} className="mt-5" />
         </div>
       </div>
     </article>

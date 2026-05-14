@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Eye, ImageIcon, Save, Trash2 } from "lucide-react";
+import { Eye, ImageIcon, Plus, Save, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
@@ -38,6 +38,8 @@ function formFromArticle(article?: Article): ArticleFormInput {
     summary: article?.summary ?? "",
     content: article?.content ?? "",
     cover_image: article?.cover_image ?? "",
+    enable_gallery: article?.enable_gallery ?? false,
+    gallery_images: article?.gallery_images ?? [],
     source_url: article?.source_url ?? "",
     category_id: article?.category_id ?? article?.categories?.id ?? "",
     language: article?.language ?? "en",
@@ -69,6 +71,8 @@ export function ArticleForm({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isGalleryUploading, setIsGalleryUploading] = useState(false);
+  const [galleryUrl, setGalleryUrl] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<string[]>(initialTagIds);
   const [selectedAuthorId, setSelectedAuthorId] = useState<string>(
     article?.author_id ?? "",
@@ -78,6 +82,10 @@ export function ArticleForm({
     (category) => category.id === form.category_id,
   );
   const validCoverImage = getImageSrc(form.cover_image);
+  const galleryImages = useMemo(
+    () => (Array.isArray(form.gallery_images) ? form.gallery_images : []),
+    [form.gallery_images],
+  );
 
   const previewArticle = useMemo<Article>(
     () => ({
@@ -89,6 +97,8 @@ export function ArticleForm({
         "Article summary preview appears here before the full story.",
       content: normalizeArticleContent(form.content || "Article body preview."),
       cover_image: validCoverImage,
+      enable_gallery: form.enable_gallery,
+      gallery_images: galleryImages,
       source_url: form.source_url || null,
       category_id: form.category_id || null,
       author_id: article?.author_id ?? previewAuthor.id,
@@ -104,7 +114,7 @@ export function ArticleForm({
       categories: selectedCategory ?? null,
       authors: article?.authors ?? previewAuthor,
     }),
-    [article, form, selectedCategory, validCoverImage],
+    [article, form, galleryImages, selectedCategory, validCoverImage],
   );
 
   async function handleSubmit() {
@@ -182,6 +192,68 @@ export function ArticleForm({
 
     setForm({ ...form, cover_image: payload.publicUrl });
     setMessage("Image uploaded.");
+  }
+
+  async function handleGalleryUpload(files?: FileList | null) {
+    if (!files?.length) return;
+
+    setIsGalleryUploading(true);
+    setMessage(null);
+
+    const uploadedUrls: string[] = [];
+
+    for (const file of Array.from(files)) {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/admin/uploads", {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await response.json()) as {
+        publicUrl?: string;
+        error?: string;
+      };
+
+      if (!response.ok || !payload.publicUrl) {
+        setMessage(payload.error ?? "One gallery image could not be uploaded.");
+        setIsGalleryUploading(false);
+        return;
+      }
+
+      uploadedUrls.push(payload.publicUrl);
+    }
+
+    setForm({
+      ...form,
+      enable_gallery: true,
+      gallery_images: [...galleryImages, ...uploadedUrls],
+    });
+    setIsGalleryUploading(false);
+    setMessage("Gallery images uploaded.");
+  }
+
+  function addGalleryUrl() {
+    const imageUrl = getImageSrc(galleryUrl);
+    if (!imageUrl) {
+      setMessage("Enter a valid image URL.");
+      return;
+    }
+
+    setForm({
+      ...form,
+      enable_gallery: true,
+      gallery_images: [...galleryImages, imageUrl],
+    });
+    setGalleryUrl("");
+    setMessage(null);
+  }
+
+  function removeGalleryImage(indexToRemove: number) {
+    setForm({
+      ...form,
+      gallery_images: galleryImages.filter((_, index) => index !== indexToRemove),
+    });
   }
 
   function openPreviewPage() {
@@ -313,6 +385,92 @@ export function ArticleForm({
               )}
             </div>
           </div>
+          <section className="grid gap-4 rounded-md border border-zinc-200 bg-zinc-50 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="text-sm font-black text-zinc-900">
+                  Additional Article Images
+                </h2>
+                <p className="mt-1 text-xs leading-5 text-zinc-500">
+                  Turn this on to show an image gallery inside the selected article layout.
+                </p>
+              </div>
+              <label className="flex cursor-pointer items-center gap-3 text-sm font-bold text-zinc-800">
+                <input
+                  checked={Boolean(form.enable_gallery)}
+                  className="h-5 w-5 accent-red-700"
+                  onChange={(event) =>
+                    setForm({ ...form, enable_gallery: event.target.checked })
+                  }
+                  type="checkbox"
+                />
+                {form.enable_gallery ? "On" : "Off"}
+              </label>
+            </div>
+            {form.enable_gallery ? (
+              <div className="grid gap-4">
+                <label className="grid gap-2 text-sm font-bold text-zinc-800">
+                  Upload More Images
+                  <input
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    className="min-h-11 rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-normal outline-none file:mr-3 file:rounded file:border-0 file:bg-zinc-950 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-red-700"
+                    disabled={isGalleryUploading}
+                    multiple
+                    onChange={(event) => handleGalleryUpload(event.target.files)}
+                    type="file"
+                  />
+                </label>
+                <div className="grid gap-2 md:grid-cols-[1fr_auto]">
+                  <input
+                    className="min-h-11 rounded-md border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-red-700"
+                    onChange={(event) => setGalleryUrl(event.target.value)}
+                    placeholder="Paste an extra image URL"
+                    value={galleryUrl}
+                  />
+                  <Button onClick={addGalleryUrl} type="button" variant="outline">
+                    <Plus aria-hidden="true" />
+                    Add URL
+                  </Button>
+                </div>
+                {isGalleryUploading ? (
+                  <p className="text-sm font-medium text-zinc-600">
+                    Uploading gallery images...
+                  </p>
+                ) : null}
+                {galleryImages.length ? (
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                    {galleryImages.map((image, index) => (
+                      <div
+                        className="overflow-hidden rounded-md border border-zinc-200 bg-white"
+                        key={`${image}-${index}`}
+                      >
+                        <div className="relative">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            alt={`Gallery image ${index + 1}`}
+                            className="aspect-[4/3] w-full object-cover"
+                            src={image}
+                          />
+                          <button
+                            aria-label={`Remove gallery image ${index + 1}`}
+                            className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-zinc-950 text-white shadow-sm hover:bg-red-700"
+                            onClick={() => removeGalleryImage(index)}
+                            type="button"
+                          >
+                            <X className="h-4 w-4" aria-hidden="true" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="rounded-md border border-dashed border-zinc-300 bg-white p-4 text-sm text-zinc-500">
+                    No extra images added yet.
+                  </p>
+                )}
+              </div>
+            ) : null}
+          </section>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
             Source URL
             <input

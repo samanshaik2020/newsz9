@@ -32,6 +32,8 @@ export interface Article {
   summary: string | null;
   content: string;
   cover_image: string | null;
+  enable_gallery?: boolean;
+  gallery_images?: string[] | null;
   template: ArticleTemplate;
   language: Language;
   status: ArticleStatus;
@@ -62,6 +64,8 @@ export type ArticleFormInput = Pick<
   | "summary"
   | "content"
   | "cover_image"
+  | "enable_gallery"
+  | "gallery_images"
   | "language"
   | "template"
   | "status"

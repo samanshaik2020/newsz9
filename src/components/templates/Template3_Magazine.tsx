@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArticleGallery } from "@/components/templates/ArticleGallery";
 import { formatDate, getImageSrc, processArticleHtml } from "@/lib/utils";
 import type { Article } from "@/types";
 
@@ -30,6 +31,7 @@ export default function Template3({ article }: { article: Article }) {
         <div className="border-b border-zinc-200 pb-4 text-sm text-zinc-500">
           By {article.authors?.name ?? "newsz9 Desk"}
         </div>
+        <ArticleGallery article={article} />
         <div
           className="article-body"
           dangerouslySetInnerHTML={{ __html: processArticleHtml(article.content) }}

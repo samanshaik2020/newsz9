@@ -29,6 +29,8 @@ create table if not exists articles (
   summary text,
   content text not null,
   cover_image text,
+  enable_gallery boolean default false,
+  gallery_images text[] default '{}',
   category_id uuid references categories(id) on delete set null,
   author_id uuid references authors(id) on delete set null,
   language text default 'en' check (language in ('en', 'te')),
@@ -136,6 +138,12 @@ create policy "Authenticated manage breaking news"
   on breaking_news for all
   using (auth.role() = 'authenticated')
   with check (auth.role() = 'authenticated');
+
+alter table articles
+  add column if not exists enable_gallery boolean default false;
+
+alter table articles
+  add column if not exists gallery_images text[] default '{}';
 
 alter table articles
   add column if not exists search_vector tsvector generated always as (

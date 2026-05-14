@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "crypto";
 
 export const ADMIN_COOKIE_NAME = "newsz9_admin";
+export const PENDING_COOKIE_NAME = "newsz9_pending_admin";
 
 export function secureCookieOptions(maxAge: number) {
   return {

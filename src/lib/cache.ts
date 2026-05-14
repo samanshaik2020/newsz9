@@ -43,3 +43,73 @@ export async function clearCache(...keys: string[]): Promise<void> {
     // Silently ignore
   }
 }
+
+/**
+ * Invalidate all cache keys matching one or more Redis glob patterns.
+ */
+export async function clearCacheByPattern(...patterns: string[]): Promise<string[]> {
+  const keys = new Set<string>();
+
+  try {
+    for (const pattern of patterns) {
+      let cursor = "0";
+
+      do {
+        const [nextCursor, matchedKeys] = await redis.scan(cursor, {
+          match: pattern,
+          count: 100,
+        });
+        matchedKeys.forEach((key) => keys.add(key));
+        cursor = nextCursor;
+      } while (cursor !== "0");
+    }
+
+    if (keys.size > 0) {
+      await redis.del(...keys);
+    }
+  } catch {
+    // Silently ignore
+  }
+
+  return [...keys];
+}
+
+export async function clearArticleCaches({
+  slug,
+  previousSlug,
+  categorySlug,
+  previousCategorySlug,
+  includeBreakingNews = false,
+}: {
+  slug?: string | null;
+  previousSlug?: string | null;
+  categorySlug?: string | null;
+  previousCategorySlug?: string | null;
+  includeBreakingNews?: boolean;
+} = {}): Promise<string[]> {
+  const exactKeys = new Set([
+    "homepage:articles:12",
+    "homepage:articles:20",
+    "trending:articles:5",
+  ]);
+
+  for (const articleSlug of [slug, previousSlug]) {
+    if (articleSlug) exactKeys.add(`article:${articleSlug}`);
+  }
+
+  for (const articleCategorySlug of [categorySlug, previousCategorySlug]) {
+    if (articleCategorySlug) exactKeys.add(`category:${articleCategorySlug}`);
+  }
+
+  if (includeBreakingNews) {
+    exactKeys.add("breaking:news");
+  }
+
+  await clearCache(...exactKeys);
+  const patternKeys = await clearCacheByPattern(
+    "homepage:articles:*",
+    "trending:articles:*",
+  );
+
+  return [...new Set([...exactKeys, ...patternKeys])];
+}

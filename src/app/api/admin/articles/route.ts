@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
-import { clearCache } from "@/lib/cache";
+import { clearArticleCaches } from "@/lib/cache";
 import { getAdminArticles } from "@/lib/data";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
 import type {
@@ -18,6 +18,11 @@ function normalizeArticlePayload(body: Partial<ArticleFormInput>) {
   const status = statuses.has(body.status ?? "")
     ? (body.status as ArticleStatus)
     : "draft";
+  const galleryImages = Array.isArray(body.gallery_images)
+    ? body.gallery_images
+        .map((image) => getImageSrc(image))
+        .filter((image): image is string => Boolean(image))
+    : [];
 
   return {
     title: body.title?.trim() ?? "",
@@ -25,6 +30,8 @@ function normalizeArticlePayload(body: Partial<ArticleFormInput>) {
     summary: body.summary?.trim() || null,
     content: normalizeArticleContent(body.content ?? ""),
     cover_image: getImageSrc(body.cover_image),
+    enable_gallery: Boolean(body.enable_gallery),
+    gallery_images: galleryImages,
     category_id: body.category_id || null,
     source_url: body.source_url?.trim() || null,
     language: languages.has(body.language ?? "")
@@ -103,12 +110,10 @@ export async function POST(request: Request) {
 
   // Clear Redis caches when a published article is created
   if (payload.status === "published") {
-    await clearCache(
-      "homepage:articles:12",
-      "homepage:articles:20",
-      "trending:articles:5",
-      "breaking:news",
-    );
+    await clearArticleCaches({
+      slug: data.slug,
+      includeBreakingNews: true,
+    });
 
     // Notify Google Indexing API for immediate crawling
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";

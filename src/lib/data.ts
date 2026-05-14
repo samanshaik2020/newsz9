@@ -170,14 +170,31 @@ export async function searchArticles(query: string): Promise<Article[]> {
 }
 
 export async function getTrendingArticles(limit = 5): Promise<Article[]> {
-  return getCached(
-    `trending:articles:${limit}`,
-    async () => {
-      const allArticles = await getPublishedArticles(20);
-      return allArticles.slice().sort((a, b) => b.views - a.views).slice(0, limit);
-    },
-    600 // cache 10 minutes
-  );
+  noStore();
+  const supabase = maybeCreateClient();
+
+  if (!supabase) {
+    return articles
+      .slice()
+      .sort((a, b) => b.views - a.views)
+      .slice(0, limit);
+  }
+
+  const { data, error } = await supabase
+    .from("articles")
+    .select(articleSelect)
+    .eq("status", "published")
+    .order("views", { ascending: false })
+    .limit(limit);
+
+  if (error || !data) {
+    return articles
+      .slice()
+      .sort((a, b) => b.views - a.views)
+      .slice(0, limit);
+  }
+
+  return data as Article[];
 }
 
 export async function getAdminArticles(limit = 100): Promise<Article[]> {
