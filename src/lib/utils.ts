@@ -70,3 +70,40 @@ export function getImageSrc(value?: string | null) {
     return null;
   }
 }
+
+/**
+ * Post-process article HTML to add lazy loading, decoding, and
+ * explicit width/height to every inline <img> tag.
+ * This helps with CLS (Cumulative Layout Shift) and LCP scores.
+ */
+export function processArticleHtml(html: string): string {
+  return html.replace(/<img\b([^>]*)>/gi, (_match, attrs: string) => {
+    let result = attrs;
+
+    // Add loading="lazy" if not already present
+    if (!/\bloading\s*=/i.test(result)) {
+      result += ' loading="lazy"';
+    }
+
+    // Add decoding="async" if not already present
+    if (!/\bdecoding\s*=/i.test(result)) {
+      result += ' decoding="async"';
+    }
+
+    // Add default width/height if not already present (prevents CLS)
+    if (!/\bwidth\s*=/i.test(result)) {
+      result += ' width="800"';
+    }
+    if (!/\bheight\s*=/i.test(result)) {
+      result += ' height="450"';
+    }
+
+    // Add style to maintain aspect ratio responsively
+    if (!/\bstyle\s*=/i.test(result)) {
+      result += ' style="max-width:100%;height:auto"';
+    }
+
+    return `<img${result}>`;
+  });
+}
+

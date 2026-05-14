@@ -55,12 +55,21 @@ export const metadata: Metadata = {
     siteName: "THE NEWSZ9",
     type: "website",
     locale: "en_IN",
+    images: [
+      {
+        url: "/og-default.png",
+        width: 1200,
+        height: 630,
+        alt: "THE NEWSZ9 — English & Telugu News",
+      },
+    ],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: "THE NEWSZ9 | English & Telugu News",
     description:
       "Fast bilingual news for English and Telugu readers.",
+    images: ["/og-default.png"],
   },
 };
 

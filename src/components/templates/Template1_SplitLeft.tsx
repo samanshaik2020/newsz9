@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { formatDate, getImageSrc } from "@/lib/utils";
+import { formatDate, getImageSrc, processArticleHtml } from "@/lib/utils";
 import type { Article } from "@/types";
 
 export default function Template1({ article }: { article: Article }) {
@@ -30,7 +30,7 @@ export default function Template1({ article }: { article: Article }) {
           ) : null}
           <div
             className="article-body"
-            dangerouslySetInnerHTML={{ __html: article.content }}
+            dangerouslySetInnerHTML={{ __html: processArticleHtml(article.content) }}
           />
         </div>
       </div>

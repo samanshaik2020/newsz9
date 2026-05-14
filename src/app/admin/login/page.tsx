@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { LoginForm } from "@/components/admin/LoginForm";
 import {
   ADMIN_COOKIE_NAME,
   isAdminAuthEnabled,
   isValidAdminSession,
 } from "@/lib/admin-auth";
-import { cookies } from "next/headers";
 
 export default async function AdminLoginPage() {
   if (!isAdminAuthEnabled()) {
