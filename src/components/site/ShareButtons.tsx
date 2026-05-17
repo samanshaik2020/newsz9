@@ -35,12 +35,12 @@ const platforms = [
     name: "LinkedIn",
     label: "in",
     color: "bg-blue-700 hover:bg-blue-800",
-    href: (url: string, title: string) =>
+    href: (url: string) =>
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
   },
 ] as const;
 
-export function ShareButtons({ url, title, summary }: ShareButtonsProps) {
+export function ShareButtons({ url, title }: ShareButtonsProps) {
   const [copied, setCopied] = useState(false);
 
   async function copyLink() {

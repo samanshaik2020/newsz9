@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
+import { clearBreakingNewsCaches } from "@/lib/cache";
 import type { BreakingNewsFormInput } from "@/types";
 
 export async function PATCH(
@@ -39,6 +40,8 @@ export async function PATCH(
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 
+  await clearBreakingNewsCaches();
+
   return NextResponse.json({ item: data });
 }
 
@@ -58,6 +61,8 @@ export async function DELETE(
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  await clearBreakingNewsCaches();
 
   return NextResponse.json({ deleted: true });
 }

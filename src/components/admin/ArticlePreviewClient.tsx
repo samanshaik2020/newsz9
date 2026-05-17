@@ -8,13 +8,12 @@ import type { Article } from "@/types";
 const previewStorageKey = "newsz9-article-preview";
 
 export function ArticlePreviewClient() {
-  const [rawArticle, setRawArticle] = useState<string | null>(null);
+  const [rawArticle, setRawArticle] = useState<string | null>(() => {
+    if (typeof window === "undefined") return null;
+    return sessionStorage.getItem(previewStorageKey);
+  });
 
   useEffect(() => {
-    // Read immediately on mount (covers same-tab writes via sessionStorage.setItem)
-    setRawArticle(sessionStorage.getItem(previewStorageKey));
-
-    // Also listen for cross-tab storage events
     function onStorage(event: StorageEvent) {
       if (event.key === previewStorageKey) {
         setRawArticle(event.newValue);

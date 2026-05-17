@@ -60,8 +60,8 @@ export default async function PrivacyPage() {
           <h2>4. Cookies and Web Beacons</h2>
           <p>
             Like any other website, THE NEWSZ9 uses &quot;cookies&quot;. These cookies are used to store information including 
-            visitors' preferences, and the pages on the website that the visitor accessed or visited. The information is 
-            used to optimize the users' experience by customizing our web page content based on visitors' browser type 
+            visitors&apos; preferences, and the pages on the website that the visitor accessed or visited. The information is 
+            used to optimize the users&apos; experience by customizing our web page content based on visitors&apos; browser type 
             and/or other information.
           </p>
 
@@ -75,7 +75,7 @@ export default async function PrivacyPage() {
 
           <h2>6. Third Party Privacy Policies</h2>
           <p>
-            THE NEWSZ9's Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
+            THE NEWSZ9&apos;s Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
             the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their 
             practices and instructions about how to opt-out of certain options.
           </p>

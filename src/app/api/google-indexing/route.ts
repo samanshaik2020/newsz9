@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json({ success: true, data });
-  } catch (err) {
+  } catch {
     return NextResponse.json(
       { error: "Failed to call Google Indexing API." },
       { status: 500 },

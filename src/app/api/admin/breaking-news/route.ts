@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
+import { clearBreakingNewsCaches } from "@/lib/cache";
 import { getAdminBreakingNews } from "@/lib/data";
 import { sendPushNotification } from "@/lib/onesignal";
 import type { BreakingNewsFormInput } from "@/types";
@@ -48,11 +49,13 @@ export async function POST(request: Request) {
   if (data && (body.is_active ?? true)) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
     sendPushNotification({
-      title: "🔴 BREAKING NEWS",
+      title: "BREAKING NEWS",
       message: headline,
       url: body.url?.trim() || siteUrl,
     }).catch(() => {});
   }
+
+  await clearBreakingNewsCaches();
 
   return NextResponse.json({ item: data }, { status: 201 });
 }

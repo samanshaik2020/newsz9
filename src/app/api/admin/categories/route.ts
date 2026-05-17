@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
+import { clearCategoryCaches } from "@/lib/cache";
 import { getCategories } from "@/lib/data";
 import { slugify } from "@/lib/utils";
 import type { CategoryFormInput, Language } from "@/types";
@@ -49,6 +50,8 @@ export async function POST(request: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
+
+  await clearCategoryCaches(slug);
 
   return NextResponse.json({ category: data }, { status: 201 });
 }

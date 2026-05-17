@@ -74,6 +74,22 @@ export async function clearCacheByPattern(...patterns: string[]): Promise<string
   return [...keys];
 }
 
+export async function clearCategoryCaches(...categorySlugs: Array<string | null | undefined>) {
+  const exactKeys = new Set(["categories:all"]);
+
+  for (const slug of categorySlugs) {
+    if (slug) exactKeys.add(`category:${slug}`);
+  }
+
+  await clearCache(...exactKeys);
+  return [...exactKeys];
+}
+
+export async function clearBreakingNewsCaches() {
+  await clearCache("breaking:news");
+  return ["breaking:news"];
+}
+
 export async function clearArticleCaches({
   slug,
   previousSlug,
