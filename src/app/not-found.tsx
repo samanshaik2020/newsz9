@@ -18,7 +18,7 @@ export default async function NotFound() {
           Page Not Found
         </h1>
         <p className="mb-8 max-w-md text-lg text-zinc-600">
-          We couldn't find the page you're looking for. It might have been moved or
+          We couldn&apos;t find the page you&apos;re looking for. It might have been moved or
           deleted.
         </p>
         <Link

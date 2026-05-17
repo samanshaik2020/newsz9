@@ -20,7 +20,7 @@ export default async function ContactPage() {
           
           <p>
             We value your feedback and inquiries. Whether you have a news tip, a question about our coverage, 
-            or are interested in advertising opportunities, we're here to listen.
+            or are interested in advertising opportunities, we&apos;re here to listen.
           </p>
 
           <h2>Get in Touch</h2>
