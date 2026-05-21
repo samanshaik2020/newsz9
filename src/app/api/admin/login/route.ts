@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {
   ADMIN_COOKIE_NAME,
   createAdminSessionValue,
+  getAdminPassword,
   isAdminAuthEnabled,
   secureCookieOptions,
 } from "@/lib/admin-auth";
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
 
   const body = (await request.json()) as { password?: string };
 
-  if (!body.password || body.password !== process.env.ADMIN_PASSWORD) {
+  if (!body.password || body.password !== getAdminPassword()) {
     return NextResponse.json(
       { error: "Wrong password." },
       { status: 401 },
