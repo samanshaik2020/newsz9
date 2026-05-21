@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { useConfirmStore } from "@/store/use-confirm-store";
+import { useToastStore } from "@/store/use-toast-store";
 import type { BreakingNewsFormInput, BreakingNewsItem } from "@/types";
 
 const emptyForm: BreakingNewsFormInput = {
@@ -15,6 +17,8 @@ const emptyForm: BreakingNewsFormInput = {
 
 export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
   const router = useRouter();
+  const confirmDialog = useConfirmStore((s) => s.open);
+  const addToast = useToastStore((s) => s.addToast);
   const [form, setForm] = useState<BreakingNewsFormInput>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -57,7 +61,13 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
   }
 
   async function deleteItem(id: string) {
-    if (!confirm("Delete this breaking news item?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete Breaking News",
+      message: "Delete this breaking news item? This action cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     const response = await fetch(`/api/admin/breaking-news/${id}`, {
       method: "DELETE",
@@ -65,10 +75,11 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Breaking news item could not be deleted.");
+      addToast(payload.error ?? "Breaking news item could not be deleted.", "error");
       return;
     }
 
+    addToast("Breaking news deleted.", "success");
     router.refresh();
   }
 

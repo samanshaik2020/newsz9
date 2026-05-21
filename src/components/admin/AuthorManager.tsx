@@ -3,6 +3,8 @@
 import { Pencil, Plus, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useConfirmStore } from "@/store/use-confirm-store";
+import { useToastStore } from "@/store/use-toast-store";
 import type { Author } from "@/types";
 
 type AuthorFormData = {
@@ -22,6 +24,8 @@ const emptyForm: AuthorFormData = {
 };
 
 export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }) {
+  const confirmDialog = useConfirmStore((s) => s.open);
+  const addToast = useToastStore((s) => s.addToast);
   const [authors, setAuthors] = useState<Author[]>(initialAuthors);
   const [form, setForm] = useState<AuthorFormData>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -78,7 +82,13 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this author?")) return;
+    const confirmed = await confirmDialog({
+      title: "Delete Author",
+      message: "Delete this author? This action cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     const response = await fetch(`/api/admin/authors/${id}`, {
       method: "DELETE",
@@ -86,7 +96,9 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
 
     if (response.ok) {
       setAuthors(authors.filter((a) => a.id !== id));
-      setMessage("Author deleted.");
+      addToast("Author deleted.", "success");
+    } else {
+      addToast("Author could not be deleted.", "error");
     }
   }
 

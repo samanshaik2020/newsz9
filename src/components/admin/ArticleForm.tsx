@@ -5,6 +5,8 @@ import { Eye, ImageIcon, Plus, Save, Trash2, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
+import { useConfirmStore } from "@/store/use-confirm-store";
+import { useToastStore } from "@/store/use-toast-store";
 import type {
   Article,
   ArticleFormInput,
@@ -64,6 +66,8 @@ export function ArticleForm({
   mode?: "create" | "edit";
 }) {
   const router = useRouter();
+  const confirmDialog = useConfirmStore((s) => s.open);
+  const addToast = useToastStore((s) => s.addToast);
   const [form, setForm] = useState<ArticleFormInput>(() =>
     formFromArticle(article),
   );
@@ -142,7 +146,7 @@ export function ArticleForm({
     setIsSaving(false);
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Article could not be saved.");
+      addToast(payload.error ?? "Article could not be saved.", "error");
       return;
     }
 
@@ -157,7 +161,7 @@ export function ArticleForm({
       }),
     });
 
-    setMessage(mode === "edit" ? "Article updated." : "Article saved.");
+    addToast(mode === "edit" ? "Article updated." : "Article saved.", "success");
     router.refresh();
 
     if (mode === "create" && payload.article?.id) {
@@ -262,7 +266,15 @@ export function ArticleForm({
   }
 
   async function handleDelete() {
-    if (!article || !confirm("Delete this article permanently?")) return;
+    if (!article) return;
+
+    const confirmed = await confirmDialog({
+      title: "Delete Article",
+      message: "Delete this article permanently? This action cannot be undone.",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     setIsDeleting(true);
     setMessage(null);
@@ -275,10 +287,11 @@ export function ArticleForm({
     setIsDeleting(false);
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Article could not be deleted.");
+      addToast(payload.error ?? "Article could not be deleted.", "error");
       return;
     }
 
+    addToast("Article deleted.", "success");
     router.push("/admin/articles");
     router.refresh();
   }

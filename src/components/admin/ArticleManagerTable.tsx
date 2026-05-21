@@ -6,15 +6,25 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
+import { useConfirmStore } from "@/store/use-confirm-store";
+import { useToastStore } from "@/store/use-toast-store";
 import type { Article } from "@/types";
 
 export function ArticleManagerTable({ articles }: { articles: Article[] }) {
   const router = useRouter();
+  const confirmDialog = useConfirmStore((s) => s.open);
+  const addToast = useToastStore((s) => s.addToast);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
   async function deleteArticle(article: Article) {
-    if (!confirm(`Delete "${article.title}" permanently?`)) return;
+    const confirmed = await confirmDialog({
+      title: "Delete Article",
+      message: `Delete "${article.title}" permanently? This action cannot be undone.`,
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     setDeletingId(article.id);
     setMessage(null);
@@ -27,10 +37,11 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
     setDeletingId(null);
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Article could not be deleted.");
+      addToast(payload.error ?? "Article could not be deleted.", "error");
       return;
     }
 
+    addToast("Article deleted.", "success");
     router.refresh();
   }
 

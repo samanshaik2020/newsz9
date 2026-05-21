@@ -1,6 +1,8 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/Sidebar";
+import { ToastContainer } from "@/components/ui/toast";
+import { ConfirmModal } from "@/components/ui/confirm-modal";
 import {
   ADMIN_COOKIE_NAME,
   isAdminAuthEnabled,
@@ -25,6 +27,9 @@ export default async function AdminLayout({
     <div className="min-h-screen bg-zinc-50 text-zinc-950 md:flex">
       <AdminSidebar />
       <main className="flex-1 px-4 py-6 md:px-8">{children}</main>
+      <ToastContainer />
+      <ConfirmModal />
     </div>
   );
 }
+

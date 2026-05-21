@@ -5,6 +5,8 @@ import { Plus, Save, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { slugify } from "@/lib/utils";
+import { useConfirmStore } from "@/store/use-confirm-store";
+import { useToastStore } from "@/store/use-toast-store";
 import type { Category, CategoryFormInput, Language } from "@/types";
 
 const emptyForm: CategoryFormInput = {
@@ -16,6 +18,8 @@ const emptyForm: CategoryFormInput = {
 
 export function CategoryManager({ categories }: { categories: Category[] }) {
   const router = useRouter();
+  const confirmDialog = useConfirmStore((s) => s.open);
+  const addToast = useToastStore((s) => s.addToast);
   const [form, setForm] = useState<CategoryFormInput>(emptyForm);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -58,9 +62,13 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
   }
 
   async function deleteCategory(id: string) {
-    if (!confirm("Delete this category? Existing articles will keep publishing without it.")) {
-      return;
-    }
+    const confirmed = await confirmDialog({
+      title: "Delete Category",
+      message: "Delete this category? Existing articles will keep publishing without it.",
+      confirmLabel: "Delete",
+      variant: "danger",
+    });
+    if (!confirmed) return;
 
     const response = await fetch(`/api/admin/categories/${id}`, {
       method: "DELETE",
@@ -68,10 +76,11 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Category could not be deleted.");
+      addToast(payload.error ?? "Category could not be deleted.", "error");
       return;
     }
 
+    addToast("Category deleted.", "success");
     router.refresh();
   }
 
