@@ -35,12 +35,12 @@ export function LanguageSwitcher() {
   return (
     <div className="relative">
       <button
-        className="flex h-9 shrink-0 items-center gap-2 border-r border-zinc-200 px-4 text-left font-medium"
+        className="flex h-10 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-100"
         onClick={() => setIsOpen(!isOpen)}
         type="button"
       >
         <span>{currentLabel}</span>
-        <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
+        <ChevronDown className="h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
       </button>
       {isOpen ? (
         <>
