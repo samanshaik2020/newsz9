@@ -4,8 +4,8 @@ import { Footer } from "@/components/site/Footer";
 import { getCategories } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | THE NEWSZ9",
-  description: "Privacy Policy for THE NEWSZ9.",
+  title: "Privacy Policy | NEWSZ9",
+  description: "Privacy Policy for NEWSZ9.",
 };
 
 export default async function PrivacyPage() {
@@ -21,8 +21,8 @@ export default async function PrivacyPage() {
           <p className="text-sm italic text-zinc-500">Last updated: May 11, 2026</p>
 
           <p>
-            At THE NEWSZ9, accessible from newsz9.com, one of our main priorities is the privacy of our visitors. 
-            This Privacy Policy document contains types of information that is collected and recorded by THE NEWSZ9 
+            At NEWSZ9, accessible from newsz9.com, one of our main priorities is the privacy of our visitors. 
+            This Privacy Policy document contains types of information that is collected and recorded by NEWSZ9 
             and how we use it.
           </p>
 
@@ -50,7 +50,7 @@ export default async function PrivacyPage() {
 
           <h2>3. Log Files</h2>
           <p>
-            THE NEWSZ9 follows a standard procedure of using log files. These files log visitors when they visit websites. 
+            NEWSZ9 follows a standard procedure of using log files. These files log visitors when they visit websites. 
             All hosting companies do this and a part of hosting services&apos; analytics. The information collected by log files 
             include internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date and time stamp, 
             referring/exit pages, and possibly the number of clicks. These are not linked to any information that is 
@@ -59,7 +59,7 @@ export default async function PrivacyPage() {
 
           <h2>4. Cookies and Web Beacons</h2>
           <p>
-            Like any other website, THE NEWSZ9 uses &quot;cookies&quot;. These cookies are used to store information including 
+            Like any other website, NEWSZ9 uses &quot;cookies&quot;. These cookies are used to store information including 
             visitors&apos; preferences, and the pages on the website that the visitor accessed or visited. The information is 
             used to optimize the users&apos; experience by customizing our web page content based on visitors&apos; browser type 
             and/or other information.
@@ -75,7 +75,7 @@ export default async function PrivacyPage() {
 
           <h2>6. Third Party Privacy Policies</h2>
           <p>
-            THE NEWSZ9&apos;s Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
+            NEWSZ9&apos;s Privacy Policy does not apply to other advertisers or websites. Thus, we are advising you to consult 
             the respective Privacy Policies of these third-party ad servers for more detailed information. It may include their 
             practices and instructions about how to opt-out of certain options.
           </p>

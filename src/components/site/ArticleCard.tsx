@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatDate, getImageSrc } from "@/lib/utils";
+import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
 import type { Article } from "@/types";
 
 export function ArticleCard({
@@ -12,9 +12,19 @@ export function ArticleCard({
 }) {
   const imageSrc = getImageSrc(article.cover_image);
   const articleHref = `/article/${article.slug}`;
+  const isTelugu =
+    article.language === "te" ||
+    containsTeluguText(article.title) ||
+    containsTeluguText(article.summary);
 
   return (
-    <article className="group grid grid-cols-[116px_minmax(0,1fr)] gap-3 border-b border-zinc-200 py-4 sm:grid-cols-1">
+    <article
+      className={cn(
+        "group grid grid-cols-[116px_minmax(0,1fr)] gap-3 border-b border-zinc-200 py-4 sm:grid-cols-1",
+        isTelugu && "telugu-copy",
+      )}
+      lang={isTelugu ? "te" : undefined}
+    >
       <Link
         className="relative block aspect-[4/3] overflow-hidden bg-zinc-100 sm:aspect-[16/10]"
         href={articleHref}

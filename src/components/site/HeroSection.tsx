@@ -1,14 +1,21 @@
 import Image from "next/image";
 import Link from "next/link";
-import { formatDate, getImageSrc } from "@/lib/utils";
+import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
 import type { Article } from "@/types";
 
 export function HeroSection({ article }: { article: Article }) {
   const imageSrc = getImageSrc(article.cover_image);
   const articleHref = `/article/${article.slug}`;
+  const isTelugu =
+    article.language === "te" ||
+    containsTeluguText(article.title) ||
+    containsTeluguText(article.summary);
 
   return (
-    <section className="border-b border-zinc-200 pb-7">
+    <section
+      className={cn("border-b border-zinc-200 pb-7", isTelugu && "telugu-copy")}
+      lang={isTelugu ? "te" : undefined}
+    >
       <div className="mb-5 flex overflow-hidden bg-zinc-50 text-sm font-bold shadow-[inset_0_0_0_1px_rgb(244_244_245)]">
         <span className="shrink-0 bg-red-100 px-3 py-3 text-red-600">
           TOP STORY
@@ -26,7 +33,7 @@ export function HeroSection({ article }: { article: Article }) {
           <div className="mb-3 text-sm font-semibold text-red-600">
             {article.categories?.name ?? "News"}
           </div>
-          <h1 className="max-w-4xl text-[2rem] font-black leading-tight text-zinc-950 sm:text-[2.65rem]">
+          <h1 className="max-w-4xl text-[1.75rem] font-black leading-tight text-zinc-950 sm:text-[2.25rem]">
             <Link className="hover:text-red-600" href={articleHref}>
               {article.title}
             </Link>

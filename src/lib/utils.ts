@@ -30,6 +30,10 @@ export function stripHtml(value: string) {
   return value.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }
 
+export function containsTeluguText(value?: string | null) {
+  return Boolean(value && /[\u0C00-\u0C7F]/.test(value));
+}
+
 export function escapeHtml(value: string) {
   return value
     .replace(/&/g, "&amp;")

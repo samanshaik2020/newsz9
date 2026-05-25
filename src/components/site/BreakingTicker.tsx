@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { BreakingNewsItem } from "@/types";
+import { cn, containsTeluguText } from "@/lib/utils";
 
 export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
   if (!items.length) return null;
@@ -16,15 +17,26 @@ export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
             {items.map((item) =>
               item.url ? (
                 <Link
-                  className="flex shrink-0 items-center gap-3 hover:text-red-600"
+                  className={cn(
+                    "flex shrink-0 items-center gap-3 hover:text-red-600",
+                    containsTeluguText(item.headline) && "telugu-copy",
+                  )}
                   href={item.url}
                   key={item.id}
+                  lang={containsTeluguText(item.headline) ? "te" : undefined}
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
                   <span>{item.headline}</span>
                 </Link>
               ) : (
-                <span className="flex shrink-0 items-center gap-3" key={item.id}>
+                <span
+                  className={cn(
+                    "flex shrink-0 items-center gap-3",
+                    containsTeluguText(item.headline) && "telugu-copy",
+                  )}
+                  key={item.id}
+                  lang={containsTeluguText(item.headline) ? "te" : undefined}
+                >
                   <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
                   <span>{item.headline}</span>
                 </span>

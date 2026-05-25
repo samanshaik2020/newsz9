@@ -5,8 +5,14 @@ export function Footer() {
     <footer className="border-t-2 border-zinc-950 bg-white text-zinc-950">
       <div className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.5fr_1fr_1fr]">
         <div>
-          <Link className="site-title text-3xl font-black text-zinc-950" href="/">
-            THE NEWSZ9
+          <Link className="block w-48" href="/" aria-label="NEWSZ9 home">
+            <img
+              alt="NEWSZ9"
+              className="h-auto w-full"
+              height={180}
+              src="/newsz9-logo.svg"
+              width={720}
+            />
           </Link>
           <p className="mt-3 max-w-md text-sm leading-6 text-zinc-600">
             Bilingual news for English and Telugu readers, built for fast

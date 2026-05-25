@@ -4,8 +4,8 @@ import { Footer } from "@/components/site/Footer";
 import { getCategories } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Contact Us | THE NEWSZ9",
-  description: "Get in touch with THE NEWSZ9 editorial team.",
+  title: "Contact Us | NEWSZ9",
+  description: "Get in touch with NEWSZ9 editorial team.",
 };
 
 export default async function ContactPage() {
@@ -41,7 +41,7 @@ export default async function ContactPage() {
 
           <h2 className="mt-12">Mailing Address</h2>
           <p>
-            <strong>THE NEWSZ9 Media</strong><br />
+            <strong>NEWSZ9 Media</strong><br />
             Hyderabad, Telangana<br />
             India
           </p>

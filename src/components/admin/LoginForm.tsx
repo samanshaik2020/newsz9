@@ -47,7 +47,7 @@ export function LoginForm() {
           <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-red-600 shadow-lg shadow-red-900/40">
             <Shield className="h-7 w-7 text-white" aria-hidden="true" />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">THE NEWSZ9</h1>
+          <h1 className="text-3xl font-black tracking-tight text-white">NEWSZ9</h1>
           <p className="mt-1 text-sm text-zinc-400">Admin Access</p>
         </div>
 

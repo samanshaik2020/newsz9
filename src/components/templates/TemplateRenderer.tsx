@@ -1,5 +1,6 @@
 import type { ComponentType } from "react";
 import type { Article } from "@/types";
+import { containsTeluguText } from "@/lib/utils";
 import Template1 from "./Template1_SplitLeft";
 import Template2 from "./Template2_SplitRight";
 import Template3 from "./Template3_Magazine";
@@ -14,5 +15,16 @@ const templates: Record<string, ComponentType<{ article: Article }>> = {
 
 export default function TemplateRenderer({ article }: { article: Article }) {
   const Component = templates[article.template] ?? Template1;
-  return <Component article={article} />;
+  const isTelugu =
+    article.language === "te" ||
+    containsTeluguText(article.title) ||
+    containsTeluguText(article.summary) ||
+    containsTeluguText(article.content);
+  const language = isTelugu ? "te" : "en";
+
+  return (
+    <div className={isTelugu ? "telugu-article" : undefined} lang={language}>
+      <Component article={article} />
+    </div>
+  );
 }

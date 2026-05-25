@@ -50,7 +50,7 @@ export async function generateMetadata({
       title: article.title,
       description,
       url: articleUrl,
-      siteName: "THE NEWSZ9",
+      siteName: "NEWSZ9",
       type: "article",
       publishedTime: article.published_at ?? undefined,
       modifiedTime: article.updated_at ?? undefined,
@@ -134,7 +134,7 @@ export default async function ArticlePage({
     },
     publisher: {
       "@type": "Organization",
-      name: "THE NEWSZ9",
+      name: "NEWSZ9",
       url: siteUrl,
     },
     ...(coverImage

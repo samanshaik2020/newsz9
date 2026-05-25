@@ -22,16 +22,16 @@ export async function generateMetadata({
     title: `${name} News | newsz9`,
     description: `Latest ${name} news and updates on newsz9 — fast bilingual coverage for English and Telugu readers.`,
     openGraph: {
-      title: `${name} News | THE NEWSZ9`,
+      title: `${name} News | NEWSZ9`,
       description: `Latest ${name} news and updates on newsz9.`,
       url: categoryUrl,
-      siteName: "THE NEWSZ9",
+      siteName: "NEWSZ9",
       type: "website",
       locale: category?.language === "te" ? "te_IN" : "en_IN",
     },
     twitter: {
       card: "summary",
-      title: `${name} News | THE NEWSZ9`,
+      title: `${name} News | NEWSZ9`,
       description: `Latest ${name} news and updates on newsz9.`,
     },
     alternates: {

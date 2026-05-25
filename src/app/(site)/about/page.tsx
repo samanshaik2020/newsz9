@@ -4,8 +4,8 @@ import { Footer } from "@/components/site/Footer";
 import { getCategories } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "About Us | THE NEWSZ9",
-  description: "Learn more about THE NEWSZ9 and our mission to deliver bilingual news.",
+  title: "About Us | NEWSZ9",
+  description: "Learn more about NEWSZ9 and our mission to deliver bilingual news.",
 };
 
 export default async function AboutPage() {
@@ -16,10 +16,10 @@ export default async function AboutPage() {
       <Header categories={categories} />
       <main className="mx-auto max-w-3xl px-4 py-16">
         <article className="article-body">
-          <h1 className="mb-8 text-4xl font-black">About THE NEWSZ9</h1>
+          <h1 className="mb-8 text-4xl font-black">About NEWSZ9</h1>
           
           <p>
-            Welcome to THE NEWSZ9, your premier destination for fast, reliable, and bilingual news coverage. 
+            Welcome to NEWSZ9, your premier destination for fast, reliable, and bilingual news coverage. 
             Our mission is to deliver the latest stories across national, regional, business, sports, and technology 
             sectors, accessible to both English and Telugu readers.
           </p>
@@ -41,7 +41,7 @@ export default async function AboutPage() {
 
           <h2>Our Commitment</h2>
           <p>
-            At THE NEWSZ9, we are committed to journalistic integrity. We strive to provide unbiased reporting, 
+            At NEWSZ9, we are committed to journalistic integrity. We strive to provide unbiased reporting, 
             fact-checked information, and diverse perspectives on the issues that matter most.
           </p>
         </article>

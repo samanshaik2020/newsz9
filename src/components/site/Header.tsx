@@ -132,9 +132,15 @@ export function Header({ categories }: { categories: Category[] }) {
         </div>
       </div>
 
-      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-7 sm:py-8">
-        <Link className="site-title text-center text-[2.35rem] font-black leading-none text-zinc-950 sm:text-6xl" href="/">
-          THE NEWSZ9
+      <div className="mx-auto flex max-w-7xl items-center justify-center px-4 py-3 sm:py-4">
+        <Link className="block w-[min(72vw,330px)] leading-none sm:w-[390px]" href="/" aria-label="NEWSZ9 home">
+          <img
+            alt="NEWSZ9"
+            className="block h-auto w-full"
+            height={180}
+            src="/newsz9-logo.svg"
+            width={720}
+          />
         </Link>
       </div>
 
