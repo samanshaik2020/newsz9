@@ -6,40 +6,68 @@ import type { Article } from "@/types";
 export default function Template3({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? "/newsz9-logo.svg";
+  const categoryName = article.categories?.name ?? "News";
+  const authorName = article.authors?.name ?? "newsz9 Desk";
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-8">
-      <div className="relative mb-5 aspect-[16/7] overflow-hidden rounded-md bg-zinc-100 shadow-sm">
-        <Image
-          alt={article.title}
-          className={coverImage ? "object-cover" : "object-contain p-8"}
-          fill
-          priority
-          src={imageSrc}
-        />
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="news-label rounded bg-red-700 px-3 py-1 text-xs font-black uppercase text-white">
-            {article.categories?.name ?? "News"}
-          </span>
-          <span className="text-sm text-zinc-500">{formatDate(article.published_at)}</span>
-        </div>
-        <h1 className="text-3xl font-black leading-tight text-zinc-950 md:text-5xl">
+    <article>
+      {/* ── Editorial header — centered, typographically rich ── */}
+      <header className="mx-auto max-w-4xl px-4 pt-8 text-center">
+        {/* Category */}
+        <span className="inline-block rounded bg-red-700 px-4 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] text-white">
+          {categoryName}
+        </span>
+
+        {/* Headline */}
+        <h1 className="mx-auto mt-5 max-w-3xl text-3xl font-black leading-[1.1] tracking-tight text-zinc-950 md:text-5xl lg:text-6xl">
           {article.title}
         </h1>
+
+        {/* Summary / subtitle */}
         {article.summary ? (
-          <p className="text-xl font-semibold leading-8 text-zinc-600">
+          <p className="mx-auto mt-5 max-w-2xl text-lg font-light leading-8 text-zinc-500 md:text-xl md:leading-9">
             {article.summary}
           </p>
         ) : null}
-        <div className="border-b border-zinc-200 pb-4 text-sm text-zinc-500">
-          By {article.authors?.name ?? "newsz9 Desk"}
+
+        {/* Author & date */}
+        <div className="mt-6 flex items-center justify-center gap-3 border-b border-zinc-200 pb-6 text-sm text-zinc-500">
+          <span className="font-semibold text-zinc-700">{authorName}</span>
+          <span className="h-1 w-1 rounded-full bg-zinc-400" />
+          <time>{formatDate(article.published_at)}</time>
         </div>
-        <ArticleGallery article={article} className="clear-both" />
+      </header>
+
+      {/* ── Full-width cover image ── */}
+      <div className="mx-auto mt-8 max-w-6xl px-4">
+        <figure className="relative overflow-hidden rounded-xl bg-zinc-100 shadow-xl">
+          <Image
+            alt={article.title}
+            className={
+              coverImage
+                ? "aspect-[16/9] w-full object-cover md:aspect-[21/9]"
+                : "aspect-[16/9] w-full object-contain p-10 md:aspect-[21/9]"
+            }
+            height={450}
+            priority
+            sizes="(min-width: 1152px) 1152px, 100vw"
+            src={imageSrc}
+            width={1152}
+          />
+        </figure>
+      </div>
+
+      {/* ── Content section with drop-cap ── */}
+      <div className="mx-auto mt-10 max-w-3xl px-4 pb-8">
+        {/* Gallery */}
+        <ArticleGallery article={article} className="mb-8" />
+
+        {/* Article body — the magazine-drop-cap class styles the first letter */}
         <div
-          className="article-body"
-          dangerouslySetInnerHTML={{ __html: processArticleHtml(article.content) }}
+          className="article-body magazine-drop-cap"
+          dangerouslySetInnerHTML={{
+            __html: processArticleHtml(article.content),
+          }}
         />
       </div>
     </article>

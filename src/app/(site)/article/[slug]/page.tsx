@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { Footer } from "@/components/site/Footer";
-import { Header } from "@/components/site/Header";
 import { RelatedArticles } from "@/components/site/RelatedArticles";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import TemplateRenderer from "@/components/templates/TemplateRenderer";
@@ -10,6 +8,8 @@ import {
   getArticleBySlug,
   getArticlesByCategory,
   getCategories,
+  getPublishedArticles,
+  getTrendingArticles,
 } from "@/lib/data";
 import { getImageSrc, stripHtml } from "@/lib/utils";
 import { maybeCreateClient } from "@/lib/supabase";
@@ -100,12 +100,33 @@ export default async function ArticlePage({
     await supabase.rpc("increment_views", { article_id: article.id });
   }
 
-  // Fetch related articles from same category
-  const relatedArticles = article.categories?.slug
-    ? (await getArticlesByCategory(article.categories.slug))
-        .filter((a) => a.id !== article.id)
-        .slice(0, 4)
-    : [];
+  // Fetch related articles (same category) + trending + latest as fallback
+  const [categoryArticles, trendingArticles, latestArticles] =
+    await Promise.all([
+      article.categories?.slug
+        ? getArticlesByCategory(article.categories.slug)
+        : Promise.resolve([]),
+      getTrendingArticles(8),
+      getPublishedArticles(8),
+    ]);
+
+  // Related = same-category articles (excluding current)
+  const relatedArticles = categoryArticles
+    .filter((a) => a.id !== article.id)
+    .slice(0, 4);
+
+  // More stories = trending + latest, deduplicated, excluding current + related
+  const shownIds = new Set([
+    article.id,
+    ...relatedArticles.map((a) => a.id),
+  ]);
+  const moreStories = [...trendingArticles, ...latestArticles]
+    .filter((a) => {
+      if (shownIds.has(a.id)) return false;
+      shownIds.add(a.id);
+      return true;
+    })
+    .slice(0, 4);
 
   const articleUrl = `${siteUrl}/article/${article.slug}`;
 
@@ -154,8 +175,7 @@ export default async function ArticlePage({
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-950">
-      <Header categories={categories} />
+    <>
       <script
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         type="application/ld+json"
@@ -171,8 +191,10 @@ export default async function ArticlePage({
           summary={article.summary}
         />
       </div>
-      <RelatedArticles articles={relatedArticles} />
-      <Footer />
-    </div>
+      <RelatedArticles
+        articles={relatedArticles}
+        moreStories={moreStories}
+      />
+    </>
   );
 }

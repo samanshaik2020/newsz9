@@ -1,51 +1,46 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn, containsTeluguText } from "@/lib/utils";
 import type { Category } from "@/types";
 
-const primaryTopics = [
-  { label: "Videos", query: "Videos" },
-  { label: "City", query: "City" },
-  { label: "India", slug: "national" },
-  { label: "Election Results 2026", query: "Election Results 2026" },
-  { label: "World", query: "World" },
-  { label: "Business", slug: "business" },
-  { label: "Tech", slug: "technology" },
-  { label: "Cricket", query: "Cricket" },
-  { label: "Sports", slug: "sports" },
-  { label: "Entertainment", query: "Entertainment" },
-  { label: "Astro", query: "Astro" },
-];
-
-export function CategoryNav({
-  categories,
-  leadingLabel = "News",
-}: {
-  categories: Category[];
-  leadingLabel?: string;
-}) {
-  const slugs = new Set(categories.map((category) => category.slug));
+export function CategoryNav({ categories }: { categories: Category[] }) {
+  const pathname = usePathname();
 
   return (
-    <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto text-[15px] font-bold">
+    <nav
+      aria-label="Primary categories"
+      className="flex min-w-0 flex-1 items-center overflow-x-auto text-[14px] font-black uppercase"
+    >
       <Link
-        className="shrink-0 px-3 py-3 text-zinc-950 hover:text-red-600"
+        className={cn(
+          "shrink-0 border-b-[3px] border-transparent px-4 py-3 text-zinc-950 transition hover:border-[var(--color-news-red)] hover:text-[var(--color-news-red)]",
+          pathname === "/" &&
+            "border-[var(--color-news-red)] text-[var(--color-news-red)]",
+        )}
         href="/"
       >
-        {leadingLabel}
-        <span className="ml-0.5 text-red-600">+</span>
+        Home
       </Link>
-      {primaryTopics.map((topic) => {
-        const href =
-          topic.slug && slugs.has(topic.slug)
-            ? `/${topic.slug}`
-            : `/search?q=${encodeURIComponent(topic.query ?? topic.label)}`;
+      {categories.map((category) => {
+        const href = `/${category.slug}`;
+        const active = pathname === href;
+        const isTelugu = containsTeluguText(category.name);
 
         return (
           <Link
-            className="shrink-0 px-3 py-3 text-zinc-950 hover:bg-white hover:text-red-600"
+            className={cn(
+              "shrink-0 border-b-[3px] border-transparent px-4 py-3 text-zinc-950 transition hover:border-[var(--color-news-red)] hover:text-[var(--color-news-red)]",
+              active &&
+                "border-[var(--color-news-red)] text-[var(--color-news-red)]",
+              isTelugu && "telugu-copy",
+            )}
             href={href}
-            key={topic.label}
+            key={category.id}
+            lang={isTelugu ? "te" : undefined}
           >
-            {topic.label}
+            {category.name}
           </Link>
         );
       })}

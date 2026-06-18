@@ -6,40 +6,62 @@ import type { Article } from "@/types";
 export default function Template4({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? "/newsz9-logo.svg";
+  const categoryName = article.categories?.name ?? "Breaking";
+  const authorName = article.authors?.name ?? "newsz9 Desk";
+  const hasCover = Boolean(coverImage);
 
   return (
-    <article className="mx-auto max-w-6xl px-4 py-8">
-      <div className="relative mb-6 min-h-[320px] overflow-hidden rounded-md bg-zinc-100 shadow-sm md:aspect-[21/9]">
+    <article>
+      {/* ── Cinematic hero block ── */}
+      <div className="relative flex min-h-[50vh] w-full items-end overflow-hidden bg-zinc-900 md:min-h-[65vh]">
+        {/* Background image */}
         <Image
           alt={article.title}
-          className={coverImage ? "object-cover" : "object-contain p-8"}
+          className={hasCover ? "object-cover" : "object-contain p-12 opacity-30"}
           fill
           priority
+          sizes="100vw"
           src={imageSrc}
         />
-        <div className={coverImage ? "absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" : "absolute inset-0 bg-gradient-to-t from-white via-white/75 to-transparent"} />
-        <div className={coverImage ? "absolute bottom-0 left-0 right-0 p-6 text-white md:p-8" : "absolute bottom-0 left-0 right-0 p-6 text-zinc-950 md:p-8"}>
-          <span className="news-label mb-3 inline-block rounded bg-red-700 px-3 py-1 text-xs font-black uppercase text-white">
-            {article.categories?.name ?? "Breaking"}
+
+        {/* Gradient overlays for readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/60 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-zinc-950/40 to-transparent" />
+
+        {/* Overlaid text content */}
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-10 md:pb-14">
+          <span className="inline-block rounded bg-red-700 px-3 py-1.5 text-[0.65rem] font-black uppercase tracking-[0.2em] text-white shadow-lg">
+            {categoryName}
           </span>
-          <h1 className="max-w-4xl text-2xl font-black leading-tight md:text-5xl">
+          <h1 className="mt-4 max-w-4xl text-3xl font-black leading-[1.08] text-white md:text-5xl lg:text-6xl">
             {article.title}
           </h1>
-          <p className={coverImage ? "mt-3 text-sm text-zinc-200" : "mt-3 text-sm text-zinc-600"}>
-            {article.authors?.name ?? "newsz9 Desk"} | {formatDate(article.published_at)}
-          </p>
+          {article.summary ? (
+            <p className="mt-4 max-w-2xl text-base leading-7 text-zinc-300 md:text-lg md:leading-8">
+              {article.summary}
+            </p>
+          ) : null}
+          <div className="mt-5 flex items-center gap-3 text-sm">
+            <span className="font-semibold text-white">{authorName}</span>
+            <span className="h-1 w-1 rounded-full bg-zinc-500" />
+            <time className="text-zinc-400">
+              {formatDate(article.published_at)}
+            </time>
+          </div>
         </div>
       </div>
-      <div className="mx-auto max-w-3xl">
-        {article.summary ? (
-          <p className="mb-8 border-l-4 border-red-700 pl-5 text-xl font-semibold leading-8 text-zinc-700">
-            {article.summary}
-          </p>
-        ) : null}
+
+      {/* ── Content section ── */}
+      <div className="mx-auto max-w-3xl px-4 py-10">
+        {/* Gallery */}
         <ArticleGallery article={article} className="mb-8" />
+
+        {/* Article body */}
         <div
           className="article-body"
-          dangerouslySetInnerHTML={{ __html: processArticleHtml(article.content) }}
+          dangerouslySetInnerHTML={{
+            __html: processArticleHtml(article.content),
+          }}
         />
       </div>
     </article>

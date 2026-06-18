@@ -4,18 +4,24 @@ import { useState } from "react";
 import { ArticleGrid } from "./ArticleGrid";
 import type { Article } from "@/types";
 
-export function InfiniteArticleGrid({ initialArticles }: { initialArticles: Article[] }) {
+export function InfiniteArticleGrid({
+  initialArticles,
+  nextOffset,
+}: {
+  initialArticles: Article[];
+  nextOffset?: number;
+}) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [offset, setOffset] = useState(nextOffset ?? initialArticles.length + 1);
 
   const loadMore = async () => {
     if (loading || !hasMore) return;
     
     setLoading(true);
     try {
-      const actualOffset = articles.length + 1;
-      const response = await fetch(`/api/articles?limit=12&offset=${actualOffset}`);
+      const response = await fetch(`/api/articles?limit=12&offset=${offset}`);
       if (!response.ok) throw new Error("Failed to fetch articles");
       
       const data = await response.json();
@@ -24,6 +30,7 @@ export function InfiniteArticleGrid({ initialArticles }: { initialArticles: Arti
       }
       
       setArticles((prev) => [...prev, ...data.articles]);
+      setOffset((current) => current + data.articles.length);
     } catch (error) {
       console.error(error);
     } finally {
@@ -40,7 +47,7 @@ export function InfiniteArticleGrid({ initialArticles }: { initialArticles: Arti
           <button
             onClick={loadMore}
             disabled={loading}
-            className="rounded-lg border border-zinc-200 bg-white px-8 py-3 font-bold text-zinc-900 transition-colors hover:bg-zinc-50 hover:text-red-700 disabled:opacity-50"
+            className="rounded-sm bg-[var(--color-news-red)] px-8 py-3 text-sm font-black uppercase text-white transition-colors hover:bg-red-700 disabled:opacity-50"
           >
             {loading ? "Loading..." : "Load More Articles"}
           </button>

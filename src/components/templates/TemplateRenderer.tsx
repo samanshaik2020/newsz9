@@ -15,15 +15,15 @@ const templates: Record<string, ComponentType<{ article: Article }>> = {
 
 export default function TemplateRenderer({ article }: { article: Article }) {
   const Component = templates[article.template] ?? Template1;
+
   const isTelugu =
     article.language === "te" ||
     containsTeluguText(article.title) ||
     containsTeluguText(article.summary) ||
     containsTeluguText(article.content);
-  const language = isTelugu ? "te" : "en";
 
   return (
-    <div className={isTelugu ? "telugu-article" : undefined} lang={language}>
+    <div className={isTelugu ? "telugu-article" : undefined} lang={isTelugu ? "te" : "en"}>
       <Component article={article} />
     </div>
   );

@@ -1,47 +1,51 @@
 import Link from "next/link";
-import type { BreakingNewsItem } from "@/types";
 import { cn, containsTeluguText } from "@/lib/utils";
+import type { BreakingNewsItem } from "@/types";
+
+function TickerItem({ item }: { item: BreakingNewsItem }) {
+  const isTelugu = containsTeluguText(item.headline);
+  const className = cn(
+    "mx-5 inline-flex items-center gap-3 whitespace-nowrap hover:underline",
+    isTelugu && "telugu-copy",
+  );
+
+  if (!item.url) {
+    return (
+      <span className={className} lang={isTelugu ? "te" : undefined}>
+        <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+        {item.headline}
+      </span>
+    );
+  }
+
+  return (
+    <Link className={className} href={item.url} lang={isTelugu ? "te" : undefined}>
+      <span className="h-1.5 w-1.5 rounded-full bg-white/80" />
+      {item.headline}
+    </Link>
+  );
+}
 
 export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
   if (!items.length) return null;
 
+  const loopItems = [...items, ...items];
+
   return (
-    <section className="bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-6">
-        <div className="flex overflow-hidden bg-zinc-50 text-sm font-bold shadow-[inset_0_0_0_1px_rgb(244_244_245)]">
-          <div className="flex shrink-0 items-center gap-2 bg-red-100 px-3 py-3 text-red-600">
-            <span className="h-3 w-3 rounded-full bg-red-500 shadow-[0_0_0_3px_rgb(254_202_202)]" />
-            <span className="whitespace-nowrap">LIVE NOW</span>
-          </div>
-          <div className="flex min-w-0 items-center gap-10 overflow-x-auto px-4 py-3 text-zinc-950">
-            {items.map((item) =>
-              item.url ? (
-                <Link
-                  className={cn(
-                    "flex shrink-0 items-center gap-3 hover:text-red-600",
-                    containsTeluguText(item.headline) && "telugu-copy",
-                  )}
-                  href={item.url}
-                  key={item.id}
-                  lang={containsTeluguText(item.headline) ? "te" : undefined}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
-                  <span>{item.headline}</span>
-                </Link>
-              ) : (
-                <span
-                  className={cn(
-                    "flex shrink-0 items-center gap-3",
-                    containsTeluguText(item.headline) && "telugu-copy",
-                  )}
-                  key={item.id}
-                  lang={containsTeluguText(item.headline) ? "te" : undefined}
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-zinc-500" />
-                  <span>{item.headline}</span>
-                </span>
-              ),
-            )}
+    <section className="bg-[var(--color-news-red)] text-white">
+      <div className="mx-auto flex max-w-7xl items-center px-4">
+        <div className="ticker-label flex min-h-11 shrink-0 items-center gap-2 bg-red-800 px-3 text-xs font-black uppercase">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
+          </span>
+          Breaking News
+        </div>
+        <div className="breaking-marquee min-w-0 flex-1 text-sm font-bold">
+          <div className="breaking-track py-3">
+            {loopItems.map((item, index) => (
+              <TickerItem item={item} key={`${item.id}-${index}`} />
+            ))}
           </div>
         </div>
       </div>
