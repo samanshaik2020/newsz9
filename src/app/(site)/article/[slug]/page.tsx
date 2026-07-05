@@ -7,7 +7,6 @@ import TemplateRenderer from "@/components/templates/TemplateRenderer";
 import {
   getArticleBySlug,
   getArticlesByCategory,
-  getCategories,
   getPublishedArticles,
   getTrendingArticles,
 } from "@/lib/data";
@@ -88,10 +87,7 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [article, categories] = await Promise.all([
-    getArticleBySlug(slug),
-    getCategories(),
-  ]);
+  const article = await getArticleBySlug(slug);
 
   if (!article) notFound();
 
@@ -104,10 +100,10 @@ export default async function ArticlePage({
   const [categoryArticles, trendingArticles, latestArticles] =
     await Promise.all([
       article.categories?.slug
-        ? getArticlesByCategory(article.categories.slug)
+        ? getArticlesByCategory(article.categories.slug, article.language)
         : Promise.resolve([]),
-      getTrendingArticles(8),
-      getPublishedArticles(8),
+      getTrendingArticles(8, article.language),
+      getPublishedArticles(8, 0, article.language),
     ]);
 
   // Related = same-category articles (excluding current)

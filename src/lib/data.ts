@@ -2,7 +2,13 @@ import { unstable_noStore as noStore } from "next/cache";
 import { maybeCreateClient, maybeCreateServiceClient } from "@/lib/supabase";
 import { getCached } from "@/lib/cache";
 import { articles, breakingNews, categories } from "@/lib/sample-data";
-import type { Article, ArticleFormInput, BreakingNewsItem, Category } from "@/types";
+import type {
+  Article,
+  ArticleFormInput,
+  BreakingNewsItem,
+  Category,
+  Language,
+} from "@/types";
 
 const articleSelect = "*, categories(*), authors(*)";
 
@@ -11,6 +17,10 @@ function byNewest(a: Article, b: Article) {
     new Date(b.published_at ?? b.created_at).getTime() -
     new Date(a.published_at ?? a.created_at).getTime()
   );
+}
+
+function matchesLanguage(article: Article, language?: Language) {
+  return !language || article.language === language;
 }
 
 export async function getCategories(): Promise<Category[]> {
@@ -57,23 +67,44 @@ export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
   );
 }
 
-export async function getPublishedArticles(limit = 12, offset = 0): Promise<Article[]> {
+export async function getPublishedArticles(
+  limit = 12,
+  offset = 0,
+  language?: Language,
+): Promise<Article[]> {
   noStore();
   const supabase = maybeCreateClient();
 
-  if (!supabase) return articles.slice().sort(byNewest).slice(offset, offset + limit);
+  if (!supabase) {
+    return articles
+      .filter((article) => article.status === "published" && matchesLanguage(article, language))
+      .sort(byNewest)
+      .slice(offset, offset + limit);
+  }
 
   return getCached(
-    `homepage:articles:${limit}:${offset}`,
+    `homepage:articles:${language ?? "all"}:${limit}:${offset}`,
     async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("articles")
         .select(articleSelect)
-        .eq("status", "published")
+        .eq("status", "published");
+
+      if (language) {
+        query = query.eq("language", language);
+      }
+
+      const { data, error } = await query
         .order("published_at", { ascending: false })
         .range(offset, offset + limit - 1);
 
-      if (error || !data) return articles.slice().sort(byNewest).slice(offset, offset + limit);
+      if (error || !data) {
+        return articles
+          .filter((article) => article.status === "published" && matchesLanguage(article, language))
+          .sort(byNewest)
+          .slice(offset, offset + limit);
+      }
+
       return data as Article[];
     },
     300 // cache 5 minutes
@@ -108,29 +139,38 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
   );
 }
 
-export async function getArticlesByCategory(slug: string): Promise<Article[]> {
+export async function getArticlesByCategory(
+  slug: string,
+  language?: Language,
+): Promise<Article[]> {
   noStore();
   const supabase = maybeCreateClient();
 
   if (!supabase) {
     return articles
-      .filter((article) => article.categories?.slug === slug)
+      .filter((article) => article.categories?.slug === slug && matchesLanguage(article, language))
       .sort(byNewest);
   }
 
   return getCached(
-    `category:${slug}`,
+    `category:${slug}:${language ?? "all"}`,
     async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("articles")
         .select(articleSelect)
         .eq("status", "published")
-        .eq("categories.slug", slug)
+        .eq("categories.slug", slug);
+
+      if (language) {
+        query = query.eq("language", language);
+      }
+
+      const { data, error } = await query
         .order("published_at", { ascending: false });
 
       if (error || !data) {
         return articles
-          .filter((article) => article.categories?.slug === slug)
+          .filter((article) => article.categories?.slug === slug && matchesLanguage(article, language))
           .sort(byNewest);
       }
 
@@ -169,27 +209,36 @@ export async function searchArticles(query: string): Promise<Article[]> {
   return data as Article[];
 }
 
-export async function getTrendingArticles(limit = 5): Promise<Article[]> {
+export async function getTrendingArticles(
+  limit = 5,
+  language?: Language,
+): Promise<Article[]> {
   noStore();
   const supabase = maybeCreateClient();
 
   if (!supabase) {
     return articles
-      .slice()
+      .filter((article) => article.status === "published" && matchesLanguage(article, language))
       .sort((a, b) => b.views - a.views)
       .slice(0, limit);
   }
 
-  const { data, error } = await supabase
+  let query = supabase
     .from("articles")
     .select(articleSelect)
-    .eq("status", "published")
+    .eq("status", "published");
+
+  if (language) {
+    query = query.eq("language", language);
+  }
+
+  const { data, error } = await query
     .order("views", { ascending: false })
     .limit(limit);
 
   if (error || !data) {
     return articles
-      .slice()
+      .filter((article) => article.status === "published" && matchesLanguage(article, language))
       .sort((a, b) => b.views - a.views)
       .slice(0, limit);
   }

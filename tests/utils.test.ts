@@ -8,6 +8,10 @@ import {
   slugify,
 } from "../src/lib/utils.ts";
 import {
+  getLanguageFromPath,
+  normalizeLanguage,
+} from "../src/lib/language.ts";
+import {
   createAdminSessionValue,
   isAdminRequest,
   isValidAdminSession,
@@ -15,6 +19,19 @@ import {
 
 test("slugify creates stable article slugs", () => {
   assert.equal(slugify(" Latest News: India Wins! "), "latest-news-india-wins");
+});
+
+test("language helpers default to Telugu and infer category language", () => {
+  const categories = [
+    { id: "cat-national", name: "National", slug: "national", language: "en" as const },
+    { id: "cat-telugu", name: "Telugu News", slug: "telugu-news", language: "te" as const },
+  ];
+
+  assert.equal(normalizeLanguage(undefined), "te");
+  assert.equal(normalizeLanguage("en"), "en");
+  assert.equal(normalizeLanguage("bad", "en"), "en");
+  assert.equal(getLanguageFromPath("/national", categories), "en");
+  assert.equal(getLanguageFromPath("/telugu-news", categories), "te");
 });
 
 test("plain article content is escaped and wrapped", () => {

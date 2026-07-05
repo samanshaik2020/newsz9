@@ -6,7 +6,7 @@ import {
   Search,
 } from "lucide-react";
 import Link from "next/link";
-import type { Category } from "@/types";
+import type { Category, Language } from "@/types";
 import { CategoryNav } from "./CategoryNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -27,7 +27,13 @@ function getTodayLabel() {
   }).format(new Date());
 }
 
-export function Header({ categories }: { categories: Category[] }) {
+export function Header({
+  categories,
+  selectedLanguage,
+}: {
+  categories: Category[];
+  selectedLanguage?: Language;
+}) {
   return (
     <header className="z-40 bg-white text-zinc-950 shadow-sm">
       <div className="utility-bar">
@@ -99,13 +105,19 @@ export function Header({ categories }: { categories: Category[] }) {
         </form>
 
         <div className="justify-self-start md:justify-self-end">
-          <LanguageSwitcher />
+          <LanguageSwitcher
+            categories={categories}
+            selectedLanguage={selectedLanguage}
+          />
         </div>
       </div>
 
       <div className="border-y border-zinc-200 border-b-[var(--color-news-red)]">
         <div className="mx-auto flex max-w-7xl items-center px-4">
-          <CategoryNav categories={categories} />
+          <CategoryNav
+            categories={categories}
+            selectedLanguage={selectedLanguage}
+          />
           <button
             aria-label="Open menu"
             className="ml-2 grid h-11 w-11 shrink-0 place-items-center text-zinc-950 hover:bg-zinc-100 hover:text-[var(--color-news-red)]"

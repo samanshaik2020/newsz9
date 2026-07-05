@@ -3,38 +3,44 @@
 import { ChevronDown } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
+import {
+  DEFAULT_LANGUAGE,
+  getLanguageFromPath,
+  getLanguageHomeHref,
+  languages,
+} from "@/lib/language";
+import type { Category, Language } from "@/types";
 
-const languages = [
-  { code: "en", label: "English", flag: "EN" },
-  { code: "te", label: "తెలుగు", flag: "TE" },
-] as const;
-
-export function LanguageSwitcher() {
+export function LanguageSwitcher({
+  categories,
+  selectedLanguage,
+}: {
+  categories: Category[];
+  selectedLanguage?: Language;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
-  // Determine current language from URL or default to English
-  const currentLang =
-    pathname.startsWith("/te") ? "te" : "en";
+  const currentLang = getLanguageFromPath(
+    pathname,
+    categories,
+    selectedLanguage ?? DEFAULT_LANGUAGE,
+  );
   const currentLabel =
-    languages.find((lang) => lang.code === currentLang)?.label ?? "English";
+    languages.find((lang) => lang.code === currentLang)?.label ?? "Telugu";
 
-  function switchLanguage(code: string) {
+  function switchLanguage(code: Language) {
     setIsOpen(false);
 
-    if (code === "te") {
-      // Navigate to Telugu category hub
-      router.push("/telugu-news");
-    } else {
-      // Navigate to homepage (English default)
-      router.push("/");
-    }
+    if (code === currentLang) return;
+    router.push(getLanguageHomeHref(code));
   }
 
   return (
     <div className="relative">
       <button
+        aria-expanded={isOpen}
         className="flex h-10 shrink-0 items-center gap-1.5 rounded-md px-3 text-sm font-semibold text-zinc-950 hover:bg-zinc-100"
         onClick={() => setIsOpen(!isOpen)}
         type="button"

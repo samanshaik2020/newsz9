@@ -2,11 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  DEFAULT_LANGUAGE,
+  getLanguageFromPath,
+  getLanguageHomeHref,
+} from "@/lib/language";
 import { cn, containsTeluguText } from "@/lib/utils";
-import type { Category } from "@/types";
+import type { Category, Language } from "@/types";
 
-export function CategoryNav({ categories }: { categories: Category[] }) {
+export function CategoryNav({
+  categories,
+  selectedLanguage,
+}: {
+  categories: Category[];
+  selectedLanguage?: Language;
+}) {
   const pathname = usePathname();
+  const currentLanguage = getLanguageFromPath(
+    pathname,
+    categories,
+    selectedLanguage ?? DEFAULT_LANGUAGE,
+  );
+  const visibleCategories = categories.filter(
+    (category) => category.language === currentLanguage,
+  );
+  const homeHref = getLanguageHomeHref(currentLanguage);
 
   return (
     <nav
@@ -19,11 +39,11 @@ export function CategoryNav({ categories }: { categories: Category[] }) {
           pathname === "/" &&
             "border-[var(--color-news-red)] text-[var(--color-news-red)]",
         )}
-        href="/"
+        href={homeHref}
       >
         Home
       </Link>
-      {categories.map((category) => {
+      {visibleCategories.map((category) => {
         const href = `/${category.slug}`;
         const active = pathname === href;
         const isTelugu = containsTeluguText(category.name);

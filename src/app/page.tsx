@@ -12,18 +12,31 @@ import {
   getPublishedArticles,
   getTrendingArticles,
 } from "@/lib/data";
+import { normalizeLanguage } from "@/lib/language";
 import Link from "next/link";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ lang?: string | string[] }>;
+}) {
+  const { lang } = await searchParams;
+  const selectedLanguage = normalizeLanguage(lang);
   const [categories, breakingNews, articles, trending] = await Promise.all([
     getCategories(),
     getBreakingNews(),
-    getPublishedArticles(36),
-    getTrendingArticles(10),
+    getPublishedArticles(36, 0, selectedLanguage),
+    getTrendingArticles(10, selectedLanguage),
   ]);
   const [leadArticle, ...latestArticles] = articles;
-  const tickerItems = breakingNews.length
-    ? breakingNews
+  const scopedBreakingNews = breakingNews.filter((item) => {
+    if (!item.url?.startsWith("/article/")) return true;
+
+    const slug = item.url.replace("/article/", "").split(/[/?#]/)[0];
+    return articles.some((article) => article.slug === slug);
+  });
+  const tickerItems = scopedBreakingNews.length
+    ? scopedBreakingNews
     : articles.slice(0, 5).map((article) => ({
         created_at: article.created_at,
         headline: article.title,
@@ -35,14 +48,20 @@ export default async function Home() {
   const initialLatestArticles = latestArticles.slice(5, 14);
   const latestNextOffset = 1 + heroSideArticles.length + initialLatestArticles.length;
   const displayedCategories = categories
+    .filter((category) => category.language === selectedLanguage)
     .filter((category) =>
       articles.some((article) => article.categories?.slug === category.slug),
     )
     .slice(0, 8);
+  const selectedCategories = categories.filter(
+    (category) => category.language === selectedLanguage,
+  );
+  const latestHeading =
+    selectedLanguage === "te" ? "Latest Telugu News" : "Latest English News";
 
   return (
     <div className="flex min-h-screen flex-col bg-white text-zinc-950">
-      <Header categories={categories} />
+      <Header categories={categories} selectedLanguage={selectedLanguage} />
       <BreakingTicker items={tickerItems} />
       <main className="flex-1">
         <div className="mx-auto grid max-w-7xl gap-7 px-4 py-6 lg:grid-cols-[minmax(0,7fr)_minmax(300px,3fr)]">
@@ -55,13 +74,14 @@ export default async function Home() {
 
             <section>
               <div className="section-heading">
-                <h2 className="section-heading__title">Latest News</h2>
+                <h2 className="section-heading__title">{latestHeading}</h2>
                 <Link className="section-heading__link" href="/search?q=Latest%20News">
                   View More &gt;
                 </Link>
               </div>
               <InfiniteArticleGrid
                 initialArticles={initialLatestArticles}
+                language={selectedLanguage}
                 nextOffset={latestNextOffset}
               />
             </section>
@@ -79,7 +99,7 @@ export default async function Home() {
           <RightSidebar articles={trending} />
         </div>
       </main>
-      <Footer categories={categories} />
+      <Footer categories={selectedCategories.length ? selectedCategories : categories} />
     </div>
   );
 }

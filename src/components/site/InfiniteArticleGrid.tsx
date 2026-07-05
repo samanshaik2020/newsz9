@@ -2,18 +2,20 @@
 
 import { useState } from "react";
 import { ArticleGrid } from "./ArticleGrid";
-import type { Article } from "@/types";
+import type { Article, Language } from "@/types";
 
 export function InfiniteArticleGrid({
   initialArticles,
+  language,
   nextOffset,
 }: {
   initialArticles: Article[];
+  language?: Language;
   nextOffset?: number;
 }) {
   const [articles, setArticles] = useState<Article[]>(initialArticles);
   const [loading, setLoading] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(initialArticles.length >= 9);
   const [offset, setOffset] = useState(nextOffset ?? initialArticles.length + 1);
 
   const loadMore = async () => {
@@ -21,7 +23,16 @@ export function InfiniteArticleGrid({
     
     setLoading(true);
     try {
-      const response = await fetch(`/api/articles?limit=12&offset=${offset}`);
+      const params = new URLSearchParams({
+        limit: "12",
+        offset: String(offset),
+      });
+
+      if (language) {
+        params.set("lang", language);
+      }
+
+      const response = await fetch(`/api/articles?${params.toString()}`);
       if (!response.ok) throw new Error("Failed to fetch articles");
       
       const data = await response.json();

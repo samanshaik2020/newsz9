@@ -78,7 +78,12 @@ export async function clearCategoryCaches(...categorySlugs: Array<string | null 
   const exactKeys = new Set(["categories:all"]);
 
   for (const slug of categorySlugs) {
-    if (slug) exactKeys.add(`category:${slug}`);
+    if (slug) {
+      exactKeys.add(`category:${slug}`);
+      exactKeys.add(`category:${slug}:all`);
+      exactKeys.add(`category:${slug}:en`);
+      exactKeys.add(`category:${slug}:te`);
+    }
   }
 
   await clearCache(...exactKeys);
@@ -114,7 +119,12 @@ export async function clearArticleCaches({
   }
 
   for (const articleCategorySlug of [categorySlug, previousCategorySlug]) {
-    if (articleCategorySlug) exactKeys.add(`category:${articleCategorySlug}`);
+    if (articleCategorySlug) {
+      exactKeys.add(`category:${articleCategorySlug}`);
+      exactKeys.add(`category:${articleCategorySlug}:all`);
+      exactKeys.add(`category:${articleCategorySlug}:en`);
+      exactKeys.add(`category:${articleCategorySlug}:te`);
+    }
   }
 
   if (includeBreakingNews) {

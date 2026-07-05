@@ -44,11 +44,9 @@ export default async function CategoryPage({
   params: Promise<{ category: string }>;
 }) {
   const { category: categorySlug } = await params;
-  const [categories, articles] = await Promise.all([
-    getCategories(),
-    getArticlesByCategory(categorySlug),
-  ]);
+  const categories = await getCategories();
   const category = categories.find((item) => item.slug === categorySlug);
+  const articles = await getArticlesByCategory(categorySlug, category?.language);
 
   return (
     <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8">
