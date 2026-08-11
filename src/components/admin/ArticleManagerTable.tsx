@@ -9,6 +9,7 @@ import { formatDate } from "@/lib/utils";
 import { useConfirmStore } from "@/store/use-confirm-store";
 import { useToastStore } from "@/store/use-toast-store";
 import type { Article } from "@/types";
+import { CopyArticleLinkButton } from "./CopyArticleLinkButton";
 
 export function ArticleManagerTable({ articles }: { articles: Article[] }) {
   const router = useRouter();
@@ -53,7 +54,7 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
         </p>
       ) : null}
       <div className="overflow-hidden rounded-md border border-zinc-200 bg-white">
-        <div className="hidden border-b border-zinc-200 bg-zinc-100 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-zinc-500 md:grid md:grid-cols-[1fr_150px_110px_130px_230px]">
+        <div className="hidden border-b border-zinc-200 bg-zinc-100 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-zinc-500 md:grid md:grid-cols-[1fr_150px_110px_130px_350px]">
           <span>Title</span>
           <span>Category</span>
           <span>Status</span>
@@ -63,7 +64,7 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
         {articles.length ? (
           articles.map((article) => (
             <div
-              className="grid gap-3 border-b border-zinc-200 p-4 last:border-b-0 md:grid-cols-[1fr_150px_110px_130px_230px] md:items-center"
+              className="grid gap-3 border-b border-zinc-200 p-4 last:border-b-0 md:grid-cols-[1fr_150px_110px_130px_350px] md:items-center"
               key={article.id}
             >
               <div>
@@ -92,6 +93,7 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
                     Preview
                   </Link>
                 </Button>
+                <CopyArticleLinkButton slug={article.slug} />
                 <Button
                   disabled={deletingId === article.id}
                   onClick={() => deleteArticle(article)}

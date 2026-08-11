@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CopyArticleLinkButton } from "@/components/admin/CopyArticleLinkButton";
 import {
   getAdminArticles,
   getAdminBreakingNews,
@@ -55,19 +56,26 @@ export default async function AdminDashboardPage() {
         </div>
         <div className="mt-4 grid gap-3">
           {articles.slice(0, 5).map((article) => (
-            <Link
-              className="grid gap-2 rounded-md border border-zinc-200 p-3 hover:bg-zinc-50 md:grid-cols-[1fr_120px_120px]"
-              href={`/admin/articles/${article.id}`}
+            <div
+              className="grid gap-3 rounded-md border border-zinc-200 p-3 hover:bg-zinc-50 md:grid-cols-[1fr_120px_120px_130px] md:items-center"
               key={article.id}
             >
-              <span className="font-bold">{article.title}</span>
+              <Link
+                className="font-bold hover:text-red-700"
+                href={`/admin/articles/${article.id}`}
+              >
+                {article.title}
+              </Link>
               <span className="text-sm text-zinc-500">
                 {article.categories?.name ?? "No category"}
               </span>
               <span className="text-sm font-semibold capitalize text-zinc-700">
                 {article.status}
               </span>
-            </Link>
+              <span className="flex md:justify-end">
+                <CopyArticleLinkButton slug={article.slug} />
+              </span>
+            </div>
           ))}
         </div>
       </section>
