@@ -1,14 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
+import { VerifiedAuthor } from "./VerifiedAuthor";
 
 export function ArticleCard({
   article,
   priority = false,
   showExcerpt = true,
 }: {
-  article: Article;
+  article: ArticleListItem;
   priority?: boolean;
   showExcerpt?: boolean;
 }) {
@@ -63,9 +64,18 @@ export function ArticleCard({
             {article.summary}
           </p>
         ) : null}
-        <time className="mt-3 text-xs font-semibold uppercase text-zinc-500">
-          {formatDate(article.published_at)}
-        </time>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3 text-xs text-zinc-500">
+          <VerifiedAuthor
+            className="max-w-[70%] text-xs"
+            name={article.authors?.name ?? "newsz9 Desk"}
+          />
+          <time
+            className="font-semibold uppercase"
+            dateTime={article.published_at ?? article.created_at}
+          >
+            {formatDate(article.published_at ?? article.created_at)}
+          </time>
+        </div>
       </div>
     </article>
   );

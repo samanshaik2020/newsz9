@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
+import { VerifiedAuthor } from "./VerifiedAuthor";
 
-function SuggestionCard({ article }: { article: Article }) {
+function SuggestionCard({ article }: { article: ArticleListItem }) {
   const imageSrc = getImageSrc(article.cover_image);
   const articleHref = `/article/${article.slug}`;
   const isTelugu =
@@ -54,9 +55,18 @@ function SuggestionCard({ article }: { article: Article }) {
             {article.title}
           </Link>
         </h3>
-        <time className="mt-auto pt-3 text-[11px] font-semibold uppercase text-zinc-400">
-          {formatDate(article.published_at)}
-        </time>
+        <div className="mt-auto grid gap-1.5 pt-3 text-[11px] text-zinc-400">
+          <VerifiedAuthor
+            className="max-w-full text-[11px]"
+            name={article.authors?.name ?? "newsz9 Desk"}
+          />
+          <time
+            className="font-semibold uppercase"
+            dateTime={article.published_at ?? article.created_at}
+          >
+            {formatDate(article.published_at ?? article.created_at)}
+          </time>
+        </div>
       </div>
     </article>
   );
@@ -66,8 +76,8 @@ export function RelatedArticles({
   articles,
   moreStories = [],
 }: {
-  articles: Article[];
-  moreStories?: Article[];
+  articles: ArticleListItem[];
+  moreStories?: ArticleListItem[];
 }) {
   const hasRelated = articles.length > 0;
   const hasMore = moreStories.length > 0;

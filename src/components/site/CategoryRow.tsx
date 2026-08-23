@@ -1,4 +1,4 @@
-import type { Article, Category } from "@/types";
+import type { ArticleListItem, Category } from "@/types";
 import { cn, containsTeluguText } from "@/lib/utils";
 import { ArticleCard } from "./ArticleCard";
 
@@ -7,7 +7,7 @@ export function CategoryRow({
   articles,
 }: {
   category: Category;
-  articles: Article[];
+  articles: ArticleListItem[];
 }) {
   const categoryArticles = articles
     .filter((article) => article.categories?.slug === category.slug)

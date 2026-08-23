@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
+import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
 import { ArticleGallery } from "@/components/templates/ArticleGallery";
 import { formatDate, getImageSrc, processArticleHtml } from "@/lib/utils";
 import type { Article } from "@/types";
@@ -41,7 +43,7 @@ export default function Template1({ article }: { article: Article }) {
             {article.title}
           </h1>
           <div className="mt-4 flex items-center gap-3 text-sm text-zinc-500">
-            <span className="font-semibold text-zinc-700">{authorName}</span>
+            <VerifiedAuthor name={authorName} />
             <span className="h-1 w-1 rounded-full bg-zinc-400" />
             <time>{formatDate(article.published_at)}</time>
           </div>
@@ -65,6 +67,7 @@ export default function Template1({ article }: { article: Article }) {
             __html: processArticleHtml(article.content),
           }}
         />
+        <ArticleAuthorFooter article={article} />
       </div>
     </article>
   );

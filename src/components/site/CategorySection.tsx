@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cn, containsTeluguText } from "@/lib/utils";
-import type { Article, Category } from "@/types";
+import type { ArticleListItem, Category } from "@/types";
 import { ArticleCard } from "./ArticleCard";
 
 export function CategorySection({
@@ -8,7 +8,7 @@ export function CategorySection({
   articles,
 }: {
   category: Category;
-  articles: Article[];
+  articles: ArticleListItem[];
 }) {
   const categoryArticles = articles
     .filter((article) => article.categories?.slug === category.slug)

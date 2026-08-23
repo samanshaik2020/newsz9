@@ -2,7 +2,7 @@ import { Gamepad2, Trophy } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn, containsTeluguText } from "@/lib/utils";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
 import { AdBanner } from "./AdBanner";
 
 function SidebarPanel({
@@ -22,7 +22,7 @@ function SidebarPanel({
   );
 }
 
-export function RightSidebar({ articles }: { articles: Article[] }) {
+export function RightSidebar({ articles }: { articles: ArticleListItem[] }) {
   return (
     <aside className="sticky-sidebar hidden content-start gap-5 lg:grid">
       <SidebarPanel title="Trending Topics">

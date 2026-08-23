@@ -1,5 +1,40 @@
 import { redis } from './redis';
 
+type MemoryCacheEntry = {
+  expiresAt: number;
+  value: unknown;
+};
+
+const memoryCache = new Map<string, MemoryCacheEntry>();
+const inFlightRequests = new Map<string, Promise<unknown>>();
+const memoryCacheTtlSeconds = 30;
+
+function readMemoryCache<T>(key: string): T | undefined {
+  const entry = memoryCache.get(key);
+  if (!entry) return undefined;
+
+  if (entry.expiresAt <= Date.now()) {
+    memoryCache.delete(key);
+    return undefined;
+  }
+
+  return entry.value as T;
+}
+
+function writeMemoryCache<T>(key: string, value: T, ttl: number) {
+  memoryCache.set(key, {
+    expiresAt: Date.now() + Math.min(ttl, memoryCacheTtlSeconds) * 1000,
+    value,
+  });
+}
+
+function matchesCachePattern(key: string, pattern: string) {
+  if (!pattern.includes("*")) return key === pattern;
+
+  const [prefix, suffix] = pattern.split("*", 2);
+  return key.startsWith(prefix) && key.endsWith(suffix ?? "");
+}
+
 /**
  * Generic cache-aside helper.
  * Checks Redis first; on miss, calls `fetcher`, stores the result with a TTL, and returns it.
@@ -13,28 +48,52 @@ export async function getCached<T>(
   fetcher: () => Promise<T>,
   ttl = 300
 ): Promise<T> {
+  const memoryValue = readMemoryCache<T>(key);
+  if (memoryValue !== undefined) return memoryValue;
+
+  const inFlight = inFlightRequests.get(key) as Promise<T> | undefined;
+  if (inFlight) return inFlight;
+
+  const request = (async () => {
+    try {
+      const cached = await redis.get<T>(key);
+      if (cached !== null && cached !== undefined) {
+        writeMemoryCache(key, cached, ttl);
+        return cached;
+      }
+    } catch {
+      // Redis unavailable — fall through to fetcher
+    }
+
+    const fresh = await fetcher();
+    writeMemoryCache(key, fresh, ttl);
+
+    try {
+      await redis.set(key, fresh, { ex: ttl });
+    } catch {
+      // Silently skip caching if Redis is down
+    }
+
+    return fresh;
+  })();
+
+  inFlightRequests.set(key, request);
+
   try {
-    const cached = await redis.get<T>(key);
-    if (cached !== null && cached !== undefined) return cached;
-  } catch {
-    // Redis unavailable — fall through to fetcher
+    return await request;
+  } finally {
+    if (inFlightRequests.get(key) === request) {
+      inFlightRequests.delete(key);
+    }
   }
-
-  const fresh = await fetcher();
-
-  try {
-    await redis.set(key, fresh, { ex: ttl });
-  } catch {
-    // Silently skip caching if Redis is down
-  }
-
-  return fresh;
 }
 
 /**
  * Invalidate one or more cache keys.
  */
 export async function clearCache(...keys: string[]): Promise<void> {
+  keys.forEach((key) => memoryCache.delete(key));
+
   try {
     if (keys.length > 0) {
       await redis.del(...keys);
@@ -49,6 +108,13 @@ export async function clearCache(...keys: string[]): Promise<void> {
  */
 export async function clearCacheByPattern(...patterns: string[]): Promise<string[]> {
   const keys = new Set<string>();
+
+  for (const key of memoryCache.keys()) {
+    if (patterns.some((pattern) => matchesCachePattern(key, pattern))) {
+      memoryCache.delete(key);
+      keys.add(key);
+    }
+  }
 
   try {
     for (const pattern of patterns) {
@@ -83,6 +149,9 @@ export async function clearCategoryCaches(...categorySlugs: Array<string | null 
       exactKeys.add(`category:${slug}:all`);
       exactKeys.add(`category:${slug}:en`);
       exactKeys.add(`category:${slug}:te`);
+      exactKeys.add(`category:articles:v2:${slug}:all`);
+      exactKeys.add(`category:articles:v2:${slug}:en`);
+      exactKeys.add(`category:articles:v2:${slug}:te`);
     }
   }
 
@@ -124,6 +193,9 @@ export async function clearArticleCaches({
       exactKeys.add(`category:${articleCategorySlug}:all`);
       exactKeys.add(`category:${articleCategorySlug}:en`);
       exactKeys.add(`category:${articleCategorySlug}:te`);
+      exactKeys.add(`category:articles:v2:${articleCategorySlug}:all`);
+      exactKeys.add(`category:articles:v2:${articleCategorySlug}:en`);
+      exactKeys.add(`category:articles:v2:${articleCategorySlug}:te`);
     }
   }
 

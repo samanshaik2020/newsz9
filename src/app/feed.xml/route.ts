@@ -13,7 +13,7 @@ export async function GET() {
 
       const description = article.summary
         ? escapeXml(stripHtml(article.summary))
-        : escapeXml(stripHtml(article.content).slice(0, 200));
+        : escapeXml(article.title);
 
       return `    <item>
       <title>${escapeXml(article.title)}</title>

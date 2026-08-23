@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { ArticleGrid } from "./ArticleGrid";
-import type { Article, Language } from "@/types";
+import type { ArticleListItem, Language } from "@/types";
 
 export function InfiniteArticleGrid({
   initialArticles,
   language,
   nextOffset,
 }: {
-  initialArticles: Article[];
+  initialArticles: ArticleListItem[];
   language?: Language;
   nextOffset?: number;
 }) {
-  const [articles, setArticles] = useState<Article[]>(initialArticles);
+  const [articles, setArticles] = useState<ArticleListItem[]>(initialArticles);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(initialArticles.length >= 9);
   const [offset, setOffset] = useState(nextOffset ?? initialArticles.length + 1);

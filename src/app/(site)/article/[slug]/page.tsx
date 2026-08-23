@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { RelatedArticles } from "@/components/site/RelatedArticles";
 import { ShareButtons } from "@/components/site/ShareButtons";
@@ -93,7 +94,9 @@ export default async function ArticlePage({
 
   const supabase = maybeCreateClient();
   if (supabase) {
-    await supabase.rpc("increment_views", { article_id: article.id });
+    after(async () => {
+      await supabase.rpc("increment_views", { article_id: article.id });
+    });
   }
 
   // Fetch related articles (same category) + trending + latest as fallback

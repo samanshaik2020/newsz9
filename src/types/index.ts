@@ -48,6 +48,25 @@ export interface Article {
   authors?: Author | null;
 }
 
+export type ArticleListItem = Pick<
+  Article,
+  | "id"
+  | "title"
+  | "slug"
+  | "summary"
+  | "cover_image"
+  | "language"
+  | "status"
+  | "views"
+  | "published_at"
+  | "created_at"
+  | "updated_at"
+  | "category_id"
+  | "author_id"
+  | "categories"
+  | "authors"
+>;
+
 export interface BreakingNewsItem {
   id: string;
   headline: string;

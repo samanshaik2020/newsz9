@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
+import { VerifiedAuthor } from "./VerifiedAuthor";
 
-function CompactHeroItem({ article }: { article: Article }) {
+function CompactHeroItem({ article }: { article: ArticleListItem }) {
   const imageSrc = getImageSrc(article.cover_image);
   const isTelugu =
     article.language === "te" ||
@@ -45,6 +46,10 @@ function CompactHeroItem({ article }: { article: Article }) {
             {article.title}
           </Link>
         </h3>
+        <VerifiedAuthor
+          className="mt-2 max-w-full text-[11px]"
+          name={article.authors?.name ?? "newsz9 Desk"}
+        />
       </div>
     </article>
   );
@@ -54,8 +59,8 @@ export function HeroSplit({
   featured,
   sideArticles,
 }: {
-  featured: Article;
-  sideArticles: Article[];
+  featured: ArticleListItem;
+  sideArticles: ArticleListItem[];
 }) {
   const imageSrc = getImageSrc(featured.cover_image);
   const isTelugu =
@@ -101,8 +106,12 @@ export function HeroSplit({
             {featured.summary}
           </p>
         ) : null}
-        <div className="mt-3 text-sm font-semibold text-zinc-500">
-          {featured.authors?.name ?? "newsz9 Desk"} | {formatDate(featured.published_at)}
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+          <VerifiedAuthor name={featured.authors?.name ?? "newsz9 Desk"} />
+          <span aria-hidden="true">|</span>
+          <time dateTime={featured.published_at ?? featured.created_at}>
+            {formatDate(featured.published_at ?? featured.created_at)}
+          </time>
         </div>
       </article>
 

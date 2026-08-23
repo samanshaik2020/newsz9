@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
 
-export function Sidebar({ articles }: { articles: Article[] }) {
+export function Sidebar({ articles }: { articles: ArticleListItem[] }) {
   return (
     <aside className="grid content-start gap-6">
       <section className="border border-zinc-200 bg-white">

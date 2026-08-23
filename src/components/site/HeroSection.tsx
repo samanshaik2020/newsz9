@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
-import type { Article } from "@/types";
+import type { ArticleListItem } from "@/types";
+import { VerifiedAuthor } from "./VerifiedAuthor";
 
-export function HeroSection({ article }: { article: Article }) {
+export function HeroSection({ article }: { article: ArticleListItem }) {
   const imageSrc = getImageSrc(article.cover_image);
   const articleHref = `/article/${article.slug}`;
   const isTelugu =
@@ -43,9 +44,12 @@ export function HeroSection({ article }: { article: Article }) {
               {article.summary}
             </p>
           ) : null}
-          <div className="mt-3 text-sm font-medium text-zinc-500">
-            {article.authors?.name ?? "newsz9 Desk"} |{" "}
-            {formatDate(article.published_at)}
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
+            <VerifiedAuthor name={article.authors?.name ?? "newsz9 Desk"} />
+            <span aria-hidden="true">|</span>
+            <time dateTime={article.published_at ?? article.created_at}>
+              {formatDate(article.published_at ?? article.created_at)}
+            </time>
           </div>
           <div className="mt-5 flex flex-wrap gap-2">
             {[article.categories?.name ?? "Latest", "India", "Business", "Sports"].map(
