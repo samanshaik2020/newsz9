@@ -60,6 +60,27 @@ test("rendered article html is sanitized before image post-processing", () => {
   );
 });
 
+test("article font sizes survive saving and rendering", () => {
+  const editorHtml =
+    '<p>Normal <span style="font-size: 1.5rem; color: red">Large</span></p>';
+  const savedHtml = normalizeArticleContent(editorHtml);
+
+  assert.equal(
+    savedHtml,
+    '<p>Normal <span style="font-size:1.5rem">Large</span></p>',
+  );
+  assert.equal(processArticleHtml(savedHtml), savedHtml);
+});
+
+test("article html rejects unsupported and unsafe font sizes", () => {
+  assert.equal(
+    sanitizeArticleHtml(
+      '<span style="font-size:9999px">Huge</span><span style="font-size:expression(alert(1))">Bad</span>',
+    ),
+    "<span>Huge</span><span>Bad</span>",
+  );
+});
+
 test("admin password sessions validate request cookies", () => {
   const previousPassword = process.env.ADMIN_PASSWORD;
   const previousSecret = process.env.ADMIN_SESSION_SECRET;

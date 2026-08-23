@@ -342,6 +342,27 @@ const FONT_SIZE_LABELS: Record<string, string> = {
   "7": "Giant",
 };
 
+const FONT_SIZE_STYLES: Record<string, string> = {
+  "1": "0.75rem",
+  "2": "0.875rem",
+  "3": "1rem",
+  "4": "1.125rem",
+  "5": "1.5rem",
+  "6": "2rem",
+  "7": "3rem",
+};
+
+function normalizeFontSizeMarkup(editor: HTMLDivElement) {
+  editor.querySelectorAll("font[size]").forEach((font) => {
+    const size = FONT_SIZE_STYLES[font.getAttribute("size") ?? ""];
+    const span = document.createElement("span");
+
+    if (size) span.style.fontSize = size;
+    span.append(...Array.from(font.childNodes));
+    font.replaceWith(span);
+  });
+}
+
 /* ------------------------------------------------------------------ */
 /* Main component                                                        */
 /* ------------------------------------------------------------------ */
@@ -451,6 +472,12 @@ export function RichTextEditor({
     handleInput();
   }
 
+  function applyFontSize(size: string) {
+    exec("fontSize", size);
+    if (editorRef.current) normalizeFontSizeMarkup(editorRef.current);
+    handleInput();
+  }
+
   const iconSize = 14;
 
   return (
@@ -550,8 +577,7 @@ export function RichTextEditor({
             defaultValue="3"
             onMouseDown={(e) => e.stopPropagation()}
             onChange={(e) => {
-              exec("fontSize", e.target.value);
-              handleInput();
+              applyFontSize(e.target.value);
             }}
           >
             {FONT_SIZES.map((s) => (

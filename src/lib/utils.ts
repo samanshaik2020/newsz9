@@ -130,6 +130,7 @@ function sanitizeUrlAttr(value: string, allowHash = false) {
 function sanitizeStyle(value: string) {
   const allowedProperties = new Set([
     "display",
+    "font-size",
     "height",
     "margin",
     "margin-left",
@@ -139,6 +140,15 @@ function sanitizeStyle(value: string) {
     "max-width",
     "text-align",
     "width",
+  ]);
+  const allowedFontSizes = new Set([
+    "0.75rem",
+    "0.875rem",
+    "1rem",
+    "1.125rem",
+    "1.5rem",
+    "2rem",
+    "3rem",
   ]);
 
   return value
@@ -151,6 +161,9 @@ function sanitizeStyle(value: string) {
       if (!name || !rawValue || !allowedProperties.has(name)) return "";
       if (/url\s*\(|expression\s*\(|javascript:/i.test(rawValue)) return "";
       if (!/^[#(),.%\-\w\s]+$/.test(rawValue)) return "";
+      if (name === "font-size" && !allowedFontSizes.has(rawValue.toLowerCase())) {
+        return "";
+      }
 
       return `${name}:${rawValue}`;
     })
