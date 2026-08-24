@@ -11,10 +11,16 @@ import { CategoryNav } from "./CategoryNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const socialLinks = [
-  { label: "Facebook", shortLabel: "f", href: "#" },
-  { label: "Twitter/X", shortLabel: "X", href: "#" },
-  { label: "Instagram", shortLabel: "IG", href: "#" },
-  { label: "YouTube", shortLabel: "YT", href: "#" },
+  {
+    label: "Facebook",
+    shortLabel: "f",
+    href: "https://www.facebook.com/profile.php?id=61585486300184",
+  },
+  {
+    label: "YouTube",
+    shortLabel: "YT",
+    href: "https://www.youtube.com/@NEWSZ9",
+  },
 ];
 
 function getTodayLabel() {
@@ -57,6 +63,8 @@ export function Header({
                   className="grid h-7 min-w-7 place-items-center rounded-sm bg-white/10 px-1.5 text-[10px] font-black text-white hover:bg-white hover:text-[var(--color-news-dark)]"
                   href={item.href}
                   key={item.label}
+                  rel="noreferrer"
+                  target="_blank"
                 >
                   {item.shortLabel}
                 </Link>

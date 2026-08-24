@@ -3,10 +3,16 @@ import Link from "next/link";
 import type { Category } from "@/types";
 
 const socialLinks = [
-  { label: "Facebook", shortLabel: "f", href: "#" },
-  { label: "Twitter/X", shortLabel: "X", href: "#" },
-  { label: "Instagram", shortLabel: "IG", href: "#" },
-  { label: "YouTube", shortLabel: "YT", href: "#" },
+  {
+    label: "Facebook",
+    shortLabel: "f",
+    href: "https://www.facebook.com/profile.php?id=61585486300184",
+  },
+  {
+    label: "YouTube",
+    shortLabel: "YT",
+    href: "https://www.youtube.com/@NEWSZ9",
+  },
 ];
 
 const fallbackTopics = [
@@ -76,6 +82,8 @@ export function Footer({ categories = [] }: { categories?: Category[] }) {
                   className="grid h-8 min-w-8 place-items-center rounded-sm bg-white/10 px-2 text-xs font-black text-white hover:bg-[var(--color-news-red)]"
                   href={item.href}
                   key={item.label}
+                  rel="noreferrer"
+                  target="_blank"
                 >
                   {item.shortLabel}
                 </Link>

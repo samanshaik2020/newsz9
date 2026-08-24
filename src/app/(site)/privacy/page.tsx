@@ -61,7 +61,7 @@ export default function PrivacyPage() {
         <h2>5. Google DoubleClick DART Cookie</h2>
         <p>
           Google is one of a third-party vendor on our site. It also uses cookies, known as DART cookies, to serve ads 
-          to our site visitors based upon their visit to www.website.com and other sites on the internet. However, visitors 
+          to our site visitors based upon their visit to newsz9.com and other sites on the internet. However, visitors
           may choose to decline the use of DART cookies by visiting the Google ad and content network Privacy Policy at 
           the following URL – <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noreferrer">https://policies.google.com/technologies/ads</a>
         </p>
