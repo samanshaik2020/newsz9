@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Eye, ImageIcon, Plus, Save, Trash2, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
@@ -299,14 +300,24 @@ export function ArticleForm({
   return (
     <div className="mx-auto grid max-w-5xl gap-6">
       <section className="grid content-start gap-6">
-        <div>
-          <h1 className="text-3xl font-black">
-            {mode === "edit" ? "Edit Article" : "Create Article"}
-          </h1>
-          <p className="mt-2 text-sm text-zinc-600">
-            Add the image, choose the category and layout, then open a full-page
-            preview before publishing.
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-black">
+              {mode === "edit" ? "Edit Article" : "Create Article"}
+            </h1>
+            <p className="mt-2 text-sm text-zinc-600">
+              Add the image, choose the category and layout, then open a full-page
+              preview before publishing.
+            </p>
+          </div>
+          {mode === "edit" ? (
+            <Button asChild>
+              <Link href="/admin/articles/new">
+                <Plus aria-hidden="true" />
+                Add New Article
+              </Link>
+            </Button>
+          ) : null}
         </div>
         <div className="grid gap-4 rounded-md border border-zinc-200 bg-white p-5">
           <label className="grid gap-2 text-sm font-bold text-zinc-800">

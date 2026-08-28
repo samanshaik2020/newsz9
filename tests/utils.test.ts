@@ -16,6 +16,7 @@ import {
   isAdminRequest,
   isValidAdminSession,
 } from "../src/lib/admin-auth.ts";
+import { buildAdminArticleStats } from "../src/lib/article-stats.ts";
 
 test("slugify creates stable article slugs", () => {
   assert.equal(slugify(" Latest News: India Wins! "), "latest-news-india-wins");
@@ -110,4 +111,30 @@ test("admin password sessions validate request cookies", () => {
       process.env.ADMIN_SESSION_SECRET = previousSecret;
     }
   }
+});
+
+test("admin article stats include exact status and category totals", () => {
+  const categories = [
+    { id: "world", name: "World", slug: "world", language: "en" as const },
+    { id: "sports", name: "Sports", slug: "sports", language: "en" as const },
+  ];
+  const articles = [
+    { category_id: "sports", status: "published" as const },
+    { category_id: "sports", status: "review" as const },
+    { categories: categories[0], status: "draft" as const },
+    { category_id: null, status: "archived" as const },
+  ];
+
+  assert.deepEqual(buildAdminArticleStats(articles, categories), {
+    total: 4,
+    published: 1,
+    review: 1,
+    draft: 1,
+    archived: 1,
+    uncategorized: 1,
+    byCategory: [
+      { category: categories[1], count: 2 },
+      { category: categories[0], count: 1 },
+    ],
+  });
 });

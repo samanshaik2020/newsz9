@@ -13,7 +13,7 @@ export default async function AdminArticlesPage() {
           className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
           href="/admin/articles/new"
         >
-          New Article
+          Add New Article
         </Link>
       </div>
       <ArticleManagerTable articles={articles} />

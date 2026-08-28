@@ -1,11 +1,14 @@
 import { unstable_noStore as noStore } from "next/cache";
 import { maybeCreateClient, maybeCreateServiceClient } from "@/lib/supabase";
 import { getCached } from "@/lib/cache";
+import { buildAdminArticleStats } from "@/lib/article-stats";
 import { articles, breakingNews, categories } from "@/lib/sample-data";
 import type {
   Article,
   ArticleFormInput,
   ArticleListItem,
+  AdminArticleStats,
+  ArticleStatus,
   BreakingNewsItem,
   Category,
   Language,
@@ -273,6 +276,76 @@ export async function getAdminArticles(limit = 100): Promise<Article[]> {
 
   if (error || !data) return articles.slice().sort(byNewest).slice(0, limit);
   return data as Article[];
+}
+
+export async function getAdminArticleStats(
+  adminCategories: Category[],
+): Promise<AdminArticleStats> {
+  noStore();
+  const supabase = maybeCreateServiceClient();
+
+  if (!supabase) return buildAdminArticleStats(articles, adminCategories);
+  const serviceClient = supabase;
+
+  async function countArticles(filters: {
+    status?: ArticleStatus;
+    categoryId?: string | null;
+  } = {}) {
+    let query = serviceClient
+      .from("articles")
+      .select("id", { count: "exact", head: true });
+
+    if (filters.status) {
+      query = query.eq("status", filters.status);
+    }
+
+    if (Object.hasOwn(filters, "categoryId")) {
+      query =
+        filters.categoryId === null
+          ? query.is("category_id", null)
+          : query.eq("category_id", filters.categoryId!);
+    }
+
+    const { count, error } = await query;
+    return { count: count ?? 0, error };
+  }
+
+  const countResults = await Promise.all([
+    countArticles(),
+    countArticles({ status: "published" }),
+    countArticles({ status: "review" }),
+    countArticles({ status: "draft" }),
+    countArticles({ status: "archived" }),
+    countArticles({ categoryId: null }),
+    ...adminCategories.map((category) =>
+      countArticles({ categoryId: category.id }),
+    ),
+  ]);
+
+  if (countResults.some((result) => result.error)) {
+    return buildAdminArticleStats(articles, adminCategories);
+  }
+
+  const [total, published, review, draft, archived, uncategorized, ...byCategory] =
+    countResults;
+
+  return {
+    total: total.count,
+    published: published.count,
+    review: review.count,
+    draft: draft.count,
+    archived: archived.count,
+    uncategorized: uncategorized.count,
+    byCategory: adminCategories
+      .map((category, index) => ({
+        category,
+        count: byCategory[index].count,
+      }))
+      .sort(
+        (a, b) =>
+          b.count - a.count || a.category.name.localeCompare(b.category.name),
+      ),
+  };
 }
 
 export async function getAdminArticleById(id: string): Promise<Article | null> {

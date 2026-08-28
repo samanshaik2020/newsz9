@@ -16,6 +16,21 @@ export interface Category {
   description?: string | null;
 }
 
+export interface CategoryArticleCount {
+  category: Category;
+  count: number;
+}
+
+export interface AdminArticleStats {
+  total: number;
+  published: number;
+  review: number;
+  draft: number;
+  archived: number;
+  uncategorized: number;
+  byCategory: CategoryArticleCount[];
+}
+
 export interface Author {
   id: string;
   name: string;
