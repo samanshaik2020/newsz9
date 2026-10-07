@@ -1,5 +1,6 @@
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import type { Category } from "@/types";
 
 const socialLinks = [
@@ -63,13 +64,7 @@ export function Footer({ categories = [] }: { categories?: Category[] }) {
               href="/"
               aria-label="NEWSZ9 home"
             >
-              <img
-                alt="NEWSZ9"
-                className="h-auto w-full"
-                height={180}
-                src="/newsz9-logo.svg"
-                width={720}
-              />
+              <BrandLogo />
             </Link>
             <p className="mt-4 max-w-md text-sm leading-6 text-white/75">
               Bilingual news for English and Telugu readers, built for fast

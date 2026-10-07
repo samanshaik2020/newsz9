@@ -6,6 +6,7 @@ import {
   Search,
 } from "lucide-react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import type { Category, Language } from "@/types";
 import { CategoryNav } from "./CategoryNav";
 import { LanguageSwitcher } from "./LanguageSwitcher";
@@ -87,13 +88,7 @@ export function Header({
           href="/"
           aria-label="NEWSZ9 home"
         >
-          <img
-            alt="NEWSZ9"
-            className="block h-auto w-full"
-            height={180}
-            src="/newsz9-logo.svg"
-            width={720}
-          />
+          <BrandLogo priority />
         </Link>
 
         <form action="/search" className="flex min-w-0 overflow-hidden rounded-sm border border-zinc-300 bg-white">

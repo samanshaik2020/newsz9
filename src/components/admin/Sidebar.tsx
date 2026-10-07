@@ -1,5 +1,6 @@
 import { Newspaper, PanelLeft, Radio, Tags, Users } from "lucide-react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 import { isAdminAuthEnabled } from "@/lib/admin-auth";
 import { LogoutButton } from "./LogoutButton";
 
@@ -14,8 +15,12 @@ const links = [
 export function AdminSidebar() {
   return (
     <aside className="admin-nav border-r border-zinc-200 bg-zinc-950 px-3 py-4 text-white md:min-h-screen md:w-64">
-      <Link className="site-title block px-3 text-2xl font-black" href="/">
-        newsz9
+      <Link
+        aria-label="NEWSZ9 home"
+        className="mx-3 block max-w-48 rounded-sm bg-white p-2"
+        href="/"
+      >
+        <BrandLogo />
       </Link>
       <nav className="mt-6 grid gap-1">
         {links.map(({ href, label, icon: Icon }) => (

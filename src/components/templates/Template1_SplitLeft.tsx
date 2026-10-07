@@ -3,11 +3,12 @@ import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
 import { ArticleGallery } from "@/components/templates/ArticleGallery";
 import { formatDate, getImageSrc, processArticleHtml } from "@/lib/utils";
+import { NEWSZ9_WORDMARK } from "@/lib/branding";
 import type { Article } from "@/types";
 
 export default function Template1({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
-  const imageSrc = coverImage ?? "/newsz9-logo.svg";
+  const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
   const categoryName = article.categories?.name ?? "News";
   const authorName = article.authors?.name ?? "newsz9 Desk";
 

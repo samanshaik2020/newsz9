@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, Lock, Shield } from "lucide-react";
+import { Eye, EyeOff, Lock } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { BrandLogo } from "@/components/BrandLogo";
 
 export function LoginForm() {
   const router = useRouter();
@@ -44,11 +45,10 @@ export function LoginForm() {
       <div className="relative w-full max-w-sm">
         {/* Brand */}
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-red-600 shadow-lg shadow-red-900/40">
-            <Shield className="h-7 w-7 text-white" aria-hidden="true" />
+          <div className="mx-auto mb-4 w-16 overflow-hidden rounded-xl shadow-lg shadow-red-900/40">
+            <BrandLogo variant="mark" priority />
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white">NEWSZ9</h1>
-          <p className="mt-1 text-sm text-zinc-400">Admin Access</p>
+          <h1 className="text-2xl font-bold text-white">NEWSZ9 Admin Access</h1>
         </div>
 
         {/* Card */}

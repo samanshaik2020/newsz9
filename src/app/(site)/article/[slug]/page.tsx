@@ -7,6 +7,7 @@ import { ArticleRecommendations } from "@/components/site/ArticleRecommendations
 import { ShareButtons } from "@/components/site/ShareButtons";
 import TemplateRenderer from "@/components/templates/TemplateRenderer";
 import { getArticleBySlug } from "@/lib/data";
+import { NEWSZ9_WORDMARK } from "@/lib/branding";
 import { getImageSrc, stripHtml } from "@/lib/utils";
 import { maybeCreateClient } from "@/lib/supabase";
 
@@ -124,6 +125,12 @@ export default async function ArticlePage({
       "@type": "Organization",
       name: "NEWSZ9",
       url: siteUrl,
+      logo: {
+        "@type": "ImageObject",
+        url: new URL(NEWSZ9_WORDMARK.src, siteUrl).toString(),
+        width: NEWSZ9_WORDMARK.width,
+        height: NEWSZ9_WORDMARK.height,
+      },
     },
     ...(coverImage
       ? {
