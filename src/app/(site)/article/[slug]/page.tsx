@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { RelatedArticles } from "@/components/site/RelatedArticles";
+import { ArticleRecommendations } from "@/components/site/ArticleRecommendations";
 import { ShareButtons } from "@/components/site/ShareButtons";
 import TemplateRenderer from "@/components/templates/TemplateRenderer";
-import {
-  getArticleBySlug,
-  getArticlesByCategory,
-  getPublishedArticles,
-  getTrendingArticles,
-} from "@/lib/data";
+import { getArticleBySlug } from "@/lib/data";
 import { getImageSrc, stripHtml } from "@/lib/utils";
 import { maybeCreateClient } from "@/lib/supabase";
 
@@ -99,34 +95,6 @@ export default async function ArticlePage({
     });
   }
 
-  // Fetch related articles (same category) + trending + latest as fallback
-  const [categoryArticles, trendingArticles, latestArticles] =
-    await Promise.all([
-      article.categories?.slug
-        ? getArticlesByCategory(article.categories.slug, article.language)
-        : Promise.resolve([]),
-      getTrendingArticles(8, article.language),
-      getPublishedArticles(8, 0, article.language),
-    ]);
-
-  // Related = same-category articles (excluding current)
-  const relatedArticles = categoryArticles
-    .filter((a) => a.id !== article.id)
-    .slice(0, 4);
-
-  // More stories = trending + latest, deduplicated, excluding current + related
-  const shownIds = new Set([
-    article.id,
-    ...relatedArticles.map((a) => a.id),
-  ]);
-  const moreStories = [...trendingArticles, ...latestArticles]
-    .filter((a) => {
-      if (shownIds.has(a.id)) return false;
-      shownIds.add(a.id);
-      return true;
-    })
-    .slice(0, 4);
-
   const articleUrl = `${siteUrl}/article/${article.slug}`;
 
   // Breadcrumb trail
@@ -190,10 +158,13 @@ export default async function ArticlePage({
           summary={article.summary}
         />
       </div>
-      <RelatedArticles
-        articles={relatedArticles}
-        moreStories={moreStories}
-      />
+      <Suspense fallback={
+        <div className="border-t border-zinc-200 bg-zinc-50 px-4 py-10 text-center text-sm text-zinc-500" role="status">
+          Loading more stories…
+        </div>
+      }>
+        <ArticleRecommendations article={article} />
+      </Suspense>
     </>
   );
 }

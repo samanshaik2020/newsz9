@@ -1,4 +1,5 @@
 import { redis } from './redis';
+import { after } from "next/server";
 
 type MemoryCacheEntry = {
   expiresAt: number;
@@ -56,7 +57,7 @@ export async function getCached<T>(
 
   const request = (async () => {
     try {
-      const cached = await redis.get<T>(key);
+      const cached = await redis?.get<T>(key);
       if (cached !== null && cached !== undefined) {
         writeMemoryCache(key, cached, ttl);
         return cached;
@@ -68,10 +69,17 @@ export async function getCached<T>(
     const fresh = await fetcher();
     writeMemoryCache(key, fresh, ttl);
 
-    try {
-      await redis.set(key, fresh, { ex: ttl });
-    } catch {
-      // Silently skip caching if Redis is down
+    const cacheClient = redis;
+    if (cacheClient) {
+      after(async () => {
+        // An edit may have invalidated this entry before the response finished.
+        if (readMemoryCache<T>(key) !== fresh) return;
+        try {
+          await cacheClient.set(key, fresh, { ex: ttl });
+        } catch {
+          // Cache writes are best effort and never delay the page response.
+        }
+      });
     }
 
     return fresh;
@@ -96,7 +104,7 @@ export async function clearCache(...keys: string[]): Promise<void> {
 
   try {
     if (keys.length > 0) {
-      await redis.del(...keys);
+      await redis?.del(...keys);
     }
   } catch {
     // Silently ignore
@@ -115,6 +123,8 @@ export async function clearCacheByPattern(...patterns: string[]): Promise<string
       keys.add(key);
     }
   }
+
+  if (!redis) return [...keys];
 
   try {
     for (const pattern of patterns) {

@@ -82,6 +82,33 @@ test("article html rejects unsupported and unsafe font sizes", () => {
   );
 });
 
+test("browser font markup keeps sizes and fonts through saving and rendering", () => {
+  const savedHtml = normalizeArticleContent(
+    '<p><font size="5" face="Georgia">Large serif <b>bold</b></font></p><p><font size="2" face="Mallanna">తెలుగు వార్తలు</font></p>',
+  );
+  assert.equal(savedHtml,
+    '<p><span style="font-size:1.5rem;font-family:Georgia">Large serif <b>bold</b></span></p><p><span style="font-size:0.875rem;font-family:Mallanna">తెలుగు వార్తలు</span></p>',
+  );
+  assert.equal(processArticleHtml(savedHtml), savedHtml);
+});
+
+test("editor font styles, quoted families, and highlights survive repeated saving", () => {
+  const savedHtml = normalizeArticleContent(
+    '<p><span style="font-family:&quot;Courier New&quot;;font-size:2rem;font-weight:700;font-style:italic;text-decoration-line:underline;background-color:rgb(254, 240, 138)">Formatted text</span></p>',
+  );
+  assert.equal(savedHtml,
+    '<p><span style="font-family:Courier New;font-size:2rem;font-weight:700;font-style:italic;text-decoration-line:underline;background-color:rgb(254, 240, 138)">Formatted text</span></p>',
+  );
+  assert.equal(normalizeArticleContent(savedHtml), savedHtml);
+  assert.equal(processArticleHtml(savedHtml), savedHtml);
+});
+
+test("font formatting remains restricted to safe supported values", () => {
+  assert.equal(sanitizeArticleHtml(
+    '<font size="99" face="bad" onclick="alert(1)">Text</font><span style="font-family:url(https://evil.test);font-style:expression(alert(1));background-color:url(https://evil.test);text-decoration:blink">Bad</span>',
+  ), '<span>Text</span><span>Bad</span>');
+});
+
 test("admin password sessions validate request cookies", () => {
   const previousPassword = process.env.ADMIN_PASSWORD;
   const previousSecret = process.env.ADMIN_SESSION_SECRET;

@@ -4,11 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-ui:       var(--font-inter), 'Mallanna', Arial, sans-serif;
-  --font-reading:  var(--font-roboto), 'Mallanna', Arial, sans-serif;
-  --font-headline: var(--font-roboto-condensed), var(--font-inter), 'Mallanna', Arial, sans-serif;
+  --font-ui:       var(--font-inter), var(--font-mallanna), Arial, sans-serif;
+  --font-reading:  var(--font-roboto), var(--font-mallanna), Arial, sans-serif;
+  --font-headline: var(--font-roboto-condensed), var(--font-inter), var(--font-mallanna), Arial, sans-serif;
   --font-label:    var(--font-montserrat), var(--font-inter), Arial, sans-serif;
-  --font-telugu:   'Mallanna', "Nirmala UI", Gautami, Vani, "Noto Sans Telugu", sans-serif;
+  --font-telugu:   var(--font-mallanna), "Nirmala UI", Gautami, Vani, "Noto Sans Telugu", sans-serif;
   --color-news-red: #E30613;
   --color-news-dark: #001636;
   --color-news-muted: #f4f5f7;
@@ -249,8 +249,10 @@ label,
 }
 
 /* Roboto Condensed for all article sub-headings */
+.article-body h1,
 .article-body h2,
-.article-body h3 {
+.article-body h3,
+.article-body h4 {
   font-family: var(--font-headline);
   font-weight: 800;
   line-height: 1.15;
@@ -258,28 +260,48 @@ label,
   letter-spacing: -0.01em;
 }
 
+.article-body h1 { font-size: 2em; }
+.article-body h2 { font-size: 1.5em; }
+.article-body h3 { font-size: 1.25em; }
+.article-body h4 { font-size: 1.125em; }
+.article-body ul { list-style: disc; padding-left: 1.5em; margin: 1em 0; }
+.article-body ol { list-style: decimal; padding-left: 1.5em; margin: 1em 0; }
+.article-body blockquote {
+  border-left: 4px solid var(--color-news-red);
+  margin: 1em 0;
+  padding: 0.3em 1em;
+  font-style: italic;
+}
+
 /* Roboto Condensed for article main title (in all templates) */
 article h1 {
-  font-family: var(--font-headline) !important;
+  font-family: var(--font-headline);
   font-weight: 900;
   letter-spacing: -0.02em;
   line-height: 1.1;
 }
 
 .telugu-article article,
-.telugu-article article *,
 .telugu-article .article-body,
+.telugu-copy {
+  font-family: var(--font-telugu);
+}
+
+.telugu-article article :is(h1, h2, h3, h4, h5, h6, button, label),
+.telugu-copy :is(h1, h2, h3, h4, h5, h6, button, label) {
+  font-family: inherit;
+}
+
+.telugu-article article *,
 .telugu-article .article-body *,
-.telugu-copy,
 .telugu-copy * {
-  font-family: var(--font-telugu) !important;
   font-synthesis: weight;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-.telugu-article article h1 {
-  font-family: var(--font-telugu) !important;
+.telugu-article article h1:not(.article-body h1) {
+  font-family: var(--font-telugu);
   font-weight: 600 !important;
   font-size: 1.85rem !important;
   letter-spacing: 0 !important;
@@ -287,7 +309,7 @@ article h1 {
 }
 
 @media (min-width: 768px) {
-  .telugu-article article h1 {
+  .telugu-article article h1:not(.article-body h1) {
     font-size: 2.75rem !important;
   }
 }
@@ -302,7 +324,6 @@ article h1 {
 
 .telugu-article .article-body h2,
 .telugu-article .article-body h3 {
-  font-family: var(--font-telugu);
   font-weight: 700 !important;
   letter-spacing: 0 !important;
   line-height: 1.3;

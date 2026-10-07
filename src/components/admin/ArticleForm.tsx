@@ -262,7 +262,8 @@ export function ArticleForm({
   }
 
   function openPreviewPage() {
-    sessionStorage.setItem("newsz9-article-preview", JSON.stringify(previewArticle));
+    // The preview opens without an opener, so use storage shared across tabs.
+    localStorage.setItem("newsz9-article-preview", JSON.stringify(previewArticle));
     window.open("/admin/articles/preview", "_blank", "noopener,noreferrer");
   }
 

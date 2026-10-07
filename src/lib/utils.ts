@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { ARTICLE_FONT_SIZES, getArticleFontSize, sanitizeArticleFontFamily } from "./article-formatting.ts";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -130,7 +131,11 @@ function sanitizeUrlAttr(value: string, allowHash = false) {
 function sanitizeStyle(value: string) {
   const allowedProperties = new Set([
     "display",
+    "font-family",
     "font-size",
+    "font-style",
+    "font-weight",
+    "background-color",
     "height",
     "margin",
     "margin-left",
@@ -139,19 +144,15 @@ function sanitizeStyle(value: string) {
     "margin-bottom",
     "max-width",
     "text-align",
+    "text-decoration",
+    "text-decoration-line",
     "width",
   ]);
-  const allowedFontSizes = new Set([
-    "0.75rem",
-    "0.875rem",
-    "1rem",
-    "1.125rem",
-    "1.5rem",
-    "2rem",
-    "3rem",
-  ]);
+  const allowedFontSizes = new Set<string>(ARTICLE_FONT_SIZES.map((size) => size.style));
 
   return value
+    .replace(/&quot;|&#34;|&#x22;/gi, '"')
+    .replace(/&#0?39;|&#x27;|&apos;/gi, "'")
     .split(";")
     .map((rule) => {
       const [property, ...rawValueParts] = rule.split(":");
@@ -160,10 +161,18 @@ function sanitizeStyle(value: string) {
 
       if (!name || !rawValue || !allowedProperties.has(name)) return "";
       if (/url\s*\(|expression\s*\(|javascript:/i.test(rawValue)) return "";
+      if (name === "font-family") {
+        const family = sanitizeArticleFontFamily(rawValue);
+        return family ? `font-family:${family}` : "";
+      }
       if (!/^[#(),.%\-\w\s]+$/.test(rawValue)) return "";
       if (name === "font-size" && !allowedFontSizes.has(rawValue.toLowerCase())) {
         return "";
       }
+      if (name === "font-style" && !/^(normal|italic|oblique)$/i.test(rawValue)) return "";
+      if (name === "font-weight" && !/^(normal|bold|bolder|lighter|[1-9]00)$/i.test(rawValue)) return "";
+      if (name.startsWith("text-decoration") && !/^(none|underline|line-through|overline)(\s+(underline|line-through|overline))*$/i.test(rawValue)) return "";
+      if (name === "background-color" && !/^(transparent|#[0-9a-f]{3,8}|rgba?\([\d.,%\s]+\))$/i.test(rawValue)) return "";
 
       return `${name}:${rawValue}`;
     })
@@ -230,6 +239,27 @@ function sanitizeArticleTag(tag: string) {
   if (!tagMatch) return "";
 
   const tagName = tagMatch[1].toLowerCase();
+  // Preserve formatting from the browser's legacy editing commands and older drafts.
+  if (tagName === "font") {
+    if (tag.startsWith("</")) return "</span>";
+    const attrs = tagMatch[2] ?? "";
+    const styles: string[] = [];
+    for (const match of attrs.matchAll(/(size|face|style)\s*=\s*("[^"]*"|'[^']*'|[^\s"'=<>`]+)/gi)) {
+      const name = match[1].toLowerCase();
+      const value = unquoteAttrValue(match[2]);
+      if (name === "size") {
+        const size = getArticleFontSize(value);
+        if (size) styles.push(`font-size:${size}`);
+      } else if (name === "face") {
+        const family = sanitizeArticleFontFamily(value);
+        if (family) styles.push(`font-family:${family}`);
+      } else {
+        styles.push(sanitizeStyle(value));
+      }
+    }
+    const style = styles.filter(Boolean).join(";");
+    return style ? `<span style="${escapeHtml(style)}">` : "<span>";
+  }
   if (!allowedArticleTags.has(tagName)) return "";
 
   if (tag.startsWith("</")) {

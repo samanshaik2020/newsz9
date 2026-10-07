@@ -2,6 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  ARTICLE_FONT_FAMILIES,
+  ARTICLE_FONT_SIZES,
+  getArticleFontSize,
+  sanitizeArticleFontFamily,
+} from "@/lib/article-formatting";
+import {
   Bold,
   Italic,
   Underline,
@@ -61,10 +67,8 @@ function ToolBtn({
     <button
       type="button"
       title={title}
-      onMouseDown={(e) => {
-        e.preventDefault(); // keep focus in editor
-        onClick();
-      }}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
       className={[
         "flex h-8 w-8 items-center justify-center rounded transition-colors",
         active
@@ -331,36 +335,21 @@ function ColorPicker({
 /* Font-size selector                                                   */
 /* ------------------------------------------------------------------ */
 
-const FONT_SIZES = ["1", "2", "3", "4", "5", "6", "7"];
-const FONT_SIZE_LABELS: Record<string, string> = {
-  "1": "Tiny",
-  "2": "Small",
-  "3": "Normal",
-  "4": "Large",
-  "5": "Larger",
-  "6": "Huge",
-  "7": "Giant",
-};
-
-const FONT_SIZE_STYLES: Record<string, string> = {
-  "1": "0.75rem",
-  "2": "0.875rem",
-  "3": "1rem",
-  "4": "1.125rem",
-  "5": "1.5rem",
-  "6": "2rem",
-  "7": "3rem",
-};
-
-function normalizeFontSizeMarkup(editor: HTMLDivElement) {
-  editor.querySelectorAll("font[size]").forEach((font) => {
-    const size = FONT_SIZE_STYLES[font.getAttribute("size") ?? ""];
+function serializeEditorHtml(editor: HTMLDivElement) {
+  // Normalize a copy so selections, typing at the caret, and native undo survive.
+  const copy = editor.cloneNode(true) as HTMLDivElement;
+  copy.querySelectorAll("font").forEach((font) => {
+    const size = getArticleFontSize(font.getAttribute("size") ?? "");
+    const family = sanitizeArticleFontFamily(font.getAttribute("face") ?? "");
     const span = document.createElement("span");
 
+    span.style.cssText = font.getAttribute("style") ?? "";
     if (size) span.style.fontSize = size;
+    if (family) span.style.fontFamily = family;
     span.append(...Array.from(font.childNodes));
     font.replaceWith(span);
   });
+  return copy.innerHTML;
 }
 
 /* ------------------------------------------------------------------ */
@@ -384,37 +373,75 @@ export function RichTextEditor({
   const [showLink, setShowLink]   = useState(false);
   const [showColors, setShowColors] = useState(false);
   const [showImage, setShowImage]  = useState(false);
-  const [savedRange, setSavedRange] = useState<Range | null>(null);
+  const savedRangeRef = useRef<Range | null>(null);
+  const lastValueRef = useRef(value);
+  const [fontSize, setFontSize] = useState("");
+  const [fontFamily, setFontFamily] = useState("");
   const [, forceUpdate] = useState(0);
 
-  // Initialise editor with existing HTML value
+  // Sync externally loaded drafts without resetting the caret on every keystroke.
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
+    if (editorRef.current && (lastValueRef.current !== value || !editorRef.current.innerHTML)) {
       editorRef.current.innerHTML = value;
+      savedRangeRef.current = null;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    lastValueRef.current = value;
+  }, [value]);
 
   const saveSelection = useCallback(() => {
     const sel = window.getSelection();
-    if (sel && sel.rangeCount > 0) {
-      setSavedRange(sel.getRangeAt(0).cloneRange());
+    const editor = editorRef.current;
+    if (editor && sel && sel.rangeCount > 0) {
+      const range = sel.getRangeAt(0);
+      if (editor.contains(range.startContainer) && editor.contains(range.endContainer)) {
+        savedRangeRef.current = range.cloneRange();
+      }
     }
   }, []);
 
   const restoreSelection = useCallback(() => {
-    if (!savedRange) return;
+    const editor = editorRef.current;
+    const savedRange = savedRangeRef.current;
+    if (!editor) return;
+    editor.focus();
+    if (!savedRange || !editor.contains(savedRange.commonAncestorContainer)) return;
     const sel = window.getSelection();
     if (!sel) return;
     sel.removeAllRanges();
     sel.addRange(savedRange);
-    editorRef.current?.focus();
-  }, [savedRange]);
+  }, []);
+
+  const updateSelection = useCallback(() => {
+    saveSelection();
+    const editor = editorRef.current;
+    const selection = window.getSelection();
+    if (!editor || !selection?.anchorNode || !editor.contains(selection.anchorNode)) return;
+    const element = selection.anchorNode instanceof Element
+      ? selection.anchorNode
+      : selection.anchorNode.parentElement;
+    if (element) {
+      const styles = window.getComputedStyle(element);
+      const pixels = parseFloat(styles.fontSize);
+      const rootPixels = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+      setFontSize(ARTICLE_FONT_SIZES.find((size) => Math.abs(parseFloat(size.style) * rootPixels - pixels) < 0.5)?.value ?? "");
+      setFontFamily(sanitizeArticleFontFamily(styles.fontFamily.split(",")[0]) ?? "");
+    }
+    forceUpdate((n) => n + 1);
+  }, [saveSelection]);
+
+  useEffect(() => {
+    document.addEventListener("selectionchange", updateSelection);
+    return () => document.removeEventListener("selectionchange", updateSelection);
+  }, [updateSelection]);
 
   const handleInput = useCallback(() => {
-    onChange(editorRef.current?.innerHTML ?? "");
+    if (!editorRef.current) return;
+    const html = serializeEditorHtml(editorRef.current);
+    lastValueRef.current = html;
+    onChange(html);
+    saveSelection();
     forceUpdate((n) => n + 1);
-  }, [onChange]);
+  }, [onChange, saveSelection]);
 
   /* Link insert */
   function handleLinkConfirm(url: string, displayText: string) {
@@ -473,9 +500,21 @@ export function RichTextEditor({
   }
 
   function applyFontSize(size: string) {
+    if (!getArticleFontSize(size)) return;
+    restoreSelection();
+    exec("styleWithCSS", "false");
     exec("fontSize", size);
-    if (editorRef.current) normalizeFontSizeMarkup(editorRef.current);
     handleInput();
+    setFontSize(size);
+  }
+
+  function applyFontFamily(family: string) {
+    if (!sanitizeArticleFontFamily(family)) return;
+    restoreSelection();
+    exec("styleWithCSS", "false");
+    exec("fontName", family);
+    handleInput();
+    setFontFamily(family);
   }
 
   const iconSize = 14;
@@ -487,10 +526,10 @@ export function RichTextEditor({
         {/* ── Toolbar ── */}
         <div className="relative flex flex-wrap items-center gap-0.5 border-b border-zinc-200 bg-zinc-50 px-2 py-1.5">
           {/* History */}
-          <ToolBtn title="Undo (Ctrl+Z)" onClick={() => exec("undo")}>
+          <ToolBtn title="Undo (Ctrl+Z)" onClick={() => { restoreSelection(); exec("undo"); handleInput(); }}>
             <Undo size={iconSize} />
           </ToolBtn>
-          <ToolBtn title="Redo (Ctrl+Y)" onClick={() => exec("redo")}>
+          <ToolBtn title="Redo (Ctrl+Y)" onClick={() => { restoreSelection(); exec("redo"); handleInput(); }}>
             <Redo size={iconSize} />
           </ToolBtn>
 
@@ -572,17 +611,34 @@ export function RichTextEditor({
 
           {/* Font size */}
           <select
-            title="Font size"
+            title="Font style"
+            aria-label="Font style"
             className="h-8 rounded border border-zinc-200 bg-white px-1 text-xs text-zinc-700 outline-none focus:border-red-700"
-            defaultValue="3"
-            onMouseDown={(e) => e.stopPropagation()}
+            value={fontFamily}
+            onPointerDown={saveSelection}
+            onFocus={saveSelection}
+            onChange={(e) => applyFontFamily(e.target.value)}
+          >
+            <option value="" disabled>Font style</option>
+            {ARTICLE_FONT_FAMILIES.map((font) => (
+              <option key={font.value} value={font.value}>{font.label}</option>
+            ))}
+          </select>
+          <select
+            title="Font size"
+            aria-label="Font size"
+            className="h-8 rounded border border-zinc-200 bg-white px-1 text-xs text-zinc-700 outline-none focus:border-red-700"
+            value={fontSize}
+            onPointerDown={saveSelection}
+            onFocus={saveSelection}
             onChange={(e) => {
               applyFontSize(e.target.value);
             }}
           >
-            {FONT_SIZES.map((s) => (
-              <option key={s} value={s}>
-                {FONT_SIZE_LABELS[s]}
+            <option value="" disabled>Font size</option>
+            {ARTICLE_FONT_SIZES.map((size) => (
+              <option key={size.value} value={size.value}>
+                {size.label}
               </option>
             ))}
           </select>
@@ -716,21 +772,23 @@ export function RichTextEditor({
         <div
           ref={editorRef}
           contentEditable
+          role="textbox"
+          aria-label="Full Article"
+          aria-multiline="true"
           suppressContentEditableWarning
           data-placeholder={placeholder}
-          className="rich-editor min-h-[320px] px-4 py-3 text-sm font-normal text-zinc-900 outline-none"
+          className="rich-editor min-h-[320px] px-4 py-3 text-base font-normal text-zinc-900 outline-none"
           style={{ minHeight }}
           onInput={handleInput}
-          onKeyUp={() => forceUpdate((n) => n + 1)}
-          onMouseUp={() => forceUpdate((n) => n + 1)}
+          onKeyUp={updateSelection}
+          onMouseUp={updateSelection}
           onFocus={() => setShowColors(false)}
-          onBlur={() => {
-            // close popovers when focus leaves editor (not into a popover)
-          }}
+          onBlur={saveSelection}
         />
       </div>
 
       <style>{`
+        ${ARTICLE_FONT_SIZES.map((size) => `.rich-editor font[size="${size.value}"] { font-size: ${size.style}; }`).join("\n")}
         .rich-editor:empty:before {
           content: attr(data-placeholder);
           color: #a1a1aa;

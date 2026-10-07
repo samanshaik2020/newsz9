@@ -1,4 +1,3 @@
-import { Gamepad2, Trophy } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { cn, containsTeluguText } from "@/lib/utils";
@@ -55,23 +54,6 @@ export function RightSidebar({ articles }: { articles: ArticleListItem[] }) {
 
       <AdBanner size="mobile" className="max-w-none" />
 
-      <SidebarPanel title="Sports Scores">
-        <div className="grid min-h-32 place-items-center p-5 text-center text-sm font-semibold text-zinc-500">
-          <div>
-            <Trophy className="mx-auto mb-2 h-7 w-7 text-[var(--color-news-red)]" aria-hidden="true" />
-            Live score widget slot
-          </div>
-        </div>
-      </SidebarPanel>
-
-      <SidebarPanel title="Games">
-        <div className="grid min-h-32 place-items-center p-5 text-center text-sm font-semibold text-zinc-500">
-          <div>
-            <Gamepad2 className="mx-auto mb-2 h-7 w-7 text-[var(--color-news-red)]" aria-hidden="true" />
-            Games module slot
-          </div>
-        </div>
-      </SidebarPanel>
     </aside>
   );
 }

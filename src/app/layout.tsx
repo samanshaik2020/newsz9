@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora, Mallanna, Montserrat, Roboto, Roboto_Condensed } from "next/font/google";
+import { Inter, Mallanna, Montserrat, Roboto, Roboto_Condensed } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -12,11 +12,6 @@ const mallanna = Mallanna({
   variable: "--font-mallanna",
   subsets: ["telugu"],
   weight: "400",
-});
-
-const lora = Lora({
-  variable: "--font-lora",
-  subsets: ["latin"],
 });
 
 const montserrat = Montserrat({
@@ -88,15 +83,9 @@ export default function RootLayout({
           crossOrigin="anonymous"
           src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7139265156534550"
         />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Mallanna&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body
-        className={`${inter.variable} ${mallanna.variable} ${lora.variable} ${montserrat.variable} ${roboto.variable} ${robotoCondensed.variable} antialiased`}
+        className={`${inter.variable} ${mallanna.variable} ${montserrat.variable} ${roboto.variable} ${robotoCondensed.variable} antialiased`}
       >
         {/* Google Tag Manager */}
         <Script

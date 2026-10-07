@@ -1,4 +1,5 @@
 import { unstable_noStore as noStore } from "next/cache";
+import { cache } from "react";
 import { maybeCreateClient, maybeCreateServiceClient } from "@/lib/supabase";
 import { getCached } from "@/lib/cache";
 import { buildAdminArticleStats } from "@/lib/article-stats";
@@ -31,7 +32,7 @@ function matchesLanguage(article: ArticleListItem, language?: Language) {
   return !language || article.language === language;
 }
 
-export async function getCategories(): Promise<Category[]> {
+export const getCategories = cache(async function getCategories(): Promise<Category[]> {
   noStore();
   const supabase = maybeCreateClient();
 
@@ -50,7 +51,7 @@ export async function getCategories(): Promise<Category[]> {
     },
     600 // cache 10 minutes
   );
-}
+});
 
 export async function getBreakingNews(): Promise<BreakingNewsItem[]> {
   noStore();
@@ -119,7 +120,7 @@ export async function getPublishedArticles(
   );
 }
 
-export async function getArticleBySlug(slug: string): Promise<Article | null> {
+export const getArticleBySlug = cache(async function getArticleBySlug(slug: string): Promise<Article | null> {
   noStore();
   const supabase = maybeCreateClient();
 
@@ -145,7 +146,7 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     },
     1800 // cache 30 minutes
   );
-}
+});
 
 export async function getArticlesByCategory(
   slug: string,

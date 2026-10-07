@@ -1,27 +1,26 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 import Link from "next/link";
 import TemplateRenderer from "@/components/templates/TemplateRenderer";
 import type { Article } from "@/types";
 
 const previewStorageKey = "newsz9-article-preview";
 
-export function ArticlePreviewClient() {
-  const [rawArticle, setRawArticle] = useState<string | null>(() => {
-    if (typeof window === "undefined") return null;
-    return sessionStorage.getItem(previewStorageKey);
-  });
+function subscribeToPreview(onChange: () => void) {
+  function onStorage(event: StorageEvent) {
+    if (event.key === previewStorageKey || event.key === null) onChange();
+  }
+  window.addEventListener("storage", onStorage);
+  return () => window.removeEventListener("storage", onStorage);
+}
 
-  useEffect(() => {
-    function onStorage(event: StorageEvent) {
-      if (event.key === previewStorageKey) {
-        setRawArticle(event.newValue);
-      }
-    }
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, []);
+function getPreviewSnapshot() {
+  return localStorage.getItem(previewStorageKey) ?? sessionStorage.getItem(previewStorageKey);
+}
+
+export function ArticlePreviewClient() {
+  const rawArticle = useSyncExternalStore(subscribeToPreview, getPreviewSnapshot, () => null);
 
   const article = useMemo<Article | null>(() => {
     if (!rawArticle) return null;
