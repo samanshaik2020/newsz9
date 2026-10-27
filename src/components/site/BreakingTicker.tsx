@@ -29,7 +29,7 @@ function TickerItem({ item }: { item: BreakingNewsItem }) {
 export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
   if (!items.length) return null;
 
-  const loopItems = [...items, ...items];
+  const loopItems = items;
 
   return (
     <section className="bg-[var(--color-news-red)] text-white">
@@ -39,10 +39,10 @@ export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
           </span>
-          Breaking News
+          తాజా సమాచారం
         </div>
         <div className="breaking-marquee min-w-0 flex-1 text-sm font-bold">
-          <div className="breaking-track py-3">
+          <div className="flex overflow-x-auto py-3">
             {loopItems.map((item, index) => (
               <TickerItem item={item} key={`${item.id}-${index}`} />
             ))}

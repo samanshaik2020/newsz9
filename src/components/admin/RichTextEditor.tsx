@@ -22,7 +22,6 @@ import {
   AlignJustify,
   List,
   ListOrdered,
-  Heading1,
   Heading2,
   Heading3,
   Minus,
@@ -102,9 +101,9 @@ function LinkDialog({
 
   return (
     <div className="absolute left-0 top-full z-50 mt-1 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg">
-      <p className="mb-3 text-sm font-bold text-zinc-800">Insert Link</p>
+      <p className="mb-3 text-sm font-bold text-zinc-800">లింకు జోడించండి</p>
       <label className="mb-2 grid gap-1 text-xs font-medium text-zinc-600">
-        URL
+        లింకు
         <input
           autoFocus
           className="rounded border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-red-700"
@@ -121,10 +120,10 @@ function LinkDialog({
         />
       </label>
       <label className="mb-3 grid gap-1 text-xs font-medium text-zinc-600">
-        Display text (optional — uses selection if empty)
+        లింకుకు తెలుగు పేరు
         <input
           className="rounded border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-red-700"
-          placeholder="Link text"
+          placeholder="తెలుగు లింకు పేరు"
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={(e) => {
@@ -142,14 +141,14 @@ function LinkDialog({
           className="rounded px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100"
           onClick={onCancel}
         >
-          Cancel
+          రద్దు
         </button>
         <button
           type="button"
           className="rounded bg-red-700 px-3 py-1 text-xs font-semibold text-white hover:bg-red-800"
           onClick={() => onConfirm(url, text)}
         >
-          Insert
+          జోడించండి
         </button>
       </div>
     </div>
@@ -208,10 +207,10 @@ function ImageDialog({
 
   return (
     <div className="absolute left-0 top-full z-50 mt-1 w-96 rounded-lg border border-zinc-200 bg-white p-4 shadow-xl">
-      <p className="mb-3 text-sm font-bold text-zinc-800">Insert Image</p>
+      <p className="mb-3 text-sm font-bold text-zinc-800">చిత్రం జోడించండి</p>
 
       <label className="mb-2 grid gap-1 text-xs font-medium text-zinc-600">
-        Image URL
+        చిత్రం లింకు
         <input
           autoFocus
           className="rounded border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-red-700"
@@ -222,7 +221,7 @@ function ImageDialog({
       </label>
 
       <label className="mb-2 grid gap-1 text-xs font-medium text-zinc-600">
-        Or upload a file
+        లేదా చిత్రం అప్‌లోడ్ చేయండి
         <input
           type="file"
           accept="image/*"
@@ -230,14 +229,14 @@ function ImageDialog({
           disabled={uploading}
           onChange={handleFileChange}
         />
-        {uploading && <span className="text-xs text-zinc-400">Uploading…</span>}
+        {uploading && <span className="text-xs text-zinc-400">అప్‌లోడ్ అవుతోంది…</span>}
       </label>
 
       <label className="mb-2 grid gap-1 text-xs font-medium text-zinc-600">
-        Caption (optional)
+        చిత్రానికి తెలుగు వివరణ, మూలం
         <input
           className="rounded border border-zinc-300 px-3 py-1.5 text-sm outline-none focus:border-red-700"
-          placeholder="Photo credit or description"
+          placeholder="చిత్ర వివరణ, మూలం తెలుగులో"
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
         />
@@ -245,28 +244,28 @@ function ImageDialog({
 
       <div className="mb-3 flex gap-3">
         <label className="grid gap-1 text-xs font-medium text-zinc-600">
-          Size
+          పరిమాణం
           <select
             className="rounded border border-zinc-300 px-2 py-1 text-xs"
             value={size}
             onChange={(e) => setSize(e.target.value as ImgSize)}
           >
-            <option value="small">Small (33%)</option>
-            <option value="medium">Medium (60%)</option>
-            <option value="full">Full width</option>
-            <option value="wide">Wide (breakout)</option>
+            <option value="small">చిన్నది (33%)</option>
+            <option value="medium">మధ్యస్థం (60%)</option>
+            <option value="full">పూర్తి వెడల్పు</option>
+            <option value="wide">విస్తృత చిత్రం</option>
           </select>
         </label>
         <label className="grid gap-1 text-xs font-medium text-zinc-600">
-          Alignment
+          అమరిక
           <select
             className="rounded border border-zinc-300 px-2 py-1 text-xs"
             value={align}
             onChange={(e) => setAlign(e.target.value as ImgAlign)}
           >
-            <option value="left">Left</option>
-            <option value="center">Center</option>
-            <option value="right">Right</option>
+            <option value="left">ఎడమ</option>
+            <option value="center">మధ్య</option>
+            <option value="right">కుడి</option>
           </select>
         </label>
       </div>
@@ -277,14 +276,14 @@ function ImageDialog({
       )}
 
       <div className="flex justify-end gap-2">
-        <button type="button" className="rounded px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100" onClick={onCancel}>Cancel</button>
+        <button type="button" className="rounded px-3 py-1 text-xs text-zinc-600 hover:bg-zinc-100" onClick={onCancel}>రద్దు</button>
         <button
           type="button"
           disabled={!url}
           className="rounded bg-red-700 px-3 py-1 text-xs font-semibold text-white hover:bg-red-800 disabled:opacity-40"
           onClick={() => onConfirm(buildHtml())}
         >
-          Insert Image
+          చిత్రం జోడించండి
         </button>
       </div>
     </div>
@@ -296,12 +295,12 @@ function ImageDialog({
 /* ------------------------------------------------------------------ */
 
 const HIGHLIGHT_COLORS = [
-  { label: "Yellow", color: "#fef08a" },
-  { label: "Green", color: "#bbf7d0" },
-  { label: "Blue", color: "#bae6fd" },
-  { label: "Pink", color: "#fbcfe8" },
-  { label: "Orange", color: "#fed7aa" },
-  { label: "None", color: "transparent" },
+  { label: "పసుపు", color: "#fef08a" },
+  { label: "ఆకుపచ్చ", color: "#bbf7d0" },
+  { label: "నీలం", color: "#bae6fd" },
+  { label: "గులాబీ", color: "#fbcfe8" },
+  { label: "నారింజ", color: "#fed7aa" },
+  { label: "ఏదీ వద్దు", color: "transparent" },
 ];
 
 function ColorPicker({
@@ -521,15 +520,15 @@ export function RichTextEditor({
 
   return (
     <div className="grid gap-2 text-sm font-bold text-zinc-800">
-      Full Article
+      పూర్తి కథనం
       <div className="overflow-hidden rounded-md border border-zinc-300 focus-within:border-red-700">
         {/* ── Toolbar ── */}
         <div className="relative flex flex-wrap items-center gap-0.5 border-b border-zinc-200 bg-zinc-50 px-2 py-1.5">
           {/* History */}
-          <ToolBtn title="Undo (Ctrl+Z)" onClick={() => { restoreSelection(); exec("undo"); handleInput(); }}>
+          <ToolBtn title="చర్య వెనక్కి (Ctrl+Z)" onClick={() => { restoreSelection(); exec("undo"); handleInput(); }}>
             <Undo size={iconSize} />
           </ToolBtn>
-          <ToolBtn title="Redo (Ctrl+Y)" onClick={() => { restoreSelection(); exec("redo"); handleInput(); }}>
+          <ToolBtn title="చర్య మళ్లీ (Ctrl+Y)" onClick={() => { restoreSelection(); exec("redo"); handleInput(); }}>
             <Redo size={iconSize} />
           </ToolBtn>
 
@@ -537,28 +536,28 @@ export function RichTextEditor({
 
           {/* Inline formatting */}
           <ToolBtn
-            title="Bold (Ctrl+B)"
+            title="మందమైన అక్షరాలు (Ctrl+B)"
             active={isActive("bold")}
             onClick={() => { exec("bold"); handleInput(); }}
           >
             <Bold size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Italic (Ctrl+I)"
+            title="వాలు అక్షరాలు (Ctrl+I)"
             active={isActive("italic")}
             onClick={() => { exec("italic"); handleInput(); }}
           >
             <Italic size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Underline (Ctrl+U)"
+            title="కింద గీత (Ctrl+U)"
             active={isActive("underline")}
             onClick={() => { exec("underline"); handleInput(); }}
           >
             <Underline size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Strikethrough"
+            title="మధ్య గీత"
             active={isActive("strikeThrough")}
             onClick={() => { exec("strikeThrough"); handleInput(); }}
           >
@@ -570,7 +569,7 @@ export function RichTextEditor({
           {/* Highlight */}
           <div className="relative">
             <ToolBtn
-              title="Highlight"
+              title="రంగు గుర్తింపు"
               active={showColors}
               onClick={() => {
                 saveSelection();
@@ -591,17 +590,14 @@ export function RichTextEditor({
           <Divider />
 
           {/* Headings */}
-          <ToolBtn title="Heading 1" onClick={() => insertHeading("h1")}>
-            <Heading1 size={iconSize} />
-          </ToolBtn>
-          <ToolBtn title="Heading 2" onClick={() => insertHeading("h2")}>
+          <ToolBtn title="ఉపశీర్షిక" onClick={() => insertHeading("h2")}>
             <Heading2 size={iconSize} />
           </ToolBtn>
-          <ToolBtn title="Heading 3" onClick={() => insertHeading("h3")}>
+          <ToolBtn title="చిన్న ఉపశీర్షిక" onClick={() => insertHeading("h3")}>
             <Heading3 size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Paragraph"
+            title="పేరా"
             onClick={() => { exec("formatBlock", "p"); handleInput(); }}
           >
             <Type size={iconSize} />
@@ -611,22 +607,22 @@ export function RichTextEditor({
 
           {/* Font size */}
           <select
-            title="Font style"
-            aria-label="Font style"
+            title="అక్షర రూపం"
+            aria-label="అక్షర రూపం"
             className="h-8 rounded border border-zinc-200 bg-white px-1 text-xs text-zinc-700 outline-none focus:border-red-700"
             value={fontFamily}
             onPointerDown={saveSelection}
             onFocus={saveSelection}
             onChange={(e) => applyFontFamily(e.target.value)}
           >
-            <option value="" disabled>Font style</option>
+            <option value="" disabled>అక్షర రూపం</option>
             {ARTICLE_FONT_FAMILIES.map((font) => (
               <option key={font.value} value={font.value}>{font.label}</option>
             ))}
           </select>
           <select
-            title="Font size"
-            aria-label="Font size"
+            title="అక్షర పరిమాణం"
+            aria-label="అక్షర పరిమాణం"
             className="h-8 rounded border border-zinc-200 bg-white px-1 text-xs text-zinc-700 outline-none focus:border-red-700"
             value={fontSize}
             onPointerDown={saveSelection}
@@ -635,7 +631,7 @@ export function RichTextEditor({
               applyFontSize(e.target.value);
             }}
           >
-            <option value="" disabled>Font size</option>
+            <option value="" disabled>అక్షర పరిమాణం</option>
             {ARTICLE_FONT_SIZES.map((size) => (
               <option key={size.value} value={size.value}>
                 {size.label}
@@ -647,28 +643,28 @@ export function RichTextEditor({
 
           {/* Alignment */}
           <ToolBtn
-            title="Align left"
+            title="ఎడమ అమరిక"
             active={isActive("justifyLeft")}
             onClick={() => { exec("justifyLeft"); handleInput(); }}
           >
             <AlignLeft size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Align center"
+            title="మధ్య అమరిక"
             active={isActive("justifyCenter")}
             onClick={() => { exec("justifyCenter"); handleInput(); }}
           >
             <AlignCenter size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Align right"
+            title="కుడి అమరిక"
             active={isActive("justifyRight")}
             onClick={() => { exec("justifyRight"); handleInput(); }}
           >
             <AlignRight size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Justify"
+            title="రెండు అంచుల అమరిక"
             active={isActive("justifyFull")}
             onClick={() => { exec("justifyFull"); handleInput(); }}
           >
@@ -679,14 +675,14 @@ export function RichTextEditor({
 
           {/* Lists */}
           <ToolBtn
-            title="Bullet list"
+            title="అంశాల జాబితా"
             active={isActive("insertUnorderedList")}
             onClick={() => { exec("insertUnorderedList"); handleInput(); }}
           >
             <List size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Numbered list"
+            title="సంఖ్యల జాబితా"
             active={isActive("insertOrderedList")}
             onClick={() => { exec("insertOrderedList"); handleInput(); }}
           >
@@ -697,13 +693,13 @@ export function RichTextEditor({
 
           {/* Block extras */}
           <ToolBtn
-            title="Blockquote"
+            title="ఉల్లేఖనం"
             onClick={() => { exec("formatBlock", "blockquote"); handleInput(); }}
           >
             <Quote size={iconSize} />
           </ToolBtn>
           <ToolBtn
-            title="Horizontal rule"
+            title="విభజన గీత"
             onClick={() => { exec("insertHorizontalRule"); handleInput(); }}
           >
             <Minus size={iconSize} />
@@ -714,7 +710,7 @@ export function RichTextEditor({
           {/* Links */}
           <div className="relative">
             <ToolBtn
-              title="Insert link"
+              title="లింకు జోడించండి"
               onClick={() => {
                 saveSelection();
                 setShowLink((v) => !v);
@@ -732,7 +728,7 @@ export function RichTextEditor({
             )}
           </div>
           <ToolBtn
-            title="Remove link"
+            title="లింకు తొలగించండి"
             onClick={() => { exec("unlink"); handleInput(); }}
           >
             <Unlink size={iconSize} />
@@ -743,7 +739,7 @@ export function RichTextEditor({
           {/* Insert Image */}
           <div className="relative">
             <ToolBtn
-              title="Insert image"
+              title="చిత్రం జోడించండి"
               active={showImage}
               onClick={() => {
                 saveSelection();
@@ -773,7 +769,7 @@ export function RichTextEditor({
           ref={editorRef}
           contentEditable
           role="textbox"
-          aria-label="Full Article"
+          aria-label="పూర్తి కథనం"
           aria-multiline="true"
           suppressContentEditableWarning
           data-placeholder={placeholder}

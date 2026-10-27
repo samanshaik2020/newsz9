@@ -12,7 +12,7 @@ import type { Category, CategoryFormInput, Language } from "@/types";
 const emptyForm: CategoryFormInput = {
   name: "",
   slug: "",
-  language: "en",
+  language: "te",
   description: "",
 };
 
@@ -52,20 +52,20 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error ?? "Category could not be saved.");
+      setMessage(payload.error ?? "విభాగాన్ని భద్రపరచలేకపోయాం.");
       return;
     }
 
-    setMessage(editingId ? "Category updated." : "Category created.");
+    setMessage(editingId ? "విభాగం సవరించబడింది." : "విభాగం సృష్టించబడింది.");
     resetForm();
     router.refresh();
   }
 
   async function deleteCategory(id: string) {
     const confirmed = await confirmDialog({
-      title: "Delete Category",
-      message: "Delete this category? Existing articles will keep publishing without it.",
-      confirmLabel: "Delete",
+      title: "విభాగం తొలగింపు",
+      message: "ఈ విభాగాన్ని తొలగిస్తే దాని కథనాలకు విభాగాన్ని తిరిగి కేటాయించాలి. తొలగించాలా?",
+      confirmLabel: "తొలగించండి",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -76,11 +76,11 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      addToast(payload.error ?? "Category could not be deleted.", "error");
+      addToast(payload.error ?? "విభాగాన్ని తొలగించలేకపోయాం.", "error");
       return;
     }
 
-    addToast("Category deleted.", "success");
+    addToast("విభాగం తొలగించబడింది.", "success");
     router.refresh();
   }
 
@@ -88,7 +88,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
       <section className="grid content-start gap-4 rounded-md border border-zinc-200 bg-white p-5">
         <h2 className="text-lg font-black">
-          {editingId ? "Edit Category" : "New Category"}
+          {editingId ? "విభాగం సవరించండి" : "కొత్త విభాగం"}
         </h2>
         <input
           className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm outline-none focus:border-red-700"
@@ -99,7 +99,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
               slug: editingId ? form.slug : slugify(event.target.value),
             })
           }
-          placeholder="Category name"
+          placeholder="విభాగం పేరు తెలుగులో"
           value={form.name}
         />
         <input
@@ -117,25 +117,25 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
           }
           value={form.language}
         >
-          <option value="en">English</option>
-          <option value="te">Telugu</option>
+
+          <option value="te">తెలుగు</option>
         </select>
         <textarea
           className="min-h-24 rounded-md border border-zinc-300 px-4 py-3 text-sm outline-none focus:border-red-700"
           onChange={(event) =>
             setForm({ ...form, description: event.target.value })
           }
-          placeholder="Description"
+          placeholder="వివరణ"
           value={form.description ?? ""}
         />
         <div className="flex flex-wrap gap-2">
           <Button onClick={saveCategory} type="button">
             {editingId ? <Save aria-hidden="true" /> : <Plus aria-hidden="true" />}
-            {editingId ? "Update" : "Create"}
+            {editingId ? "మార్చండి" : "సృష్టించండి"}
           </Button>
           {editingId ? (
             <Button onClick={resetForm} type="button" variant="outline">
-              Cancel
+              రద్దు
             </Button>
           ) : null}
         </div>
@@ -161,7 +161,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
                 type="button"
                 variant="outline"
               >
-                Edit
+                సవరించండి
               </Button>
               <Button
                 onClick={() => deleteCategory(category.id)}

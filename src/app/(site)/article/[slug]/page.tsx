@@ -10,8 +10,9 @@ import { getArticleBySlug } from "@/lib/data";
 import { NEWSZ9_WORDMARK } from "@/lib/branding";
 import { getImageSrc, stripHtml } from "@/lib/utils";
 import { maybeCreateClient } from "@/lib/supabase";
+import { SITE_URL } from "@/lib/site-config";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
+const siteUrl = SITE_URL;
 
 export async function generateMetadata({
   params,
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const article = await getArticleBySlug(slug);
 
   if (!article) {
-    return { title: "Article Not Found | newsz9" };
+    return { title: "కథనం కనిపించలేదు | న్యూస్‌జెడ్‌9", robots: { index: false } };
   }
 
   const description = article.summary
@@ -33,13 +34,12 @@ export async function generateMetadata({
   const articleUrl = `${siteUrl}/article/${article.slug}`;
 
   return {
-    title: `${article.title} | newsz9`,
+    title: `${article.title} | న్యూస్‌జెడ్‌9`,
     description,
     keywords: [
       article.categories?.name,
-      "newsz9",
-      "India news",
-      "Telugu news",
+      "న్యూస్‌జెడ్‌9",
+      "తాజా వార్తలు",
       article.language === "te" ? "తెలుగు వార్తలు" : undefined,
     ].filter(Boolean) as string[],
     authors: article.authors ? [{ name: article.authors.name }] : undefined,
@@ -47,13 +47,13 @@ export async function generateMetadata({
       title: article.title,
       description,
       url: articleUrl,
-      siteName: "NEWSZ9",
+      siteName: "న్యూస్‌జెడ్‌9",
       type: "article",
       publishedTime: article.published_at ?? undefined,
       modifiedTime: article.updated_at ?? undefined,
       authors: article.authors ? [article.authors.name] : undefined,
-      section: article.categories?.name ?? "News",
-      locale: article.language === "te" ? "te_IN" : "en_IN",
+      section: article.categories?.name ?? "వార్తలు",
+      locale: "te_IN",
       ...(coverImage
         ? {
             images: [
@@ -76,6 +76,7 @@ export async function generateMetadata({
     alternates: {
       canonical: articleUrl,
     },
+    robots: /health|ఆరోగ్య|వైద్య/i.test(`${article.categories?.slug} ${article.categories?.name}`) && (!article.editorial_reviewed || !article.reviewers?.credentials || !article.sources?.length) ? { index: false, follow: true } : undefined,
   };
 }
 
@@ -117,13 +118,12 @@ export default async function ArticlePage({
     mainEntityOfPage: articleUrl,
     datePublished: article.published_at ?? article.created_at,
     dateModified: article.updated_at ?? article.published_at ?? article.created_at,
-    author: {
-      "@type": "Person",
-      name: article.authors?.name ?? "newsz9 Desk",
-    },
+    author: article.authors && article.authors.role !== "bot" && /[\u0C00-\u0C7F]/.test(article.authors.name)
+      ? { "@type": "Person", name: article.authors.name, url: `${siteUrl}/author/${article.authors.id}` }
+      : { "@type": "Organization", name: "న్యూస్‌జెడ్‌9 సంపాదక బృందం", url: `${siteUrl}/about-us` },
     publisher: {
       "@type": "Organization",
-      name: "NEWSZ9",
+      name: "న్యూస్‌జెడ్‌9",
       url: siteUrl,
       logo: {
         "@type": "ImageObject",
@@ -136,22 +136,20 @@ export default async function ArticlePage({
       ? {
           image: {
             "@type": "ImageObject",
-            url: coverImage,
-            width: 1200,
-            height: 630,
+            url: new URL(coverImage, siteUrl).toString(),
           },
         }
       : {}),
     ...(article.categories
       ? { articleSection: article.categories.name }
       : {}),
-    inLanguage: article.language === "te" ? "te" : "en",
+    inLanguage: "te",
   };
 
   return (
     <>
       <script
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         type="application/ld+json"
       />
       <div className="mx-auto max-w-6xl px-4 pt-4">
@@ -167,7 +165,7 @@ export default async function ArticlePage({
       </div>
       <Suspense fallback={
         <div className="border-t border-zinc-200 bg-zinc-50 px-4 py-10 text-center text-sm text-zinc-500" role="status">
-          Loading more stories…
+          మరిన్ని కథనాలు లోడ్ అవుతున్నాయి…
         </div>
       }>
         <ArticleRecommendations article={article} />

@@ -14,7 +14,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
       {
         "@type": "ListItem",
         position: 1,
-        name: "Home",
+        name: "ముఖపుట",
         item: process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com",
       },
       ...items.map((item, index) => ({
@@ -33,15 +33,15 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   return (
     <>
       <script
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
         type="application/ld+json"
       />
       <nav
-        aria-label="Breadcrumb"
+        aria-label="పేజీ మార్గం"
         className="flex items-center gap-1.5 overflow-x-auto text-sm text-zinc-500"
       >
         <Link
-          aria-label="Home"
+          aria-label="ముఖపుట"
           className="shrink-0 text-zinc-400 hover:text-red-600"
           href="/"
         >

@@ -11,7 +11,6 @@ export function BrandLogo({
   priority?: boolean;
 }) {
   const logo = variant === "mark" ? NEWSZ9_MARK : NEWSZ9_WORDMARK;
-
   return (
     <Image
       alt="NEWSZ9"

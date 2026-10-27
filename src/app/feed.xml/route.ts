@@ -3,7 +3,7 @@ import { stripHtml } from "@/lib/utils";
 
 export async function GET() {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
-  const articles = await getPublishedArticles(50);
+  const articles = await getPublishedArticles(50, 0, "te");
 
   const items = articles
     .map((article) => {
@@ -17,12 +17,11 @@ export async function GET() {
 
       return `    <item>
       <title>${escapeXml(article.title)}</title>
-      <link>${siteUrl}/article/${article.slug}</link>
-      <guid isPermaLink="true">${siteUrl}/article/${article.slug}</guid>
+      <link>${escapeXml(`${siteUrl}/article/${encodeURIComponent(article.slug)}`)}</link>
+      <guid isPermaLink="true">${escapeXml(`${siteUrl}/article/${encodeURIComponent(article.slug)}`)}</guid>
       <description>${description}</description>
       <pubDate>${pubDate}</pubDate>
       ${article.categories?.name ? `<category>${escapeXml(article.categories.name)}</category>` : ""}
-      ${article.cover_image ? `<enclosure url="${escapeXml(article.cover_image)}" type="image/jpeg" />` : ""}
     </item>`;
     })
     .join("\n");
@@ -30,10 +29,10 @@ export async function GET() {
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>NEWSZ9</title>
+    <title>న్యూస్‌జెడ్‌9</title>
     <link>${siteUrl}</link>
-    <description>Fast bilingual news for English and Telugu readers across national, regional, business, sports, and technology coverage.</description>
-    <language>en-in</language>
+    <description>తెలుగు పాఠకుల కోసం తాజా వార్తలు, నేపథ్య వివరాలు.</description>
+    <language>te-in</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml" />
 ${items}

@@ -27,7 +27,7 @@ export function CategorySection({
           {category.name}
         </h2>
         <Link className="section-heading__link" href={`/${category.slug}`}>
-          View More &gt;
+          మరిన్ని చూడండి &gt;
         </Link>
       </div>
       <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">

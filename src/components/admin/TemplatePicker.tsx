@@ -12,27 +12,27 @@ const templates: {
 }[] = [
   {
     id: "template_1",
-    name: "Split Left",
-    desc: "Photo left, content right",
-    preview: ["IMG | TEXT", "IMG | TEXT"],
+    name: "ఎడమవైపు చిత్రం",
+    desc: "ఎడమవైపు చిత్రం, కుడివైపు వివరాలు",
+    preview: ["చిత్రం | వివరాలు", "చిత్రం | వివరాలు"],
   },
   {
     id: "template_2",
-    name: "Split Right",
-    desc: "Content left, photo right",
-    preview: ["TEXT | IMG", "TEXT | IMG"],
+    name: "కుడివైపు చిత్రం",
+    desc: "ఎడమవైపు వివరాలు, కుడివైపు చిత్రం",
+    preview: ["వివరాలు | చిత్రం", "వివరాలు | చిత్రం"],
   },
   {
     id: "template_3",
-    name: "Magazine",
-    desc: "Full photo top, content below",
-    preview: ["IMG IMG IMG", "TEXT TEXT"],
+    name: "పత్రిక నమూనా",
+    desc: "పైన పూర్తి చిత్రం, కింద కథనం",
+    preview: ["పూర్తి చిత్రం", "కథనం వివరాలు"],
   },
   {
     id: "template_4",
-    name: "Hero Overlay",
-    desc: "Title overlaid on photo",
-    preview: ["IMG + TITLE", "CONTENT"],
+    name: "చిత్రంపై శీర్షిక",
+    desc: "పూర్తి చిత్రంపై కథనం శీర్షిక",
+    preview: ["చిత్రం + శీర్షిక", "కథనం"],
   },
 ];
 
@@ -46,7 +46,7 @@ export function TemplatePicker({
   return (
     <div>
       <label className="block text-sm font-bold text-zinc-800">
-        Article Layout Template
+        కథనం ప్రదర్శన నమూనా
       </label>
       <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {templates.map((template) => {

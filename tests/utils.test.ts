@@ -73,6 +73,15 @@ test("article font sizes survive saving and rendering", () => {
   assert.equal(processArticleHtml(savedHtml), savedHtml);
 });
 
+test("legacy editor instructions are removed from public articles", () => {
+  assert.equal(processArticleHtml('<p>వార్త వివరాలు</p><h3>Dashboard Setting Recommendations</h3><ul><li>Author: use a named profile</li></ul>'), '<p>వార్త వివరాలు</p>');
+});
+
+test("paid external article links carry a sponsorship relationship", () => {
+  const html = processArticleHtml('<a href="https://example.com" rel="noopener">వివరాలు</a>', true);
+  assert.match(html, /rel="sponsored noopener noreferrer"/);
+});
+
 test("article html rejects unsupported and unsafe font sizes", () => {
   assert.equal(
     sanitizeArticleHtml(

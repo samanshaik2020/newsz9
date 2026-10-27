@@ -1,16 +1,6 @@
 import type { MetadataRoute } from "next";
-
+import { SITE_URL } from "@/lib/site-config";
 export default function robots(): MetadataRoute.Robots {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
-
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/admin/", "/api/admin/"],
-      },
-    ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-  };
+  // The wildcard also permits Googlebot and Mediapartners-Google.
+  return { rules: [{ userAgent: "*", allow: "/", disallow: ["/admin", "/api/"] }], sitemap: `${SITE_URL}/sitemap.xml` };
 }

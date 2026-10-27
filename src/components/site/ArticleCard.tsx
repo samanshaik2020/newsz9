@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
 import type { ArticleListItem } from "@/types";
@@ -43,16 +43,16 @@ export function ArticleCard({
           />
         ) : (
           <span className="grid h-full place-items-center text-xs font-black uppercase text-zinc-500">
-            Newsz9
+            న్యూస్‌జెడ్‌9
           </span>
         )}
       </Link>
       <div className="mt-3 flex flex-1 flex-col">
         <Link
           className="category-label text-[11px] font-black uppercase text-[var(--color-news-red)] hover:text-red-800"
-          href={article.categories ? `/${article.categories.slug}` : "/search?q=News"}
+          href={article.categories ? `/${article.categories.slug}` : "/latest"}
         >
-          {article.categories?.name ?? "News"}
+          {article.categories?.name ?? "వార్తలు"}
         </Link>
         <h2 className="mt-1 text-[17px] font-black leading-snug text-zinc-950">
           <Link className="line-clamp-2 hover:text-[var(--color-news-red)]" href={articleHref}>
@@ -67,7 +67,7 @@ export function ArticleCard({
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3 text-xs text-zinc-500">
           <VerifiedAuthor
             className="max-w-[70%] text-xs"
-            name={article.authors?.name ?? "newsz9 Desk"}
+            authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "సంపాదక బృందం"}
           />
           <time
             className="font-semibold uppercase"

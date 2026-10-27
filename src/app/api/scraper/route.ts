@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { maybeCreateServiceClient } from "@/lib/supabase";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
+import { isTeluguCopy } from "@/lib/editorial";
 
 export async function POST(request: Request) {
   const supabase = maybeCreateServiceClient();
@@ -33,9 +34,9 @@ export async function POST(request: Request) {
     language?: "en" | "te";
   };
 
-  if (!body.title || !body.content) {
+  if (!body.title || !body.content || !isTeluguCopy(body.title) || !isTeluguCopy(body.content) || (body.language && body.language !== "te")) {
     return NextResponse.json(
-      { error: "title and content are required." },
+      { error: "తెలుగు శీర్షిక, తెలుగు కథనం అవసరం. దిగుమతులు మానవ సమీక్ష దశలోనే ఉంటాయి." },
       { status: 400 },
     );
   }
@@ -67,7 +68,9 @@ export async function POST(request: Request) {
       content: normalizeArticleContent(body.content),
       source_url: body.source_url ?? null,
       cover_image: getImageSrc(body.cover_image),
-      language: body.language ?? "en",
+      language: "te",
+      ai_assisted: true,
+      editorial_reviewed: false,
       template: "template_1",
       status: "review",
       author_id: botAuthor?.id ?? null,

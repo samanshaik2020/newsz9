@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import type { Metadata } from "next";
+export const metadata: Metadata = { title: "నిర్వాహక ప్రవేశం | న్యూస్‌జెడ్‌9", robots: { index: false, follow: false } };
 import { cookies } from "next/headers";
 import { LoginForm } from "@/components/admin/LoginForm";
 import {

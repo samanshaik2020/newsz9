@@ -1,43 +1,16 @@
+import type { Metadata } from "next";
 import { ArticleGrid } from "@/components/site/ArticleGrid";
-import { getCategories, searchArticles } from "@/lib/data";
-
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string }>;
-}) {
-  const { q = "" } = await searchParams;
+import { searchArticles } from "@/lib/data";
+export const metadata: Metadata = { title: "వార్తలు వెతకండి | న్యూస్‌జెడ్‌9", robots: { index: false, follow: true } };
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const q = ((await searchParams).q ?? "").slice(0, 100);
   const articles = await searchArticles(q);
-
-  return (
-    <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8">
-      <form action="/search" className="flex max-w-2xl gap-2">
-        <input
-          className="min-h-11 flex-1 rounded-md border border-zinc-300 px-4 text-sm outline-none focus:border-red-700"
-          defaultValue={q}
-          name="q"
-          placeholder="Search news"
-          type="search"
-        />
-        <button className="rounded-md bg-zinc-950 px-5 text-sm font-semibold text-white">
-          Search
-        </button>
-      </form>
-      <div className="border-b border-zinc-200 pb-4">
-        <p className="text-sm font-black uppercase tracking-[0.18em] text-red-700">
-          Results
-        </p>
-        <h1 className="mt-2 text-4xl font-black">
-          {q ? `Search: ${q}` : "Search newsz9"}
-        </h1>
-      </div>
-      {q && articles.length ? (
-        <ArticleGrid articles={articles} />
-      ) : (
-        <p className="py-16 text-zinc-600">
-          {q ? "No matching articles found." : "Enter a search term to begin."}
-        </p>
-      )}
-    </div>
-  );
+  return <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8">
+    <form action="/search" className="flex max-w-2xl gap-2">
+      <input className="min-h-12 min-w-0 flex-1 rounded border p-3" defaultValue={q} name="q" aria-label="వార్తలు వెతకండి" placeholder="వార్తలు వెతకండి" type="search" maxLength={100} />
+      <button className="rounded bg-red-700 px-5 text-white">వెతకండి</button>
+    </form>
+    <h1 className="border-b pb-4 text-3xl font-bold">{q ? `వెతికిన అంశం: ${q}` : "వార్తలు వెతకండి"}</h1>
+    {articles.length ? <ArticleGrid articles={articles} /> : <p className="py-12">{q ? "మీరు వెతికిన అంశానికి కథనాలు కనిపించలేదు." : "తెలుగు పదంతో మీకు కావాల్సిన వార్తను వెతకండి."}</p>}
+  </div>;
 }

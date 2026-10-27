@@ -8,12 +8,12 @@ export default async function AdminArticlesPage() {
   return (
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-3xl font-black">Articles</h1>
+        <h1 className="text-3xl font-black">కథనాలు</h1>
         <Link
           className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
           href="/admin/articles/new"
         >
-          Add New Article
+          కొత్త కథనం జోడించండి
         </Link>
       </div>
       <ArticleManagerTable articles={articles} />

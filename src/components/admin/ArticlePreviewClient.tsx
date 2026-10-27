@@ -51,17 +51,16 @@ export function ArticlePreviewClient() {
           </svg>
         </div>
         <div>
-          <h2 className="text-2xl font-black text-zinc-900">No Preview Available</h2>
+          <h2 className="text-2xl font-black text-zinc-900">ముందస్తు వీక్షణ అందుబాటులో లేదు</h2>
           <p className="mt-2 text-sm leading-6 text-zinc-500">
-            Open the article editor and click <strong>Preview Page</strong> to load the
-            draft here.
+            కథన సంపాదకంలో <strong>ముందస్తు వీక్షణ</strong> ఎంచుకుంటే ముసాయిదా ఇక్కడ కనిపిస్తుంది.
           </p>
         </div>
         <Link
           className="mx-auto inline-flex items-center gap-2 rounded-md bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white hover:bg-zinc-800"
           href="/admin/articles/new"
         >
-          ← Back to editor
+          ← కథన సంపాదకానికి వెళ్లండి
         </Link>
       </div>
     );

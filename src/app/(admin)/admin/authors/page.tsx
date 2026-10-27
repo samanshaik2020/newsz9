@@ -16,7 +16,7 @@ export default async function AdminAuthorsPage() {
 
   return (
     <div className="grid gap-6">
-      <h1 className="text-3xl font-black">Authors</h1>
+      <h1 className="text-3xl font-black">రచయితలు</h1>
       <AuthorManager authors={authors} />
     </div>
   );

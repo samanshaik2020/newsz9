@@ -217,6 +217,7 @@ export async function clearArticleCaches({
   const patternKeys = await clearCacheByPattern(
     "homepage:articles:*",
     "trending:articles:*",
+    "category:articles:*",
   );
 
   return [...new Set([...exactKeys, ...patternKeys])];

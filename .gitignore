@@ -27,3 +27,6 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+
+# Read-only live audit snapshots may contain private author contact information.
+/audit/*.json

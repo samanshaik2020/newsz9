@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
 import { ArticleGallery } from "@/components/templates/ArticleGallery";
@@ -9,8 +9,8 @@ import type { Article } from "@/types";
 export default function Template3({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
-  const categoryName = article.categories?.name ?? "News";
-  const authorName = article.authors?.name ?? "newsz9 Desk";
+  const categoryName = article.categories?.name ?? "వార్తలు";
+  const authorName = article.authors?.name ?? "సంపాదక బృందం";
 
   return (
     <article>
@@ -35,9 +35,9 @@ export default function Template3({ article }: { article: Article }) {
 
         {/* Author & date */}
         <div className="mt-6 flex items-center justify-center gap-3 border-b border-zinc-200 pb-6 text-sm text-zinc-500">
-          <VerifiedAuthor name={authorName} />
+          <VerifiedAuthor authorId={article.authors?.role !== "bot" ? article.author_id : null} name={authorName} />
           <span className="h-1 w-1 rounded-full bg-zinc-400" />
-          <time>{formatDate(article.published_at)}</time>
+          <time dateTime={article.published_at ?? undefined}>{formatDate(article.published_at)}</time>
         </div>
       </header>
 
@@ -45,7 +45,7 @@ export default function Template3({ article }: { article: Article }) {
       <div className="mx-auto mt-8 max-w-6xl px-4">
         <figure className="relative overflow-hidden rounded-xl bg-zinc-100 shadow-xl">
           <Image
-            alt={article.title}
+            alt={article.cover_alt || article.title}
             className={
               coverImage
                 ? "aspect-[16/9] w-full object-cover md:aspect-[21/9]"
@@ -69,7 +69,7 @@ export default function Template3({ article }: { article: Article }) {
         <div
           className="article-body magazine-drop-cap"
           dangerouslySetInnerHTML={{
-            __html: processArticleHtml(article.content),
+            __html: processArticleHtml(article.content, article.content_kind === "sponsored"),
           }}
         />
         <ArticleAuthorFooter article={article} />

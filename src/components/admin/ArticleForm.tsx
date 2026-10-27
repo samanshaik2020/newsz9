@@ -20,6 +20,10 @@ import type {
 import { TagInput } from "./TagInput";
 import { TemplatePicker } from "./TemplatePicker";
 import { RichTextEditor } from "./RichTextEditor";
+import { EditorialChecklist } from "./EditorialChecklist";
+import { publicationIssues } from "@/lib/editorial";
+import { publicAuthorName } from "@/lib/authors";
+import healthDrafts from "../../../content-rewrites/health-review-drafts.json";
 
 interface Tag {
   id: string;
@@ -29,7 +33,7 @@ interface Tag {
 
 const previewAuthor = {
   id: "preview-author",
-  name: "newsz9 Desk",
+  name: "సంపాదక బృందం",
   email: "desk@newsz9.com",
   role: "editor" as const,
 };
@@ -45,7 +49,17 @@ function formFromArticle(article?: Article): ArticleFormInput {
     gallery_images: article?.gallery_images ?? [],
     source_url: article?.source_url ?? "",
     category_id: article?.category_id ?? article?.categories?.id ?? "",
-    language: article?.language ?? "en",
+    language: "te",
+    cover_alt: article?.cover_alt ?? "",
+    image_credit: article?.image_credit ?? "",
+    sources: article?.sources ?? [],
+    original_reporting: article?.original_reporting ?? "",
+    editorial_reviewed: article?.editorial_reviewed ?? false,
+    ai_assisted: article?.ai_assisted ?? false,
+    reviewer_id: article?.reviewer_id ?? null,
+    content_kind: article?.content_kind ?? "news",
+    sponsor_name: article?.sponsor_name ?? "",
+    correction_note: article?.correction_note ?? "",
     template: article?.template ?? "template_1",
     status: article?.status ?? "draft",
   };
@@ -86,6 +100,7 @@ export function ArticleForm({
   const selectedCategory = categories.find(
     (category) => category.id === form.category_id,
   );
+  const replacementDraft = healthDrafts.find((draft) => draft.existing_article_id === article?.id);
   const validCoverImage = getImageSrc(form.cover_image);
   const galleryImages = useMemo(
     () => (Array.isArray(form.gallery_images) ? form.gallery_images : []),
@@ -94,19 +109,20 @@ export function ArticleForm({
 
   const previewArticle = useMemo<Article>(
     () => ({
+      ...form,
       id: article?.id ?? "preview-article",
-      title: form.title || "Article headline preview",
+      title: form.title || "కథనం శీర్షిక ముందస్తు వీక్షణ",
       slug: form.slug || "article-preview",
       summary:
         form.summary ||
-        "Article summary preview appears here before the full story.",
-      content: normalizeArticleContent(form.content || "Article body preview."),
+        "పూర్తి కథనానికి ముందు సారాంశం ఇక్కడ కనిపిస్తుంది.",
+      content: normalizeArticleContent(form.content || "కథనం ముందస్తు వీక్షణ."),
       cover_image: validCoverImage,
       enable_gallery: form.enable_gallery,
       gallery_images: galleryImages,
       source_url: form.source_url || null,
       category_id: form.category_id || null,
-      author_id: article?.author_id ?? previewAuthor.id,
+      author_id: selectedAuthorId || null,
       language: form.language,
       template: form.template,
       status: form.status,
@@ -117,15 +133,19 @@ export function ArticleForm({
       created_at: article?.created_at ?? new Date().toISOString(),
       updated_at: new Date().toISOString(),
       categories: selectedCategory ?? null,
-      authors: article?.authors ?? previewAuthor,
+      authors: authors.find((a) => a.id === selectedAuthorId) ?? previewAuthor,
     }),
-    [article, form, galleryImages, selectedCategory, validCoverImage],
+    [article, form, galleryImages, selectedCategory, validCoverImage, authors, selectedAuthorId],
   );
 
   async function handleSubmit() {
+    if (form.status === "published") {
+      const issues = publicationIssues(form, authors.find((a) => a.id === selectedAuthorId), selectedCategory, authors.find((a) => a.id === form.reviewer_id));
+      if (issues.length) { setMessage(issues.join("\n")); addToast("ప్రచురణ తనిఖీలో చూపిన వివరాలు పూర్తి చేయండి.", "error"); return; }
+    }
     setIsSaving(true);
     setMessage(null);
-
+    try {
     const endpoint =
       mode === "edit" && article
         ? `/api/admin/articles/${article.id}`
@@ -144,10 +164,8 @@ export function ArticleForm({
       error?: string;
     };
 
-    setIsSaving(false);
-
     if (!response.ok) {
-      addToast(payload.error ?? "Article could not be saved.", "error");
+      addToast(payload.error ?? "కథనాన్ని భద్రపరచలేకపోయాం.", "error");
       return;
     }
 
@@ -162,12 +180,15 @@ export function ArticleForm({
       }),
     });
 
-    addToast(mode === "edit" ? "Article updated." : "Article saved.", "success");
+    addToast(mode === "edit" ? "కథనం సవరించబడింది." : "కథనం భద్రపడింది.", "success");
     router.refresh();
 
     if (mode === "create" && payload.article?.id) {
       router.push(`/admin/articles/${payload.article.id}`);
     }
+    } catch {
+      addToast("సర్వర్‌తో అనుసంధానం కాలేదు. మీ రచన ఇక్కడే ఉంది; మళ్లీ ప్రయత్నించండి.", "error");
+    } finally { setIsSaving(false); }
   }
 
   async function handleImageUpload(file?: File) {
@@ -191,12 +212,12 @@ export function ArticleForm({
     setIsUploading(false);
 
     if (!response.ok || !payload.publicUrl) {
-      setMessage(payload.error ?? "Image could not be uploaded.");
+      setMessage(payload.error ?? "చిత్రాన్ని అప్‌లోడ్ చేయలేకపోయాం.");
       return;
     }
 
     setForm({ ...form, cover_image: payload.publicUrl });
-    setMessage("Image uploaded.");
+    setMessage("చిత్రం అప్‌లోడ్ అయింది.");
   }
 
   async function handleGalleryUpload(files?: FileList | null) {
@@ -221,7 +242,7 @@ export function ArticleForm({
       };
 
       if (!response.ok || !payload.publicUrl) {
-        setMessage(payload.error ?? "One gallery image could not be uploaded.");
+        setMessage(payload.error ?? "ఒక చిత్రాన్ని అప్‌లోడ్ చేయలేకపోయాం.");
         setIsGalleryUploading(false);
         return;
       }
@@ -235,13 +256,13 @@ export function ArticleForm({
       gallery_images: [...galleryImages, ...uploadedUrls],
     });
     setIsGalleryUploading(false);
-    setMessage("Gallery images uploaded.");
+    setMessage("అదనపు చిత్రంs uploaded.");
   }
 
   function addGalleryUrl() {
     const imageUrl = getImageSrc(galleryUrl);
     if (!imageUrl) {
-      setMessage("Enter a valid image URL.");
+      setMessage("సరైన చిత్రం లింకు ఇవ్వండి.");
       return;
     }
 
@@ -271,9 +292,9 @@ export function ArticleForm({
     if (!article) return;
 
     const confirmed = await confirmDialog({
-      title: "Delete Article",
-      message: "Delete this article permanently? This action cannot be undone.",
-      confirmLabel: "Delete",
+      title: "కథనం తొలగింపు",
+      message: "ఈ కథనాన్ని శాశ్వతంగా తొలగించాలా? ఈ చర్యను వెనక్కి తీసుకోలేరు.",
+      confirmLabel: "తొలగించండి",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -289,11 +310,11 @@ export function ArticleForm({
     setIsDeleting(false);
 
     if (!response.ok) {
-      addToast(payload.error ?? "Article could not be deleted.", "error");
+      addToast(payload.error ?? "కథనాన్ని తొలగించలేకపోయాం.", "error");
       return;
     }
 
-    addToast("Article deleted.", "success");
+    addToast("కథనం తొలగించబడింది.", "success");
     router.push("/admin/articles");
     router.refresh();
   }
@@ -304,25 +325,29 @@ export function ArticleForm({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black">
-              {mode === "edit" ? "Edit Article" : "Create Article"}
+              {mode === "edit" ? "కథనం సవరించండి" : "కొత్త కథనం రాయండి"}
             </h1>
             <p className="mt-2 text-sm text-zinc-600">
-              Add the image, choose the category and layout, then open a full-page
-              preview before publishing.
+              చిత్రం, విభాగం, నమూనాను ఎంచుకోండి. ప్రచురణ తనిఖీలు పూర్తి చేసి ముందస్తు వీక్షణ చూడండి.
             </p>
           </div>
           {mode === "edit" ? (
             <Button asChild>
               <Link href="/admin/articles/new">
                 <Plus aria-hidden="true" />
-                Add New Article
+                కొత్త కథనం జోడించండి
               </Link>
             </Button>
           ) : null}
         </div>
         <div className="grid gap-4 rounded-md border border-zinc-200 bg-white p-5">
+          {replacementDraft && <aside className="rounded border border-amber-300 bg-amber-50 p-4"><p>ఈ కథనానికి ఆధారాలతో తెలుగు పునర్రచన ముసాయిదా సిద్ధంగా ఉంది. లోడ్ చేసిన తరువాత రచయిత, చిత్ర హక్కులు, వైద్య సమీక్ష పూర్తి చేయాలి. భద్రపరిచే వరకు ప్రస్తుత కథనం మారదు.</p><button className="mt-3 rounded border bg-white px-4 py-2 font-bold" type="button" onClick={() => {
+            const { existing_article_id: _id, ...draft } = replacementDraft;
+            void _id; // This identifies the existing record, not an editable article field.
+            setForm({ ...form, ...draft, language: "te", status: "review", source_url: draft.sources[0]?.url ?? "" });
+          }}>పునర్రచన ముసాయిదా లోడ్ చేయండి</button></aside>}
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Title
+            శీర్షిక
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
@@ -335,12 +360,12 @@ export function ArticleForm({
                       : slugify(event.target.value),
                 })
               }
-              placeholder="Article headline"
+              placeholder="కథనం శీర్షిక"
               value={form.title}
             />
           </label>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Slug
+            లింకు పేరు
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal text-zinc-600 outline-none focus:border-red-700"
               onChange={(event) =>
@@ -351,25 +376,25 @@ export function ArticleForm({
             />
           </label>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Summary
+            సారాంశం
             <textarea
               className="min-h-24 rounded-md border border-zinc-300 px-4 py-3 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
                 setForm({ ...form, summary: event.target.value })
               }
-              placeholder="Short summary shown in cards and article intros"
+              placeholder="కథనం ప్రధాన విషయాన్ని సంక్షిప్తంగా రాయండి"
               value={form.summary ?? ""}
             />
           </label>
           <RichTextEditor
             value={form.content}
             onChange={(html) => setForm({ ...form, content: html })}
-            placeholder="Write your article content here — use the toolbar above to format text, add links, headings, and more."
+            placeholder="కథనాన్ని తెలుగులో రాయండి. ఉపశీర్షికలు, పేరాలు, జాబితాలు, మూలాల లింకులు జోడించండి."
           />
           <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
             <div className="grid gap-3">
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                Upload Cover Image
+                ప్రధాన చిత్రం అప్‌లోడ్
                 <input
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   className="min-h-11 rounded-md border border-zinc-300 px-4 py-2 text-sm font-normal outline-none file:mr-3 file:rounded file:border-0 file:bg-zinc-950 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-red-700"
@@ -379,7 +404,7 @@ export function ArticleForm({
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                Cover Image URL
+                ప్రధాన చిత్రం లింకు
                 <input
                   className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
                   onChange={(event) =>
@@ -391,7 +416,7 @@ export function ArticleForm({
               </label>
               {isUploading ? (
                 <p className="text-sm font-medium text-zinc-600">
-                  Uploading image...
+                  చిత్రం అప్‌లోడ్ అవుతోంది…
                 </p>
               ) : null}
             </div>
@@ -399,7 +424,7 @@ export function ArticleForm({
               {validCoverImage ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
-                  alt="Cover preview"
+                  alt="ప్రధాన చిత్రం ముందస్తు వీక్షణ"
                   className="h-full min-h-32 w-full object-cover"
                   src={validCoverImage}
                 />
@@ -414,10 +439,10 @@ export function ArticleForm({
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-sm font-black text-zinc-900">
-                  Additional Article Images
+                  కథనానికి అదనపు చిత్రాలు
                 </h2>
                 <p className="mt-1 text-xs leading-5 text-zinc-500">
-                  Turn this on to show an image gallery inside the selected article layout.
+                  ఎంచుకున్న నమూనాలో అదనపు చిత్రాలు చూపడానికి ఈ ఎంపికను ప్రారంభించండి.
                 </p>
               </div>
               <label className="flex cursor-pointer items-center gap-3 text-sm font-bold text-zinc-800">
@@ -429,13 +454,13 @@ export function ArticleForm({
                   }
                   type="checkbox"
                 />
-                {form.enable_gallery ? "On" : "Off"}
+                {form.enable_gallery ? "చేతనం" : "నిలిపివేత"}
               </label>
             </div>
             {form.enable_gallery ? (
               <div className="grid gap-4">
                 <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                  Upload More Images
+                  మరిన్ని చిత్రాలు అప్‌లోడ్ చేయండి
                   <input
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     className="min-h-11 rounded-md border border-zinc-300 bg-white px-4 py-2 text-sm font-normal outline-none file:mr-3 file:rounded file:border-0 file:bg-zinc-950 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-red-700"
@@ -449,17 +474,17 @@ export function ArticleForm({
                   <input
                     className="min-h-11 rounded-md border border-zinc-300 bg-white px-4 text-sm outline-none focus:border-red-700"
                     onChange={(event) => setGalleryUrl(event.target.value)}
-                    placeholder="Paste an extra image URL"
+                    placeholder="అదనపు చిత్రం లింకు ఇవ్వండి"
                     value={galleryUrl}
                   />
                   <Button onClick={addGalleryUrl} type="button" variant="outline">
                     <Plus aria-hidden="true" />
-                    Add URL
+                    లింకు జోడించండి
                   </Button>
                 </div>
                 {isGalleryUploading ? (
                   <p className="text-sm font-medium text-zinc-600">
-                    Uploading gallery images...
+                    అదనపు చిత్రాలు అప్‌లోడ్ అవుతున్నాయి…
                   </p>
                 ) : null}
                 {galleryImages.length ? (
@@ -472,12 +497,12 @@ export function ArticleForm({
                         <div className="relative">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
-                            alt={`Gallery image ${index + 1}`}
+                            alt={`అదనపు చిత్రం ${index + 1}`}
                             className="aspect-[4/3] w-full object-cover"
                             src={image}
                           />
                           <button
-                            aria-label={`Remove gallery image ${index + 1}`}
+                            aria-label={`అదనపు చిత్రం తొలగించండి ${index + 1}`}
                             className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full bg-zinc-950 text-white shadow-sm hover:bg-red-700"
                             onClick={() => removeGalleryImage(index)}
                             type="button"
@@ -490,20 +515,20 @@ export function ArticleForm({
                   </div>
                 ) : (
                   <p className="rounded-md border border-dashed border-zinc-300 bg-white p-4 text-sm text-zinc-500">
-                    No extra images added yet.
+                    ఇంకా అదనపు చిత్రాలు జోడించలేదు.
                   </p>
                 )}
               </div>
             ) : null}
           </section>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Source URL
+            మూలం లింకు
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
                 setForm({ ...form, source_url: event.target.value })
               }
-              placeholder="Original article/source URL"
+              placeholder="అసలు ఆధారం లింకు"
               value={form.source_url ?? ""}
             />
           </label>
@@ -515,7 +540,7 @@ export function ArticleForm({
           />
           <div className="grid gap-3 md:grid-cols-3">
             <label className="grid gap-2 text-sm font-bold text-zinc-800">
-              Language
+              భాష
               <select
                 className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
                 onChange={(event) =>
@@ -523,12 +548,11 @@ export function ArticleForm({
                 }
                 value={form.language}
               >
-                <option value="en">English</option>
-                <option value="te">Telugu</option>
+                <option value="te">తెలుగు</option>
               </select>
             </label>
             <label className="grid gap-2 text-sm font-bold text-zinc-800">
-              Status
+              దశ
               <select
                 className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
                 onChange={(event) =>
@@ -539,14 +563,14 @@ export function ArticleForm({
                 }
                 value={form.status}
               >
-                <option value="draft">Draft</option>
-                <option value="review">Review</option>
-                <option value="published">Publish Now</option>
-                <option value="archived">Archived</option>
+                <option value="draft">ముసాయిదా</option>
+                <option value="review">సమీక్ష</option>
+                <option value="published">ప్రచురించండి</option>
+                <option value="archived">భద్రపరిచినవి</option>
               </select>
             </label>
             <label className="grid gap-2 text-sm font-bold text-zinc-800">
-              Category
+              విభాగం
               <select
                 className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
                 onChange={(event) =>
@@ -554,8 +578,8 @@ export function ArticleForm({
                 }
                 value={form.category_id ?? ""}
               >
-                <option value="">No category</option>
-                {categories.map((category) => (
+                <option value="">విభాగాన్ని ఎంచుకోండి</option>
+                {categories.filter((category) => category.language === "te").map((category) => (
                   <option key={category.id} value={category.id}>
                     {category.name}
                   </option>
@@ -565,21 +589,22 @@ export function ArticleForm({
           </div>
           {/* Author selector */}
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Author
+            రచయిత
             <select
               className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
               onChange={(event) => setSelectedAuthorId(event.target.value)}
               value={selectedAuthorId}
             >
-              <option value="">newsz9 Desk (default)</option>
-              {authors.map((author) => (
+              <option value="">బాధ్యతగల రచయితను ఎంచుకోండి</option>
+              {authors.filter((author) => author.role !== "bot").map((author) => (
                 <option key={author.id} value={author.id}>
-                  {author.name} ({author.role})
+                  {publicAuthorName(author.name)}
                 </option>
               ))}
             </select>
           </label>
           {/* Tags */}
+          <EditorialChecklist value={form} onChange={setForm} authors={authors} authorId={selectedAuthorId} categories={categories} />
           <TagInput
             availableTags={availableTags}
             selectedTagIds={selectedTagIds}
@@ -588,17 +613,17 @@ export function ArticleForm({
           <div className="flex flex-wrap items-center gap-3">
             <Button disabled={isSaving} onClick={handleSubmit}>
               <Save aria-hidden="true" />
-              {isSaving ? "Saving..." : mode === "edit" ? "Update Article" : "Save Article"}
+              {isSaving ? "భద్రపరుస్తున్నాం…" : mode === "edit" ? "మార్పులు భద్రపరచండి" : "కథనం భద్రపరచండి"}
             </Button>
             <Button onClick={openPreviewPage} type="button" variant="outline">
               <Eye aria-hidden="true" />
-              Preview Page
+              ముందస్తు వీక్షణ
             </Button>
             {mode === "edit" && article ? (
               <Button asChild variant="outline">
                 <a href={`/admin/articles/${article.id}/preview`}>
                   <Eye aria-hidden="true" />
-                  Saved Preview
+                  భద్రపరిచిన కథనం వీక్షణ
                 </a>
               </Button>
             ) : null}
@@ -610,7 +635,7 @@ export function ArticleForm({
                 variant="destructive"
               >
                 <Trash2 aria-hidden="true" />
-                {isDeleting ? "Deleting..." : "Delete"}
+                {isDeleting ? "తొలగిస్తున్నాం…" : "తొలగించండి"}
               </Button>
             ) : null}
             {message ? (

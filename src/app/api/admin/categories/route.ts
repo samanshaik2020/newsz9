@@ -2,10 +2,10 @@ import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
 import { clearCategoryCaches } from "@/lib/cache";
 import { getCategories } from "@/lib/data";
-import { slugify } from "@/lib/utils";
+import { containsTeluguText, slugify } from "@/lib/utils";
 import type { CategoryFormInput, Language } from "@/types";
 
-const languages = new Set(["en", "te"]);
+const languages = new Set(["te"]);
 
 export async function GET(request: Request) {
   const unauthorized = requireAdmin(request);
@@ -27,11 +27,11 @@ export async function POST(request: Request) {
   const slug = body.slug ? slugify(body.slug) : slugify(name);
   const language = languages.has(body.language ?? "")
     ? (body.language as Language)
-    : "en";
+    : "te";
 
-  if (!name || !slug) {
+  if (!name || !slug || !containsTeluguText(name) || (body.language && body.language !== "te")) {
     return NextResponse.json(
-      { error: "Category name and slug are required." },
+      { error: "తెలుగు విభాగం పేరు, లింకు పేరు తప్పనిసరి." },
       { status: 400 },
     );
   }

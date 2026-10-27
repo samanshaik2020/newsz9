@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
 import { ArticleGallery } from "@/components/templates/ArticleGallery";
@@ -9,8 +9,8 @@ import type { Article } from "@/types";
 export default function Template1({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
-  const categoryName = article.categories?.name ?? "News";
-  const authorName = article.authors?.name ?? "newsz9 Desk";
+  const categoryName = article.categories?.name ?? "వార్తలు";
+  const authorName = article.authors?.name ?? "సంపాదక బృందం";
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-8">
@@ -19,7 +19,7 @@ export default function Template1({ article }: { article: Article }) {
         {/* Left — Cover image */}
         <figure className="relative overflow-hidden rounded-xl bg-zinc-100 shadow-lg">
           <Image
-            alt={article.title}
+            alt={article.cover_alt || article.title}
             className={
               coverImage
                 ? "aspect-[4/3] w-full object-cover"
@@ -44,9 +44,9 @@ export default function Template1({ article }: { article: Article }) {
             {article.title}
           </h1>
           <div className="mt-4 flex items-center gap-3 text-sm text-zinc-500">
-            <VerifiedAuthor name={authorName} />
+            <VerifiedAuthor authorId={article.authors?.role !== "bot" ? article.author_id : null} name={authorName} />
             <span className="h-1 w-1 rounded-full bg-zinc-400" />
-            <time>{formatDate(article.published_at)}</time>
+            <time dateTime={article.published_at ?? undefined}>{formatDate(article.published_at)}</time>
           </div>
           {article.summary ? (
             <p className="mt-5 border-l-4 border-red-700 pl-4 text-base leading-7 text-zinc-600 md:text-lg md:leading-8">
@@ -65,7 +65,7 @@ export default function Template1({ article }: { article: Article }) {
         <div
           className="article-body"
           dangerouslySetInnerHTML={{
-            __html: processArticleHtml(article.content),
+            __html: processArticleHtml(article.content, article.content_kind === "sponsored"),
           }}
         />
         <ArticleAuthorFooter article={article} />

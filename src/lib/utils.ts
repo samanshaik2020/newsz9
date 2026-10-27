@@ -10,7 +10,7 @@ export function slugify(value: string) {
   return value
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[^\p{L}\p{M}\p{N}\s-]/gu, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-")
     .slice(0, 90)
@@ -18,13 +18,17 @@ export function slugify(value: string) {
 }
 
 export function formatDate(value?: string | null) {
-  if (!value) return "Draft";
+  if (!value || !Number.isFinite(Date.parse(value))) return "ముసాయిదా";
 
-  return new Intl.DateTimeFormat("en-IN", {
+  return new Intl.DateTimeFormat("te-IN", {
     day: "2-digit",
-    month: "short",
+    month: "long",
     year: "numeric",
-  }).format(new Date(value));
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    timeZone: "Asia/Kolkata",
+  }).format(new Date(value)) + " (భారత కాలమానం)";
 }
 
 export function stripHtml(value: string) {
@@ -293,13 +297,11 @@ export function getImageSrc(value?: string | null) {
 
   const trimmed = value.trim();
   if (!trimmed) return null;
-  if (trimmed.startsWith("/")) return trimmed;
+  if (trimmed.startsWith("/") && !trimmed.startsWith("//")) return trimmed;
 
   try {
     const url = new URL(trimmed);
-    return url.protocol === "http:" || url.protocol === "https:"
-      ? trimmed
-      : null;
+    return url.protocol === "https:" && !url.username && !url.password ? trimmed : null;
   } catch {
     return null;
   }
@@ -310,8 +312,12 @@ export function getImageSrc(value?: string | null) {
  * explicit width/height to every inline <img> tag.
  * This helps with CLS (Cumulative Layout Shift) and LCP scores.
  */
-export function processArticleHtml(html: string): string {
-  return sanitizeArticleHtml(html).replace(/<img\b([^>]*)>/gi, (_match, attrs: string) => {
+export function processArticleHtml(html: string, sponsored = false): string {
+  // Remove an editor-instruction block found inside a legacy imported article.
+  const content = html.replace(/<h[1-6][^>]*>\s*Dashboard Setting Recommendations\s*<\/h[1-6]>\s*<ul\b[^>]*>[\s\S]*?<\/ul>/gi, "");
+  let clean = sanitizeArticleHtml(content);
+  if (sponsored) clean = clean.replace(/<a\b[^>]*>/gi, (tag) => /href="https?:/i.test(tag) ? tag.replace(/\srel="[^"]*"/gi, "").replace(/>$/, ' rel="sponsored noopener noreferrer">') : tag);
+  return clean.replace(/<img\b([^>]*)>/gi, (_match, attrs: string) => {
     let result = attrs;
 
     // Add loading="lazy" if not already present

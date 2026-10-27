@@ -6,7 +6,7 @@ export function Sidebar({ articles }: { articles: ArticleListItem[] }) {
     <aside className="grid content-start gap-6">
       <section className="border border-zinc-200 bg-white">
         <h2 className="border-b-2 border-zinc-950 bg-zinc-50 px-4 py-3 text-sm font-black uppercase">
-          Trending
+          ఎక్కువ మంది చదువుతున్నవి
         </h2>
         <div className="grid">
           {articles.map((article, index) => (
@@ -22,9 +22,6 @@ export function Sidebar({ articles }: { articles: ArticleListItem[] }) {
             </Link>
           ))}
         </div>
-      </section>
-      <section className="grid min-h-64 place-items-center border border-zinc-200 bg-zinc-50 p-6 text-center text-xs font-black uppercase text-zinc-500">
-        Advertisement
       </section>
     </aside>
   );

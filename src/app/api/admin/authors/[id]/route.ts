@@ -18,6 +18,8 @@ export async function PATCH(
     bio?: string;
     avatar_url?: string;
     role?: string;
+    credentials?: string;
+    expertise?: string;
   };
 
   if (!body.name?.trim() || !body.email?.trim()) {
@@ -38,6 +40,8 @@ export async function PATCH(
       bio: body.bio?.trim() || null,
       avatar_url: body.avatar_url?.trim() || null,
       role,
+      credentials: body.credentials?.trim() || null,
+      expertise: body.expertise?.trim() || null,
     })
     .eq("id", id)
     .select("*")

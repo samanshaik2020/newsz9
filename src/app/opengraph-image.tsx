@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { NEWSZ9_WORDMARK } from "@/lib/branding";
 
-export const alt = "NEWSZ9 — English & Telugu News";
+export const alt = "న్యూస్‌జెడ్‌9 — తెలుగు వార్తలు";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -11,6 +11,7 @@ export default async function OpenGraphImage() {
   const logo = await readFile(
     join(process.cwd(), "public", NEWSZ9_WORDMARK.src),
   );
+  const teluguFont = await readFile(join(process.cwd(), "public/fonts/Mallanna-Regular.ttf"));
 
   return new ImageResponse(
     (
@@ -36,10 +37,10 @@ export default async function OpenGraphImage() {
           height={NEWSZ9_WORDMARK.height}
         />
         <div style={{ display: "flex", color: "#18181b", fontSize: 38 }}>
-          English &amp; Telugu News
+          తాజా తెలుగు వార్తలు
         </div>
       </div>
     ),
-    size,
+    { ...size, fonts: [{ name: "Mallanna", data: teluguFont, style: "normal", weight: 400 }] },
   );
 }

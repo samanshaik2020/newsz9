@@ -37,23 +37,23 @@ export function CopyArticleLinkButton({ slug }: { slug: string }) {
     try {
       await writeToClipboard(url);
       setCopied(true);
-      addToast("Article link copied.", "success");
+      addToast("కథనం లింకు కాపీ అయింది.", "success");
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
-      addToast("Could not copy the article link.", "error");
+      addToast("కథనం లింకు కాపీ కాలేదు.", "error");
     }
   }
 
   return (
     <Button
-      aria-label="Copy article link"
+      aria-label="కథనం లింకు కాపీ చేయండి"
       onClick={copyLink}
       size="sm"
       type="button"
       variant="outline"
     >
       {copied ? <Check aria-hidden="true" /> : <Copy aria-hidden="true" />}
-      {copied ? "Copied" : "Copy Link"}
+      {copied ? "కాపీ అయింది" : "లింకు కాపీ"}
     </Button>
   );
 }

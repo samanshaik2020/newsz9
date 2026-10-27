@@ -1,3 +1,4 @@
+import { isTeluguCopy, safeSourceUrl } from "@/lib/editorial";
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
 import { clearBreakingNewsCaches } from "@/lib/cache";
@@ -23,9 +24,9 @@ export async function POST(request: Request) {
   const body = (await request.json()) as Partial<BreakingNewsFormInput>;
   const headline = body.headline?.trim() ?? "";
 
-  if (!headline) {
+  if (!headline || !isTeluguCopy(headline) || (body.url && !body.url.startsWith("/") && !safeSourceUrl(body.url)) || body.url?.startsWith("//")) {
     return NextResponse.json(
-      { error: "Headline is required." },
+      { error: "తెలుగు శీర్షిక, సరైన లింకు ఇవ్వండి." },
       { status: 400 },
     );
   }
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   if (data && (body.is_active ?? true)) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com";
     sendPushNotification({
-      title: "BREAKING NEWS",
+      title: "తాజా సమాచారం",
       message: headline,
       url: body.url?.trim() || siteUrl,
     }).catch(() => {});

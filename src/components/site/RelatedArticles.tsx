@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
 import type { ArticleListItem } from "@/types";
 import { VerifiedAuthor } from "./VerifiedAuthor";
@@ -34,7 +34,7 @@ function SuggestionCard({ article }: { article: ArticleListItem }) {
           />
         ) : (
           <span className="grid h-full place-items-center text-xs font-black uppercase text-zinc-400">
-            Newsz9
+            న్యూస్‌జెడ్‌9
           </span>
         )}
       </Link>
@@ -42,10 +42,10 @@ function SuggestionCard({ article }: { article: ArticleListItem }) {
         <Link
           className="text-[11px] font-black uppercase tracking-wide text-red-700 hover:text-red-800"
           href={
-            article.categories ? `/${article.categories.slug}` : "/search?q=News"
+            article.categories ? `/${article.categories.slug}` : "/latest"
           }
         >
-          {article.categories?.name ?? "News"}
+          {article.categories?.name ?? "వార్తలు"}
         </Link>
         <h3 className="mt-1.5 text-[15px] font-bold leading-snug text-zinc-950">
           <Link
@@ -58,7 +58,7 @@ function SuggestionCard({ article }: { article: ArticleListItem }) {
         <div className="mt-auto grid gap-1.5 pt-3 text-[11px] text-zinc-400">
           <VerifiedAuthor
             className="max-w-full text-[11px]"
-            name={article.authors?.name ?? "newsz9 Desk"}
+            authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "సంపాదక బృందం"}
           />
           <time
             className="font-semibold uppercase"
@@ -86,13 +86,13 @@ export function RelatedArticles({
 
   return (
     <div className="border-t border-zinc-200 bg-zinc-50">
-      {/* ── Related Stories (same category) ── */}
+      {/* ── సంబంధిత వార్తలు (same category) ── */}
       {hasRelated ? (
         <section className="mx-auto max-w-6xl px-4 py-10">
           <div className="mb-6 flex items-center gap-3">
             <span className="h-5 w-1 rounded-full bg-red-700" />
             <h2 className="text-xl font-black text-zinc-950">
-              Related Stories
+              సంబంధిత వార్తలు
             </h2>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -103,7 +103,7 @@ export function RelatedArticles({
         </section>
       ) : null}
 
-      {/* ── More Stories (trending + latest) ── */}
+      {/* ── మరిన్ని వార్తలు (trending + latest) ── */}
       {hasMore ? (
         <section
           className={cn(
@@ -114,7 +114,7 @@ export function RelatedArticles({
           <div className="mb-6 flex items-center gap-3">
             <span className="h-5 w-1 rounded-full bg-zinc-950" />
             <h2 className="text-xl font-black text-zinc-950">
-              You May Also Like
+              మీకు ఉపయోగపడే మరిన్ని వార్తలు
             </h2>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">

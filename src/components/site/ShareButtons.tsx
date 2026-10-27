@@ -11,29 +11,29 @@ interface ShareButtonsProps {
 
 const platforms = [
   {
-    name: "WhatsApp",
-    label: "WA",
+    name: "వాట్సాప్",
+    label: "వా",
     color: "bg-green-600 hover:bg-green-700",
     href: (url: string, title: string) =>
       `https://api.whatsapp.com/send?text=${encodeURIComponent(`${title} ${url}`)}`,
   },
   {
-    name: "X",
-    label: "X",
+    name: "ఎక్స్",
+    label: "ఎక్స్",
     color: "bg-zinc-900 hover:bg-zinc-950",
     href: (url: string, title: string) =>
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
   },
   {
-    name: "Facebook",
-    label: "FB",
+    name: "ఫేస్‌బుక్",
+    label: "ఫే",
     color: "bg-blue-600 hover:bg-blue-700",
     href: (url: string) =>
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
   },
   {
-    name: "LinkedIn",
-    label: "in",
+    name: "లింక్డ్‌ఇన్",
+    label: "లి",
     color: "bg-blue-700 hover:bg-blue-800",
     href: (url: string) =>
       `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
@@ -56,11 +56,11 @@ export function ShareButtons({ url, title }: ShareButtonsProps) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       <span className="mr-1 text-xs font-bold uppercase tracking-wider text-zinc-400">
-        Share
+        పంచుకోండి
       </span>
       {platforms.map((platform) => (
         <a
-          aria-label={`Share on ${platform.name}`}
+          aria-label={`${platform.name}లో పంచుకోండి`}
           className={`grid h-9 w-9 place-items-center rounded-full text-xs font-bold text-white transition-colors ${platform.color}`}
           href={platform.href(url, title)}
           key={platform.name}
@@ -71,7 +71,7 @@ export function ShareButtons({ url, title }: ShareButtonsProps) {
         </a>
       ))}
       <button
-        aria-label="Copy link"
+        aria-label="లింకు కాపీ చేయండి"
         className={`grid h-9 w-9 place-items-center rounded-full transition-colors ${
           copied
             ? "bg-green-600 text-white"
@@ -83,7 +83,7 @@ export function ShareButtons({ url, title }: ShareButtonsProps) {
         <Link2 className="h-4 w-4" aria-hidden="true" />
       </button>
       {copied ? (
-        <span className="text-xs font-semibold text-green-600">Copied!</span>
+        <span className="text-xs font-semibold text-green-600">లింకు కాపీ అయింది</span>
       ) : null}
     </div>
   );

@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
 import type { ArticleListItem } from "@/types";
@@ -19,7 +19,7 @@ export function HeroSection({ article }: { article: ArticleListItem }) {
     >
       <div className="mb-5 flex overflow-hidden bg-zinc-50 text-sm font-bold shadow-[inset_0_0_0_1px_rgb(244_244_245)]">
         <span className="shrink-0 bg-red-100 px-3 py-3 text-red-600">
-          TOP STORY
+          ప్రధాన వార్త
         </span>
         <Link
           className="min-w-0 px-4 py-3 text-zinc-950 hover:text-red-600"
@@ -32,7 +32,7 @@ export function HeroSection({ article }: { article: ArticleListItem }) {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex flex-col justify-center">
           <div className="mb-3 text-sm font-semibold text-red-600">
-            {article.categories?.name ?? "News"}
+            {article.categories?.name ?? "వార్తలు"}
           </div>
           <h1 className="max-w-4xl text-[1.75rem] font-black leading-tight text-zinc-950 sm:text-[2.25rem]">
             <Link className="hover:text-red-600" href={articleHref}>
@@ -45,7 +45,7 @@ export function HeroSection({ article }: { article: ArticleListItem }) {
             </p>
           ) : null}
           <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
-            <VerifiedAuthor name={article.authors?.name ?? "newsz9 Desk"} />
+            <VerifiedAuthor authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "సంపాదక బృందం"} />
             <span aria-hidden="true">|</span>
             <time dateTime={article.published_at ?? article.created_at}>
               {formatDate(article.published_at ?? article.created_at)}
@@ -85,7 +85,7 @@ export function HeroSection({ article }: { article: ArticleListItem }) {
             />
           ) : (
             <span className="grid h-full place-items-center text-sm font-semibold uppercase text-zinc-500">
-              Newsz9
+              న్యూస్‌జెడ్‌9
             </span>
           )}
         </Link>

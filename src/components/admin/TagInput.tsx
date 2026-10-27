@@ -74,7 +74,7 @@ export function TagInput({
 
   return (
     <div className="grid gap-2 text-sm font-bold text-zinc-800">
-      <span>Tags</span>
+      <span>అంశాల గుర్తులు</span>
       {/* Selected tags */}
       {selectedTags.length > 0 ? (
         <div className="flex flex-wrap gap-2">
@@ -112,7 +112,7 @@ export function TagInput({
                 }
               }
             }}
-            placeholder="Type to search or create a tag..."
+            placeholder="అంశం వెతకండి లేదా కొత్త గుర్తు సృష్టించండి"
             value={inputValue}
           />
           {inputValue.trim() && suggestions.length === 0 ? (
@@ -123,7 +123,7 @@ export function TagInput({
               type="button"
             >
               <Plus className="h-3 w-3" aria-hidden="true" />
-              {isCreating ? "Adding..." : "Create"}
+              {isCreating ? "జోడిస్తున్నాం…" : "సృష్టించండి"}
             </button>
           ) : null}
         </div>

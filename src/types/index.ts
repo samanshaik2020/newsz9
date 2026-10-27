@@ -38,9 +38,25 @@ export interface Author {
   bio?: string | null;
   avatar_url?: string | null;
   role: "editor" | "reporter" | "bot";
+  credentials?: string | null;
+  expertise?: string | null;
 }
 
-export interface Article {
+export interface ArticleSource { title: string; url: string }
+export interface EditorialFields {
+  cover_alt?: string | null;
+  image_credit?: string | null;
+  sources?: ArticleSource[];
+  original_reporting?: string | null;
+  editorial_reviewed?: boolean;
+  ai_assisted?: boolean;
+  reviewer_id?: string | null;
+  content_kind?: "news" | "analysis" | "opinion" | "sponsored";
+  sponsor_name?: string | null;
+  correction_note?: string | null;
+}
+
+export interface Article extends EditorialFields {
   id: string;
   title: string;
   slug: string;
@@ -61,6 +77,7 @@ export interface Article {
   author_id?: string | null;
   categories?: Category | null;
   authors?: Author | null;
+  reviewers?: Author | null;
 }
 
 export type ArticleListItem = Pick<
@@ -80,6 +97,9 @@ export type ArticleListItem = Pick<
   | "author_id"
   | "categories"
   | "authors"
+  | "sources"
+  | "reviewer_id"
+  | "editorial_reviewed"
 >;
 
 export interface BreakingNewsItem {
@@ -104,8 +124,9 @@ export type ArticleFormInput = Pick<
   | "template"
   | "status"
   | "category_id"
-> & {
+> & EditorialFields & {
   source_url?: string | null;
+  author_id?: string | null;
 };
 
 export type CategoryFormInput = Pick<

@@ -1,105 +1,40 @@
-import { AdBanner } from "@/components/site/AdBanner";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import { BreakingTicker } from "@/components/site/BreakingTicker";
 import { CategorySection } from "@/components/site/CategorySection";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { HeroSplit } from "@/components/site/HeroSplit";
-import { InfiniteArticleGrid } from "@/components/site/InfiniteArticleGrid";
+import { ArticleGrid } from "@/components/site/ArticleGrid";
 import { RightSidebar } from "@/components/site/RightSidebar";
-import {
-  getBreakingNews,
-  getCategories,
-  getPublishedArticles,
-  getTrendingArticles,
-} from "@/lib/data";
-import { normalizeLanguage } from "@/lib/language";
-import Link from "next/link";
+import { getBreakingNews, getCategories, getPublishedArticles } from "@/lib/data";
+import { composeHomepage, normalizedText } from "@/lib/editorial";
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ lang?: string | string[] }>;
-}) {
-  const { lang } = await searchParams;
-  const selectedLanguage = normalizeLanguage(lang);
-  const [categories, breakingNews, articles, trending] = await Promise.all([
-    getCategories(),
-    getBreakingNews(),
-    getPublishedArticles(36, 0, selectedLanguage),
-    getTrendingArticles(10, selectedLanguage),
-  ]);
-  const [leadArticle, ...latestArticles] = articles;
-  const scopedBreakingNews = breakingNews.filter((item) => {
-    if (!item.url?.startsWith("/article/")) return true;
-
-    const slug = item.url.replace("/article/", "").split(/[/?#]/)[0];
-    return articles.some((article) => article.slug === slug);
+export const metadata: Metadata = { title: "న్యూస్‌జెడ్‌9 | తాజా తెలుగు వార్తలు", alternates: { canonical: "/" } };
+export default async function Home({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
+  if ((await searchParams).lang) redirect("/");
+  const [categories, breaking, articles] = await Promise.all([getCategories(), getBreakingNews(), getPublishedArticles(100)]);
+  const teluguCategories = categories.filter((c) => c.language === "te");
+  const { lead, top, latest, sections, trending } = composeHomepage(articles, teluguCategories);
+  const used = [lead, ...top, ...latest, ...sections.flatMap((s) => s.articles), ...trending].filter(Boolean);
+  const tickerItems = breaking.filter((b) => !used.some((a) => a && (b.url === `/article/${a.slug}` || normalizedText(b.headline) === normalizedText(a.title)))).map((b) => {
+    // Old hand-entered root story URLs no longer resolve to article pages.
+    const validPath = b.url === "/" || b.url === "/latest" || b.url?.startsWith("/article/") || teluguCategories.some((c) => b.url === `/${c.slug}`);
+    return b.url?.startsWith("/") && !validPath ? { ...b, url: null } : b;
   });
-  const tickerItems = scopedBreakingNews.length
-    ? scopedBreakingNews
-    : articles.slice(0, 5).map((article) => ({
-        created_at: article.created_at,
-        headline: article.title,
-        id: `article-ticker-${article.id}`,
-        is_active: true,
-        url: `/article/${article.slug}`,
-      }));
-  const heroSideArticles = latestArticles.slice(0, 5);
-  const initialLatestArticles = latestArticles.slice(5, 14);
-  const latestNextOffset = 1 + heroSideArticles.length + initialLatestArticles.length;
-  const displayedCategories = categories
-    .filter((category) => category.language === selectedLanguage)
-    .filter((category) =>
-      articles.some((article) => article.categories?.slug === category.slug),
-    )
-    .slice(0, 8);
-  const selectedCategories = categories.filter(
-    (category) => category.language === selectedLanguage,
-  );
-  const latestHeading =
-    selectedLanguage === "te" ? "Latest Telugu News" : "Latest English News";
-
-  return (
-    <div className="flex min-h-screen flex-col bg-white text-zinc-950">
-      <Header categories={categories} selectedLanguage={selectedLanguage} />
-      <BreakingTicker items={tickerItems} />
-      <main className="flex-1">
-        <div className="mx-auto grid max-w-7xl gap-7 px-4 py-6 lg:grid-cols-[minmax(0,7fr)_minmax(300px,3fr)]">
-          <div className="grid min-w-0 gap-8">
-            {leadArticle ? (
-              <HeroSplit featured={leadArticle} sideArticles={heroSideArticles} />
-            ) : null}
-
-            <AdBanner size="leaderboard" />
-
-            <section>
-              <div className="section-heading">
-                <h2 className="section-heading__title">{latestHeading}</h2>
-                <Link className="section-heading__link" href="/search?q=Latest%20News">
-                  View More &gt;
-                </Link>
-              </div>
-              <InfiniteArticleGrid
-                initialArticles={initialLatestArticles}
-                language={selectedLanguage}
-                nextOffset={latestNextOffset}
-              />
-            </section>
-
-            <AdBanner size="billboard" />
-
-            {displayedCategories.map((category, index) => (
-              <div className="grid gap-8" key={category.id}>
-                <CategorySection articles={articles} category={category} />
-                {index % 2 === 1 ? <AdBanner size="leaderboard" /> : null}
-              </div>
-            ))}
-          </div>
-
-          <RightSidebar articles={trending} />
+  return <div className="flex min-h-screen flex-col bg-white text-zinc-950">
+    <Header categories={teluguCategories} /><BreakingTicker items={tickerItems} />
+    <main id="main-content" className="flex-1">
+      <div className={`mx-auto grid max-w-7xl gap-7 px-4 py-6 ${trending.length ? "lg:grid-cols-[minmax(0,7fr)_minmax(280px,3fr)]" : ""}`}>
+        <div className="grid min-w-0 gap-8">
+          {lead ? <HeroSplit featured={lead} sideArticles={top} /> : <section className="rounded border bg-zinc-50 p-8 telugu-copy"><h1 className="text-3xl font-bold">తాజా తెలుగు వార్తలు</h1><p className="mt-4">ప్రస్తుతం కథనాలు అందుబాటులో లేవు. కొద్దిసేపటి తరువాత మళ్లీ చూడండి.</p><Link className="mt-4 inline-block text-red-700 underline" href="/about-us">మా ప్రచురణ గురించి తెలుసుకోండి</Link></section>}
+          {latest.length > 0 && <section><div className="section-heading"><h2 className="section-heading__title">తాజా వార్తలు</h2><Link className="section-heading__link" href="/latest">మరిన్ని వార్తలు →</Link></div><ArticleGrid articles={latest} /></section>}
+          {sections.map((s) => <CategorySection key={s.category.id} articles={s.articles} category={s.category} />)}
+          <section className="rounded-lg border-l-4 border-red-700 bg-zinc-50 p-6 telugu-copy"><h2 className="text-2xl font-bold">వార్త వెనుక ఆధారం తెలుసుకోండి</h2><p className="mt-2">మా వార్తా ప్రమాణాలు, మూలాలు, సవరణల విధానాన్ని చదవండి. మీ ప్రాంతంలో ముఖ్యమైన విషయం ఉంటే ఆధారాలతో తెలియజేయండి.</p><div className="mt-4 flex flex-wrap gap-5 text-red-700 underline"><Link href="/editorial-policy">మా సంపాదకీయ ప్రమాణాలు</Link><Link href="/contact-us">వార్తా సూచన పంపండి</Link></div></section>
         </div>
-      </main>
-      <Footer categories={selectedCategories.length ? selectedCategories : categories} />
-    </div>
-  );
+        {trending.length > 0 && <RightSidebar articles={trending} />}
+      </div>
+    </main><Footer categories={teluguCategories} />
+  </div>;
 }

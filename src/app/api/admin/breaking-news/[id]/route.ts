@@ -1,3 +1,4 @@
+import { isTeluguCopy, safeSourceUrl } from "@/lib/editorial";
 import { NextResponse } from "next/server";
 import { requireAdmin, requireServiceClient } from "@/lib/admin-api";
 import { clearBreakingNewsCaches } from "@/lib/cache";
@@ -17,9 +18,9 @@ export async function PATCH(
   const body = (await request.json()) as Partial<BreakingNewsFormInput>;
   const headline = body.headline?.trim() ?? "";
 
-  if (!headline) {
+  if (!headline || !isTeluguCopy(headline) || (body.url && !body.url.startsWith("/") && !safeSourceUrl(body.url)) || body.url?.startsWith("//")) {
     return NextResponse.json(
-      { error: "Headline is required." },
+      { error: "తెలుగు శీర్షిక, సరైన లింకు ఇవ్వండి." },
       { status: 400 },
     );
   }

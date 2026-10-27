@@ -1,38 +1,10 @@
-import { BadgeCheck } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-export function VerifiedAuthor({
-  className,
-  inverse = false,
-  name,
-}: {
-  className?: string;
-  inverse?: boolean;
-  name: string;
-}) {
-  return (
-    <span
-      className={cn(
-        "inline-flex min-w-0 items-center gap-1.5 font-semibold",
-        inverse ? "text-white" : "text-zinc-700",
-        className,
-      )}
-    >
-      <span className="truncate">By {name}</span>
-      <span
-        aria-label="Verified NEWSZ9 author"
-        className="inline-flex shrink-0"
-        title="Verified NEWSZ9 author"
-      >
-        <BadgeCheck
-          aria-hidden="true"
-          className={cn(
-            "h-4 w-4",
-            inverse ? "fill-white text-zinc-950" : "fill-red-700 text-white",
-          )}
-        />
-      </span>
-    </span>
-  );
+import Link from "next/link";
+import { cn, containsTeluguText } from "@/lib/utils";
+import { publicAuthorName } from "@/lib/authors";
+// Retained name for template compatibility. No verification claim is made.
+export function VerifiedAuthor({ className, inverse = false, name, authorId }: { className?: string; inverse?: boolean; name: string; authorId?: string | null }) {
+  name = publicAuthorName(name);
+  return <Link className={cn("inline-flex min-w-0 font-semibold hover:underline", inverse ? "text-white" : "text-zinc-700", className)} href={authorId && containsTeluguText(name) ? `/author/${authorId}` : "/about-us"}>
+    <span className="truncate">రచన: {containsTeluguText(name) ? name : "సంపాదక బృందం"}</span>
+  </Link>;
 }
-

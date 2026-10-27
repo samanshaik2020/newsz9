@@ -6,7 +6,7 @@ export default async function AdminBreakingNewsPage() {
 
   return (
     <div className="grid gap-6">
-      <h1 className="text-3xl font-black">Breaking News</h1>
+      <h1 className="text-3xl font-black">తాజా సమాచారం</h1>
       <BreakingNewsManager items={items} />
     </div>
   );

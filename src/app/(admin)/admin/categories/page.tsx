@@ -6,7 +6,7 @@ export default async function AdminCategoriesPage() {
 
   return (
     <div className="grid gap-6">
-      <h1 className="text-3xl font-black">Categories</h1>
+      <h1 className="text-3xl font-black">విభాగాలు</h1>
       <CategoryManager categories={categories} />
     </div>
   );

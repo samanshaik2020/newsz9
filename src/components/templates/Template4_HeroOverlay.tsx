@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
 import { ArticleGallery } from "@/components/templates/ArticleGallery";
@@ -9,8 +9,8 @@ import type { Article } from "@/types";
 export default function Template4({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
-  const categoryName = article.categories?.name ?? "Breaking";
-  const authorName = article.authors?.name ?? "newsz9 Desk";
+  const categoryName = article.categories?.name ?? "తాజా వార్త";
+  const authorName = article.authors?.name ?? "సంపాదక బృందం";
   const hasCover = Boolean(coverImage);
 
   return (
@@ -19,7 +19,7 @@ export default function Template4({ article }: { article: Article }) {
       <div className="relative flex min-h-[50vh] w-full items-end overflow-hidden bg-zinc-900 md:min-h-[65vh]">
         {/* Background image */}
         <Image
-          alt={article.title}
+          alt={article.cover_alt || article.title}
           className={hasCover ? "object-cover" : "object-contain p-12 opacity-30"}
           fill
           priority
@@ -45,7 +45,7 @@ export default function Template4({ article }: { article: Article }) {
             </p>
           ) : null}
           <div className="mt-5 flex items-center gap-3 text-sm">
-            <VerifiedAuthor inverse name={authorName} />
+            <VerifiedAuthor inverse authorId={article.authors?.role !== "bot" ? article.author_id : null} name={authorName} />
             <span className="h-1 w-1 rounded-full bg-zinc-500" />
             <time className="text-zinc-400">
               {formatDate(article.published_at)}
@@ -63,7 +63,7 @@ export default function Template4({ article }: { article: Article }) {
         <div
           className="article-body"
           dangerouslySetInnerHTML={{
-            __html: processArticleHtml(article.content),
+            __html: processArticleHtml(article.content, article.content_kind === "sponsored"),
           }}
         />
         <ArticleAuthorFooter article={article} />

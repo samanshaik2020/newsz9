@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/NewsImage";
 import { getImageSrc } from "@/lib/utils";
 import type { Article } from "@/types";
 
@@ -31,7 +31,7 @@ export function ArticleGallery({
           >
             <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-zinc-100">
               <Image
-                alt={`${article.title} image ${index + 1}`}
+                alt={`${article.title} — అదనపు చిత్రం ${index + 1}`}
                 className="object-cover"
                 fill
                 sizes={
