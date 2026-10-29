@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import Image from "@/components/NewsImage";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
@@ -43,7 +44,7 @@ export function ArticleCard({
           />
         ) : (
           <span className="grid h-full place-items-center text-xs font-black uppercase text-zinc-500">
-            న్యూస్‌జెడ్‌9
+            NEWSZ9
           </span>
         )}
       </Link>
@@ -52,7 +53,7 @@ export function ArticleCard({
           className="category-label text-[11px] font-black uppercase text-[var(--color-news-red)] hover:text-red-800"
           href={article.categories ? `/${article.categories.slug}` : "/latest"}
         >
-          {article.categories?.name ?? "వార్తలు"}
+          {categoryDisplayName(article.categories)}
         </Link>
         <h2 className="mt-1 text-[17px] font-black leading-snug text-zinc-950">
           <Link className="line-clamp-2 hover:text-[var(--color-news-red)]" href={articleHref}>
@@ -67,7 +68,7 @@ export function ArticleCard({
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3 text-xs text-zinc-500">
           <VerifiedAuthor
             className="max-w-[70%] text-xs"
-            authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "సంపాదక బృందం"}
+            authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "Editorial Team"}
           />
           <time
             className="font-semibold uppercase"

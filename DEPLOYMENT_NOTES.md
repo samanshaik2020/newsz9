@@ -1,3 +1,11 @@
+# Article form update — 29 October 2026
+
+The admin form now keeps image details and article type, removes the requested source/research/reviewer/correction fields and checklist panel, and accepts comma-separated keywords as tags.
+
+Apply `supabase/migrations/20261029_optional_editorial_fields.sql` to the configured Supabase project before using article saving. It adds missing article metadata columns and makes the removed fields optional in the publishing trigger. Existing articles and their metadata are preserved. This migration supports the existing legacy database directly; if the earlier editorial migration is also applied, run this one afterwards.
+
+The connected database was checked and is currently missing `articles.cover_alt`. The new migration has been prepared locally but has not yet been applied.
+
 # అమలు, మిగిలిన పనులు
 
 ఈ పత్రం డేటాబేస్, ప్రచురణకు అవసరమైన అమలు దశలను వివరిస్తుంది. గిట్‌కు కోడ్ పంపడం ద్వారా డేటాబేస్ మైగ్రేషన్ స్వయంచాలకంగా అమలు కాదు.

@@ -5,19 +5,19 @@ import { isAdminAuthEnabled } from "@/lib/admin-auth";
 import { LogoutButton } from "./LogoutButton";
 
 const links = [
-  { href: "/admin/content-audit", label: "కథనాల నాణ్యత", icon: Newspaper },
-  { href: "/admin", label: "నిర్వహణ పటం", icon: PanelLeft },
-  { href: "/admin/articles", label: "కథనాలు", icon: Newspaper },
-  { href: "/admin/categories", label: "విభాగాలు", icon: Tags },
-  { href: "/admin/authors", label: "రచయితలు", icon: Users },
-  { href: "/admin/breaking-news", label: "తాజా సమాచారం", icon: Radio },
+  { href: "/admin/content-audit", label: "Content Quality", icon: Newspaper },
+  { href: "/admin", label: "Dashboard", icon: PanelLeft },
+  { href: "/admin/articles", label: "Articles", icon: Newspaper },
+  { href: "/admin/categories", label: "Categories", icon: Tags },
+  { href: "/admin/authors", label: "Authors", icon: Users },
+  { href: "/admin/breaking-news", label: "Breaking News", icon: Radio },
 ];
 
 export function AdminSidebar() {
   return (
     <aside className="admin-nav border-r border-zinc-200 bg-zinc-950 px-3 py-4 text-white md:min-h-screen md:w-64">
       <Link
-        aria-label="న్యూస్‌జెడ్‌9 ముఖపుట"
+        aria-label="NEWSZ9 Home"
         className="mx-3 block max-w-48 rounded-sm bg-white p-2"
         href="/"
       >

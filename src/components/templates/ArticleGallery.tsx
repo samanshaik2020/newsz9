@@ -31,7 +31,7 @@ export function ArticleGallery({
           >
             <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-zinc-100">
               <Image
-                alt={`${article.title} — అదనపు చిత్రం ${index + 1}`}
+                alt={`${article.title} — Gallery image ${index + 1}`}
                 className="object-cover"
                 fill
                 sizes={

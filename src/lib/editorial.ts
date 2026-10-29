@@ -73,29 +73,25 @@ export function normalizeEditorialInput(body: Partial<ArticleFormInput>): Articl
   };
 }
 
-export function publicationIssues(input: ArticleFormInput, author?: Author | null, category?: Category | null, reviewer?: Author | null): string[] {
+export function publicationIssues(input: ArticleFormInput, author?: Author | null, category?: Category | null): string[] {
   const issues: string[] = [];
-  if (input.language !== "te") issues.push("ఈ సైట్‌లో తెలుగు కథనాలు మాత్రమే ప్రచురించాలి.");
-  for (const [label, value] of [["శీర్షిక", input.title], ["సారాంశం", input.summary], ["కథనం", input.content], ["చిత్ర వివరణ", input.cover_alt]] as const) {
-    if (!value || !isTeluguCopy(value)) issues.push(`${label} తెలుగులో పూర్తి చేయండి.`);
+  if (input.language !== "te") issues.push("Only Telugu articles can be published on this site.");
+  for (const [label, value] of [["Title", input.title], ["Summary", input.summary], ["Article", input.content], ["Image description", input.cover_alt]] as const) {
+    if (!value || !isTeluguCopy(value)) issues.push(`${label} must be completed in Telugu.`);
   }
   // These are newsroom standards, not Google eligibility thresholds.
   const words = stripHtml(input.content).split(/\s+/).filter(Boolean).length;
-  if (words < 150) issues.push("సందర్భం, ఆధారాలు, పాఠకులకు ఉపయోగపడే వివరాలతో కనీసం 150 పదాలు రాయండి. ఇది మా సంపాదకీయ ప్రమాణం.");
-  if ((input.content.match(/<h2\b/gi) ?? []).length < 2) issues.push("కనీసం రెండు ఉపశీర్షికలు జోడించండి.");
-  if (/<h1\b/i.test(input.content)) issues.push("కథనంలో ప్రధాన శీర్షికను మళ్లీ చేర్చవద్దు; ఉపశీర్షికలను ఉపయోగించండి.");
-  if (!input.cover_image || !getImageSrc(input.cover_image)) issues.push("ప్రధాన చిత్రం జోడించండి.");
-  if (!input.image_credit?.trim()) issues.push("చిత్రం మూలం, వినియోగ అనుమతి నమోదు చేయండి.");
-  if (!category || category.language !== "te" || !containsTeluguText(category.name)) issues.push("తెలుగు విభాగాన్ని ఎంచుకోండి.");
-  if (!author || author.role === "bot" || !isTeluguCopy(publicAuthorName(author.name)) || !author.bio || !isTeluguCopy(author.bio)) issues.push("తెలుగు పేరు, నిజమైన పరిచయం ఉన్న బాధ్యతగల రచయితను ఎంచుకోండి.");
-  if (!input.sources?.length || input.sources.some((s) => !safeSourceUrl(s.url) || !isTeluguCopy(s.title))) issues.push("తెలుగు పేరుతో కనీసం ఒక తనిఖీ చేసిన మూలం లింక్ ఇవ్వండి.");
-  if (!input.original_reporting || !isTeluguCopy(input.original_reporting)) issues.push("మూలాలకు అదనంగా చేసిన సొంత పరిశీలన లేదా నివేదిక వివరించండి.");
-  if (!input.editorial_reviewed) issues.push("వాస్తవాలు, హక్కులు, శీర్షిక, మూలాలను మానవ సంపాదకుడు తనిఖీ చేయాలి.");
-  const health = /health|ఆరోగ్య|వైద్య/i.test(`${category?.slug} ${category?.name}`);
-  if (health && (!reviewer || reviewer.role === "bot" || !reviewer.credentials || !isTeluguCopy(publicAuthorName(reviewer.name)) || !reviewer.bio || !isTeluguCopy(reviewer.bio))) issues.push("ఆరోగ్య కథనానికి నిజమైన అర్హతలు, పరిచయం ఉన్న వైద్య సమీక్షకుడిని నమోదు చేయండి.");
-  if (input.content_kind === "sponsored" && (!input.sponsor_name || !isTeluguCopy(input.sponsor_name))) issues.push("ప్రాయోజిత కథనానికి ప్రాయోజకుడి పేరు తెలుగులో ఇవ్వండి.");
+  if (words < 150) issues.push("Write at least 150 words with context, evidence, and useful details for readers. This is our editorial standard.");
+  if ((input.content.match(/<h2\b/gi) ?? []).length < 2) issues.push("Add at least two subheadings.");
+  if (/<h1\b/i.test(input.content)) issues.push("Use subheadings instead of repeating the main title in the article.");
+  if (!input.cover_image || !getImageSrc(input.cover_image)) issues.push("Add a cover image.");
+  if (!input.image_credit?.trim()) issues.push("Record the image source and usage permission.");
+  if (!category || category.language !== "te" || !containsTeluguText(category.name)) issues.push("Select a Telugu category.");
+  if (!author || author.role === "bot" || !isTeluguCopy(publicAuthorName(author.name)) || !author.bio || !isTeluguCopy(author.bio)) issues.push("Select a responsible author with a Telugu name and an accurate biography.");
+  if (!input.editorial_reviewed) issues.push("A human editor must verify the facts, rights, and title.");
+  if (input.content_kind === "sponsored" && (!input.sponsor_name || !isTeluguCopy(input.sponsor_name))) issues.push("Provide the sponsor name in Telugu for a sponsored article.");
   const inlineImages = input.content.match(/<img\b[^>]*>/gi) ?? [];
-  if (inlineImages.some((tag) => !/\balt=["'][^"']*[\u0C00-\u0C7F][^"']*["']/i.test(tag))) issues.push("కథనంలోని ప్రతి చిత్రానికీ తెలుగు వివరణ ఇవ్వండి.");
+  if (inlineImages.some((tag) => !/\balt=["'][^"']*[\u0C00-\u0C7F][^"']*["']/i.test(tag))) issues.push("Provide a Telugu description for every image in the article.");
   return issues;
 }
 

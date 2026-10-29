@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { NEWSZ9_WORDMARK } from "@/lib/branding";
 
-export const alt = "న్యూస్‌జెడ్‌9 — తెలుగు వార్తలు";
+export const alt = "NEWSZ9 — Telugu News";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -37,7 +37,7 @@ export default async function OpenGraphImage() {
           height={NEWSZ9_WORDMARK.height}
         />
         <div style={{ display: "flex", color: "#18181b", fontSize: 38 }}>
-          తాజా తెలుగు వార్తలు
+          Latest Telugu News
         </div>
       </div>
     ),

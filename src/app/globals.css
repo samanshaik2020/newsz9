@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-ui:       var(--font-mallanna), "Nirmala UI", Gautami, sans-serif;
+  --font-ui:       Arial, Helvetica, "Nirmala UI", var(--font-mallanna), sans-serif;
   --font-reading:  var(--font-ui);
   --font-headline: var(--font-ui);
   --font-label:    var(--font-ui);

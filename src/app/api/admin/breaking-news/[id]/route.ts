@@ -20,7 +20,7 @@ export async function PATCH(
 
   if (!headline || !isTeluguCopy(headline) || (body.url && !body.url.startsWith("/") && !safeSourceUrl(body.url)) || body.url?.startsWith("//")) {
     return NextResponse.json(
-      { error: "తెలుగు శీర్షిక, సరైన లింకు ఇవ్వండి." },
+      { error: "Enter a Telugu headline and a valid URL." },
       { status: 400 },
     );
   }

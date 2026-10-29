@@ -18,9 +18,9 @@ export function slugify(value: string) {
 }
 
 export function formatDate(value?: string | null) {
-  if (!value || !Number.isFinite(Date.parse(value))) return "ముసాయిదా";
+  if (!value || !Number.isFinite(Date.parse(value))) return "Draft";
 
-  return new Intl.DateTimeFormat("te-IN", {
+  return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -28,7 +28,7 @@ export function formatDate(value?: string | null) {
     minute: "2-digit",
     hourCycle: "h23",
     timeZone: "Asia/Kolkata",
-  }).format(new Date(value)) + " (భారత కాలమానం)";
+  }).format(new Date(value)) + " (IST)";
 }
 
 export function stripHtml(value: string) {

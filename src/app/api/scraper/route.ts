@@ -36,7 +36,7 @@ export async function POST(request: Request) {
 
   if (!body.title || !body.content || !isTeluguCopy(body.title) || !isTeluguCopy(body.content) || (body.language && body.language !== "te")) {
     return NextResponse.json(
-      { error: "తెలుగు శీర్షిక, తెలుగు కథనం అవసరం. దిగుమతులు మానవ సమీక్ష దశలోనే ఉంటాయి." },
+      { error: "A Telugu title and article content are required. Imports remain in human review." },
       { status: 400 },
     );
   }

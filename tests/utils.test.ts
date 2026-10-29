@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  formatDate,
   normalizeArticleContent,
   processArticleHtml,
   sanitizeArticleHtml,
   slugify,
 } from "../src/lib/utils.ts";
 import {
+  categoryDisplayName,
   getLanguageFromPath,
   normalizeLanguage,
 } from "../src/lib/language.ts";
@@ -33,6 +35,18 @@ test("language helpers default to Telugu and infer category language", () => {
   assert.equal(normalizeLanguage("bad", "en"), "en");
   assert.equal(getLanguageFromPath("/national", categories), "en");
   assert.equal(getLanguageFromPath("/telugu-news", categories), "te");
+});
+
+test("English interface labels preserve stored Telugu categories and article language", () => {
+  const category = { id: "ap", name: "ఆంధ్రప్రదేశ్", slug: "andhrapradesh", language: "te" as const };
+  assert.equal(categoryDisplayName(category), "Andhra Pradesh");
+  assert.equal(categoryDisplayName({ ...category, name: "స్థానిక వార్తలు", slug: "local-news" }), "Local News");
+  assert.equal(categoryDisplayName({ ...category, name: "AP News" }), "AP News");
+  assert.equal(categoryDisplayName(null, "Uncategorized"), "Uncategorized");
+  assert.equal(category.name, "ఆంధ్రప్రదేశ్");
+  assert.equal(getLanguageFromPath("/andhrapradesh", [category]), "te");
+  assert.equal(formatDate(null), "Draft");
+  assert.equal(formatDate("2026-10-29T04:30:00Z"), "29 October 2026 at 10:00 (IST)");
 });
 
 test("plain article content is escaped and wrapped", () => {

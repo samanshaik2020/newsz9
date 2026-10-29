@@ -27,7 +27,7 @@ export function LoginForm() {
 
     if (!res.ok) {
       const data = (await res.json()) as { error?: string };
-      setError(data.error ?? "రహస్య పదం సరికాదు.");
+      setError(data.error ?? "Incorrect password.");
       return;
     }
 
@@ -48,7 +48,7 @@ export function LoginForm() {
           <div className="mx-auto mb-4 w-16 overflow-hidden rounded-xl shadow-lg shadow-red-900/40">
             <BrandLogo variant="mark" priority />
           </div>
-          <h1 className="text-2xl font-bold text-white">న్యూస్‌జెడ్‌9 నిర్వాహక ప్రవేశం</h1>
+          <h1 className="text-2xl font-bold text-white">NEWSZ9 Admin Login</h1>
         </div>
 
         {/* Card */}
@@ -58,7 +58,7 @@ export function LoginForm() {
         >
           <label className="grid gap-1.5">
             <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-              రహస్య పదం
+              Password
             </span>
             <div className="relative flex items-center">
               <span className="pointer-events-none absolute left-3 text-zinc-500">
@@ -67,7 +67,7 @@ export function LoginForm() {
               <input
                 autoFocus
                 className="w-full rounded-lg border border-zinc-700 bg-zinc-800/60 py-2.5 pl-10 pr-10 text-sm text-white placeholder-zinc-500 outline-none transition-colors focus:border-red-500 focus:bg-zinc-800"
-                placeholder="నిర్వాహక రహస్య పదం ఇవ్వండి"
+                placeholder="Enter the admin password"
                 type={showPwd ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -75,7 +75,7 @@ export function LoginForm() {
               <button
                 type="button"
                 tabIndex={-1}
-                aria-label={showPwd ? "రహస్య పదం దాచండి" : "రహస్య పదం చూపండి"}
+                aria-label={showPwd ? "Hide password" : "Show password"}
                 className="absolute right-3 cursor-pointer text-zinc-500 transition-colors hover:text-zinc-200"
                 onClick={() => setShowPwd((v) => !v)}
               >
@@ -101,10 +101,10 @@ export function LoginForm() {
             {loading ? (
               <>
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                తనిఖీ చేస్తున్నాం…
+                Checking…
               </>
             ) : (
-              "నిర్వహణ పటంలోకి ప్రవేశించండి"
+              "Sign In to Dashboard"
             )}
           </button>
         </form>

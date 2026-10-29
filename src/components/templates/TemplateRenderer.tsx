@@ -25,7 +25,7 @@ export default function TemplateRenderer({ article }: { article: Article }) {
   return (
     <div className={isTelugu ? "telugu-article" : undefined} lang={isTelugu ? "te" : "en"}>
       {article.content_kind && article.content_kind !== "news" && <aside className="mx-auto max-w-6xl border-b border-amber-200 bg-amber-50 px-4 py-3 font-bold">
-        {article.content_kind === "sponsored" ? `ప్రాయోజిత కథనం — ప్రాయోజకుడు: ${article.sponsor_name ?? ""}` : article.content_kind === "opinion" ? "అభిప్రాయం — రచయిత దృక్కోణం" : "విశ్లేషణ — అంశం నేపథ్యం, పరిశీలన"}
+        {article.content_kind === "sponsored" ? `Sponsored Article — Sponsor: ${article.sponsor_name ?? ""}` : article.content_kind === "opinion" ? "Opinion — The View of the Author" : "Analysis — Background and Research"}
       </aside>}
       <Component article={article} />
     </div>

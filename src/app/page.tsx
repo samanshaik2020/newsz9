@@ -11,7 +11,7 @@ import { RightSidebar } from "@/components/site/RightSidebar";
 import { getBreakingNews, getCategories, getPublishedArticles } from "@/lib/data";
 import { composeHomepage, normalizedText } from "@/lib/editorial";
 
-export const metadata: Metadata = { title: "న్యూస్‌జెడ్‌9 | తాజా తెలుగు వార్తలు", alternates: { canonical: "/" } };
+export const metadata: Metadata = { title: "NEWSZ9 | Latest Telugu News", alternates: { canonical: "/" } };
 export default async function Home({ searchParams }: { searchParams: Promise<{ lang?: string }> }) {
   if ((await searchParams).lang) redirect("/");
   const [categories, breaking, articles] = await Promise.all([getCategories(), getBreakingNews(), getPublishedArticles(100)]);
@@ -28,10 +28,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
     <main id="main-content" className="flex-1">
       <div className={`mx-auto grid max-w-7xl gap-7 px-4 py-6 ${trending.length ? "lg:grid-cols-[minmax(0,7fr)_minmax(280px,3fr)]" : ""}`}>
         <div className="grid min-w-0 gap-8">
-          {lead ? <HeroSplit featured={lead} sideArticles={top} /> : <section className="rounded border bg-zinc-50 p-8 telugu-copy"><h1 className="text-3xl font-bold">తాజా తెలుగు వార్తలు</h1><p className="mt-4">ప్రస్తుతం కథనాలు అందుబాటులో లేవు. కొద్దిసేపటి తరువాత మళ్లీ చూడండి.</p><Link className="mt-4 inline-block text-red-700 underline" href="/about-us">మా ప్రచురణ గురించి తెలుసుకోండి</Link></section>}
-          {latest.length > 0 && <section><div className="section-heading"><h2 className="section-heading__title">తాజా వార్తలు</h2><Link className="section-heading__link" href="/latest">మరిన్ని వార్తలు →</Link></div><ArticleGrid articles={latest} /></section>}
+          {lead ? <HeroSplit featured={lead} sideArticles={top} /> : <section className="rounded border bg-zinc-50 p-8 telugu-copy"><h1 className="text-3xl font-bold">Latest Telugu News</h1><p className="mt-4">No articles are available right now. Please check back later.</p><Link className="mt-4 inline-block text-red-700 underline" href="/about-us">Learn About Our Publication</Link></section>}
+          {latest.length > 0 && <section><div className="section-heading"><h2 className="section-heading__title">Latest News</h2><Link className="section-heading__link" href="/latest">More News →</Link></div><ArticleGrid articles={latest} /></section>}
           {sections.map((s) => <CategorySection key={s.category.id} articles={s.articles} category={s.category} />)}
-          <section className="rounded-lg border-l-4 border-red-700 bg-zinc-50 p-6 telugu-copy"><h2 className="text-2xl font-bold">వార్త వెనుక ఆధారం తెలుసుకోండి</h2><p className="mt-2">మా వార్తా ప్రమాణాలు, మూలాలు, సవరణల విధానాన్ని చదవండి. మీ ప్రాంతంలో ముఖ్యమైన విషయం ఉంటే ఆధారాలతో తెలియజేయండి.</p><div className="mt-4 flex flex-wrap gap-5 text-red-700 underline"><Link href="/editorial-policy">మా సంపాదకీయ ప్రమాణాలు</Link><Link href="/contact-us">వార్తా సూచన పంపండి</Link></div></section>
+          <section className="rounded-lg border-l-4 border-red-700 bg-zinc-50 p-6 telugu-copy"><h2 className="text-2xl font-bold">Explore the Evidence Behind the News</h2><p className="mt-2">Read our reporting standards, sources, and corrections policy. Share important news from your area with supporting evidence.</p><div className="mt-4 flex flex-wrap gap-5 text-red-700 underline"><Link href="/editorial-policy">Our Editorial Standards</Link><Link href="/contact-us">Send a News Tip</Link></div></section>
         </div>
         {trending.length > 0 && <RightSidebar articles={trending} />}
       </div>

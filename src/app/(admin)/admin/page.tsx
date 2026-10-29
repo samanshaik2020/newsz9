@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import Link from "next/link";
 import { CopyArticleLinkButton } from "@/components/admin/CopyArticleLinkButton";
 import {
@@ -19,26 +20,26 @@ export default async function AdminDashboardPage() {
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black">నిర్వాహక పటం</h1>
+          <h1 className="text-3xl font-black">Admin Dashboard</h1>
           <p className="mt-2 text-sm text-zinc-600">
-            న్యూస్‌జెడ్‌9 కథనాల నిర్వహణ కేంద్రం.
+            Manage NEWSZ9 articles.
           </p>
         </div>
         <Link
           className="rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
           href="/admin/articles/new"
         >
-          కొత్త కథనం జోడించండి
+          Add New Article
         </Link>
       </div>
       <section className="grid gap-4 md:grid-cols-3">
         {[
-          ["మొత్తం కథనాలు", articleStats.total],
-          ["ప్రచురితమైనవి", articleStats.published],
-          ["సమీక్షలో", articleStats.review],
-          ["ముసాయిదాలు", articleStats.draft],
-          ["విభాగాలు", categories.length],
-          ["చేతనమైన తాజా సమాచారం", breakingNews.length],
+          ["Total Articles", articleStats.total],
+          ["Published", articleStats.published],
+          ["In Review", articleStats.review],
+          ["Drafts", articleStats.draft],
+          ["Categories", categories.length],
+          ["Active Breaking News", breakingNews.length],
         ].map(([label, value]) => (
           <div className="rounded-md border border-zinc-200 bg-white p-5" key={label}>
             <p className="text-sm font-semibold text-zinc-500">{label}</p>
@@ -49,9 +50,9 @@ export default async function AdminDashboardPage() {
       <section className="rounded-md border border-zinc-200 bg-white p-5">
         <div className="flex flex-wrap items-end justify-between gap-3 border-b border-zinc-200 pb-3">
           <div>
-            <h2 className="text-lg font-black">విభాగాల వారీగా కథనాలు</h2>
+            <h2 className="text-lg font-black">Articles by Category</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              అన్ని ప్రచురణ దశల్లో ఉన్న కథనాల సంఖ్య.
+              Article counts across all publication statuses.
             </p>
           </div>
           {articleStats.uncategorized > 0 ? (
@@ -68,9 +69,9 @@ export default async function AdminDashboardPage() {
                 key={category.id}
               >
                 <div className="min-w-0">
-                  <p className="truncate font-bold text-zinc-900">{category.name}</p>
+                  <p className="truncate font-bold text-zinc-900">{categoryDisplayName(category)}</p>
                   <p className="mt-0.5 text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                    {category.language === "te" ? "తెలుగు" : "పాత ఆంగ్ల విభాగం"}
+                    {category.language === "te" ? "Telugu" : "Legacy English Category"}
                   </p>
                 </div>
                 <span className="grid h-10 min-w-10 place-items-center rounded-full bg-red-700 px-3 text-sm font-black text-white">
@@ -80,14 +81,14 @@ export default async function AdminDashboardPage() {
             ))}
           </div>
         ) : (
-          <p className="mt-4 text-sm text-zinc-600">విభాగాలు కనిపించలేదు.</p>
+          <p className="mt-4 text-sm text-zinc-600">No categories found.</p>
         )}
       </section>
       <section className="rounded-md border border-zinc-200 bg-white p-5">
         <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-3">
-          <h2 className="text-lg font-black">ఇటీవలి కథనాలు</h2>
+          <h2 className="text-lg font-black">Recent Articles</h2>
           <Link className="text-sm font-bold text-red-700" href="/admin/articles">
-            అన్నీ నిర్వహించండి
+            Manage All
           </Link>
         </div>
         <div className="mt-4 grid gap-3">
@@ -103,10 +104,10 @@ export default async function AdminDashboardPage() {
                 {article.title}
               </Link>
               <span className="text-sm text-zinc-500">
-                {article.categories?.name ?? "విభాగం లేదు"}
+                {categoryDisplayName(article.categories, "Uncategorized")}
               </span>
               <span className="text-sm font-semibold capitalize text-zinc-700">
-                {{ draft: "ముసాయిదా", review: "సమీక్షలో", published: "ప్రచురితం", archived: "భద్రపరిచినది" }[article.status]}
+                {{ draft: "Draft", review: "In Review", published: "Published", archived: "Archived" }[article.status]}
               </span>
               <span className="flex md:justify-end">
                 <CopyArticleLinkButton slug={article.slug} />
@@ -115,12 +116,12 @@ export default async function AdminDashboardPage() {
           ))}
           {!articles.length ? (
             <div className="rounded-md border border-dashed border-zinc-300 p-5 text-center">
-              <p className="text-sm text-zinc-600">ఇంకా కథనాలు సృష్టించలేదు.</p>
+              <p className="text-sm text-zinc-600">No articles created yet.</p>
               <Link
                 className="mt-3 inline-flex rounded-md bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800"
                 href="/admin/articles/new"
               >
-                కొత్త కథనం జోడించండి
+                Add New Article
               </Link>
             </div>
           ) : null}

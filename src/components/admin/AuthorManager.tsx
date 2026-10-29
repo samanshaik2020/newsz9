@@ -1,4 +1,5 @@
 "use client";
+import { authorDisplayName } from "@/lib/authors";
 
 import { Pencil, Plus, Trash2, UserPlus } from "lucide-react";
 import { useState } from "react";
@@ -48,13 +49,13 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
       const payload = await response.json();
       if (!response.ok || !payload.publicUrl) throw new Error();
       setForm((previous) => ({ ...previous, avatar_url: payload.publicUrl }));
-    } catch { setMessage("ఫోటో అప్‌లోడ్ కాలేదు. మళ్లీ ప్రయత్నించండి."); }
+    } catch { setMessage("Could not upload the photo. Please try again."); }
     finally { setUploadingPhoto(false); }
   }
 
   async function handleSave() {
     if (!form.name.trim() || !form.email.trim()) {
-      setMessage("పేరు, ఈమెయిల్ తప్పనిసరి.");
+      setMessage("Name and email are required.");
       return;
     }
 
@@ -80,7 +81,7 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
     setIsSaving(false);
 
     if (!response.ok) {
-      setMessage(payload.error ?? "రచయితను భద్రపరచలేకపోయాం.");
+      setMessage(payload.error ?? "Could not save the author.");
       return;
     }
 
@@ -97,14 +98,14 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
     setForm(emptyForm);
     setEditingId(null);
     setShowForm(false);
-    setMessage(isEdit ? "రచయిత వివరాలు సవరించబడ్డాయి." : "రచయితను జోడించాం.");
+    setMessage(isEdit ? "Author details updated." : "Author added.");
   }
 
   async function handleDelete(id: string) {
     const confirmed = await confirmDialog({
-      title: "రచయిత తొలగింపు",
-      message: "ఈ రచయితను తొలగించాలా? ఈ చర్యను వెనక్కి తీసుకోలేరు.",
-      confirmLabel: "తొలగించండి",
+      title: "Delete Author",
+      message: "Delete this author? This action cannot be undone.",
+      confirmLabel: "Delete",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -115,9 +116,9 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
 
     if (response.ok) {
       setAuthors(authors.filter((a) => a.id !== id));
-      addToast("రచయితను తొలగించాం.", "success");
+      addToast("Author deleted.", "success");
     } else {
-      addToast("రచయితను తొలగించలేకపోయాం.", "error");
+      addToast("Could not delete the author.", "error");
     }
   }
 
@@ -161,7 +162,7 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
             type="button"
           >
             <UserPlus className="h-4 w-4" aria-hidden="true" />
-            రచయితను జోడించండి
+            Add Author
           </Button>
         </div>
         <div className="divide-y divide-zinc-100">
@@ -171,9 +172,9 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
               key={author.id}
             >
               <div className="min-w-0">
-                <p className="font-bold text-zinc-900">{author.name}</p>
+                <p className="font-bold text-zinc-900">{authorDisplayName(author.name)}</p>
                 <p className="text-sm text-zinc-500">
-                  {author.email} · <span className="capitalize">{{ reporter: "విలేకరి", editor: "సంపాదకుడు", bot: "యంత్ర సహాయకుడు" }[author.role]}</span>
+                  {author.email} · <span className="capitalize">{{ reporter: "Reporter", editor: "Editor", bot: "Automated Assistant" }[author.role]}</span>
                 </p>
                 {author.bio ? (
                   <p className="mt-1 text-xs text-zinc-400 line-clamp-1">
@@ -201,7 +202,7 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
           ))}
           {authors.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-zinc-500">
-              ఇంకా రచయితలు లేరు. పైన వివరాలు నమోదు చేయండి.
+              No authors yet. Add an author using the form above.
             </p>
           ) : null}
         </div>
@@ -211,21 +212,21 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
       {showForm ? (
         <div className="rounded-md border border-zinc-200 bg-white p-5">
           <h3 className="text-lg font-bold">
-            {editingId ? "రచయిత వివరాలు సవరించండి" : "కొత్త రచయిత"}
+            {editingId ? "Edit Author Details" : "New Author"}
           </h3>
           <div className="mt-4 grid gap-4">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                పేరు *
+                Name *
                 <input
                   className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="రచయిత తెలుగు పేరు"
+                  placeholder="Author name in Telugu"
                   value={form.name}
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                ఈమెయిల్ *
+                Email *
                 <input
                   className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -237,7 +238,7 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                బాధ్యత
+                Role
                 <select
                   className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
                   onChange={(e) =>
@@ -248,13 +249,13 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
                   }
                   value={form.role}
                 >
-                  <option value="reporter">విలేకరి</option>
-                  <option value="editor">సంపాదకుడు</option>
-                  <option value="bot">యంత్ర సహాయకుడు</option>
+                  <option value="reporter">Reporter</option>
+                  <option value="editor">Editor</option>
+                  <option value="bot">Automated Assistant</option>
                 </select>
               </label>
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                అసలు ఫోటో లింకు
+                Original Photo URL
                 <input
                   className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
                   onChange={(e) =>
@@ -265,32 +266,32 @@ export function AuthorManager({ authors: initialAuthors }: { authors: Author[] }
                 />
               </label>
             </div>
-            <label className="grid gap-2">అసలు ఫోటో అప్‌లోడ్ చేయండి<input className="rounded border p-3" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploadingPhoto} onChange={(e) => uploadPhoto(e.target.files?.[0])} /></label>
-            {uploadingPhoto && <p role="status">ఫోటో అప్‌లోడ్ అవుతోంది…</p>}
-            {getImageSrc(form.avatar_url) && <NewsImage src={getImageSrc(form.avatar_url)!} width={96} height={96} alt="రచయిత ఫోటో ముందస్తు వీక్షణ" className="h-24 w-24 rounded-full object-cover" />}
+            <label className="grid gap-2">Upload Original Photo<input className="rounded border p-3" type="file" accept="image/jpeg,image/png,image/webp" disabled={uploadingPhoto} onChange={(e) => uploadPhoto(e.target.files?.[0])} /></label>
+            {uploadingPhoto && <p role="status">Uploading photo…</p>}
+            {getImageSrc(form.avatar_url) && <NewsImage src={getImageSrc(form.avatar_url)!} width={96} height={96} alt="Author photo preview" className="h-24 w-24 rounded-full object-cover" />}
             <label className="grid gap-2 text-sm font-bold text-zinc-800">
-              పరిచయం
+              Biography
               <textarea
                 className="min-h-20 rounded-md border border-zinc-300 px-4 py-3 text-sm font-normal outline-none focus:border-red-700"
                 onChange={(e) => setForm({ ...form, bio: e.target.value })}
-                placeholder="నిజమైన పరిచయం తెలుగులో"
+                placeholder="Accurate biography in Telugu"
                 value={form.bio}
               />
             </label>
-            <label className="grid gap-2">అర్హతలు — నిజంగా ధ్రువీకరించిన వివరాలే ఇవ్వండి<input className="min-h-11 rounded border p-3" value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} /></label>
-            <label className="grid gap-2">రచనా అంశాలు తెలుగులో<input className="min-h-11 rounded border p-3" value={form.expertise} onChange={(e) => setForm({ ...form, expertise: e.target.value })} /></label>
-            <p className="text-sm text-zinc-600">తెలుగు పేరు, నిజమైన పరిచయం ఇవ్వండి. వైద్య అర్హతలను నిర్ధారించిన తరువాతే నమోదు చేయండి. ఫోటో ఉంటే ఆ వ్యక్తి అనుమతితో అసలు ఫోటోనే వాడండి.</p>
+            <label className="grid gap-2">Credentials — enter verified details only<input className="min-h-11 rounded border p-3" value={form.credentials} onChange={(e) => setForm({ ...form, credentials: e.target.value })} /></label>
+            <label className="grid gap-2">Areas of expertise in Telugu<input className="min-h-11 rounded border p-3" value={form.expertise} onChange={(e) => setForm({ ...form, expertise: e.target.value })} /></label>
+            <p className="text-sm text-zinc-600">Provide a Telugu name and an accurate biography. Verify medical credentials before recording them. Use an original photo with the permission of the person shown.</p>
             <div className="flex items-center gap-3">
               <Button disabled={isSaving || uploadingPhoto} onClick={handleSave} type="button">
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 {isSaving
-                  ? "భద్రపరుస్తున్నాం…"
+                  ? "Saving…"
                   : editingId
-                    ? "రచయిత వివరాలు భద్రపరచండి"
-                    : "రచయితను సృష్టించండి"}
+                    ? "Save Author Details"
+                    : "Create Author"}
               </Button>
               <Button onClick={cancelEdit} type="button" variant="outline">
-                రద్దు
+                Cancel
               </Button>
               {message ? (
                 <p className="text-sm font-medium text-zinc-700" role="status">

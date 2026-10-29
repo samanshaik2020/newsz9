@@ -14,7 +14,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
       {
         "@type": "ListItem",
         position: 1,
-        name: "ముఖపుట",
+        name: "Home",
         item: process.env.NEXT_PUBLIC_SITE_URL ?? "https://newsz9.com",
       },
       ...items.map((item, index) => ({
@@ -37,11 +37,11 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
         type="application/ld+json"
       />
       <nav
-        aria-label="పేజీ మార్గం"
+        aria-label="Breadcrumbs"
         className="flex items-center gap-1.5 overflow-x-auto text-sm text-zinc-500"
       >
         <Link
-          aria-label="ముఖపుట"
+          aria-label="Home"
           className="shrink-0 text-zinc-400 hover:text-red-600"
           href="/"
         >

@@ -11,10 +11,10 @@ export function LogoutButton() {
 
   async function handleLogout() {
     const confirmed = await confirmDialog({
-      title: "బయటకు వెళ్లండి",
-      message: "నిర్వాహక పటం నుంచి బయటకు వెళ్లాలా?",
-      confirmLabel: "బయటకు వెళ్లండి",
-      cancelLabel: "ఇక్కడే ఉండండి",
+      title: "Sign Out",
+      message: "Sign out of the admin dashboard?",
+      confirmLabel: "Sign Out",
+      cancelLabel: "Stay Signed In",
       variant: "default",
     });
     if (!confirmed) return;
@@ -25,9 +25,9 @@ export function LogoutButton() {
   }
 
   return (
-    <Button onClick={handleLogout} size="sm" type="button" variant="outline">
+    <Button className="text-zinc-900" onClick={handleLogout} size="sm" type="button" variant="outline">
       <LogOut aria-hidden="true" />
-      బయటకు వెళ్లండి
+      Sign Out
     </Button>
   );
 }

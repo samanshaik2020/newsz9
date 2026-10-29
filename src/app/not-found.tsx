@@ -8,16 +8,16 @@ export default function NotFound() {
         <FileQuestion className="h-10 w-10 text-zinc-500" />
       </div>
       <h1 className="mb-2 text-4xl font-black tracking-tight text-zinc-950">
-        పేజీ కనిపించలేదు
+        Page Not Found
       </h1>
       <p className="mb-8 max-w-md text-lg text-zinc-600">
-        మీరు కోరిన పేజీ కనిపించలేదు. లింకును సరిచూడండి లేదా ముఖపుట నుంచి కావాల్సిన వార్తను వెతకండి.
+        The page you requested could not be found. Check the link or search for news from the home page.
       </p>
       <Link
         href="/"
         className="rounded-lg bg-red-700 px-6 py-3 font-bold text-white transition-colors hover:bg-red-800"
       >
-        ముఖపుటకు వెళ్లండి
+        Go to Home Page
       </Link>
     </div>
   );

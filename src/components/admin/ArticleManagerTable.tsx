@@ -1,4 +1,5 @@
 "use client";
+import { categoryDisplayName } from "@/lib/language";
 
 import { useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
@@ -20,9 +21,9 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
 
   async function deleteArticle(article: Article) {
     const confirmed = await confirmDialog({
-      title: "కథనం తొలగింపు",
+      title: "Delete Article",
       message: `Delete "${article.title}" permanently? This action cannot be undone.`,
-      confirmLabel: "తొలగించండి",
+      confirmLabel: "Delete",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -38,11 +39,11 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
     setDeletingId(null);
 
     if (!response.ok) {
-      addToast(payload.error ?? "కథనాన్ని తొలగించలేకపోయాం.", "error");
+      addToast(payload.error ?? "Could not delete the article.", "error");
       return;
     }
 
-    addToast("కథనం తొలగించబడింది.", "success");
+    addToast("Article deleted.", "success");
     router.refresh();
   }
 
@@ -55,11 +56,11 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
       ) : null}
       <div className="overflow-hidden rounded-md border border-zinc-200 bg-white">
         <div className="hidden border-b border-zinc-200 bg-zinc-100 px-4 py-3 text-xs font-black uppercase tracking-[0.14em] text-zinc-500 md:grid md:grid-cols-[1fr_150px_110px_130px_350px]">
-          <span>శీర్షిక</span>
-          <span>విభాగం</span>
-          <span>దశ</span>
-          <span>తేదీ</span>
-          <span className="text-right">చర్యలు</span>
+          <span>Title</span>
+          <span>Category</span>
+          <span>Status</span>
+          <span>Date</span>
+          <span className="text-right">Actions</span>
         </div>
         {articles.length ? (
           articles.map((article) => (
@@ -72,10 +73,10 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
                 <p className="mt-1 text-xs text-zinc-500">/{article.slug}</p>
               </div>
               <span className="text-sm text-zinc-500">
-                {article.categories?.name ?? "విభాగం లేదు"}
+                {categoryDisplayName(article.categories, "Uncategorized")}
               </span>
               <span className="w-fit rounded bg-zinc-100 px-2 py-1 text-xs font-bold capitalize text-zinc-700">
-                {{ draft: "ముసాయిదా", review: "సమీక్షలో", published: "ప్రచురితం", archived: "భద్రపరిచినది" }[article.status]}
+                {{ draft: "Draft", review: "In Review", published: "Published", archived: "Archived" }[article.status]}
               </span>
               <span className="text-sm text-zinc-500">
                 {formatDate(article.published_at ?? article.created_at)}
@@ -84,13 +85,13 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
                 <Button asChild size="sm" type="button" variant="outline">
                   <Link href={`/admin/articles/${article.id}`}>
                     <Pencil aria-hidden="true" />
-                    సవరించండి
+                    Edit
                   </Link>
                 </Button>
                 <Button asChild size="sm" type="button" variant="outline">
                   <Link href={`/admin/articles/${article.id}/preview`}>
                     <Eye aria-hidden="true" />
-                    వీక్షణ
+                    View
                   </Link>
                 </Button>
                 <CopyArticleLinkButton slug={article.slug} />
@@ -102,13 +103,13 @@ export function ArticleManagerTable({ articles }: { articles: Article[] }) {
                   variant="destructive"
                 >
                   <Trash2 aria-hidden="true" />
-                  {deletingId === article.id ? "తొలగిస్తున్నాం" : "తొలగించండి"}
+                  {deletingId === article.id ? "Deleting" : "Delete"}
                 </Button>
               </span>
             </div>
           ))
         ) : (
-          <p className="p-6 text-sm text-zinc-600">కథనాలు కనిపించలేదు.</p>
+          <p className="p-6 text-sm text-zinc-600">No articles found.</p>
         )}
       </div>
     </div>

@@ -30,3 +30,6 @@ yarn-error.log*
 
 # Read-only live audit snapshots may contain private author contact information.
 /audit/*.json
+
+# Local verification screenshots
+/audit/*.jpg

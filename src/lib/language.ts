@@ -2,6 +2,30 @@ import type { Category, Language } from "@/types";
 
 export const DEFAULT_LANGUAGE: Language = "te";
 
+// Interface labels are English even when the category contains Telugu articles.
+export function categoryDisplayName(category?: Pick<Category, "name" | "slug"> | null, fallback = "News") {
+  if (!category) return fallback;
+  if (!/[\u0C00-\u0C7F]/.test(category.name)) return category.name;
+
+  const names: Record<string, string> = {
+    andhrapradesh: "Andhra Pradesh",
+    "andhra-pradesh": "Andhra Pradesh",
+    telangana: "Telangana",
+    national: "National",
+    politics: "Politics",
+    sports: "Sports",
+    entertainment: "Entertainment",
+    cinema: "Cinema",
+    technology: "Technology",
+    health: "Health",
+    business: "Business",
+    "telugu-news": "Telugu News",
+  };
+  return names[category.slug] ?? (/^[a-z0-9-]+$/i.test(category.slug)
+    ? category.slug.replace(/-/g, " ").replace(/\b[a-z]/g, (letter) => letter.toUpperCase())
+    : category.name);
+}
+
 export const languages = [
   { code: "en", label: "English", flag: "EN" },
   { code: "te", label: "Telugu", flag: "TE" },

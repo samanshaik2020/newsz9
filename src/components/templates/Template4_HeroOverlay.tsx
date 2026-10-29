@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import Image from "@/components/NewsImage";
 import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
@@ -9,8 +10,8 @@ import type { Article } from "@/types";
 export default function Template4({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
-  const categoryName = article.categories?.name ?? "తాజా వార్త";
-  const authorName = article.authors?.name ?? "సంపాదక బృందం";
+  const categoryName = categoryDisplayName(article.categories, "Latest News");
+  const authorName = article.authors?.name ?? "Editorial Team";
   const hasCover = Boolean(coverImage);
 
   return (

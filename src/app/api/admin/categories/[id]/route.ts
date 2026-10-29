@@ -26,7 +26,7 @@ export async function PATCH(
 
   if (!name || !slug || !containsTeluguText(name) || (body.language && body.language !== "te")) {
     return NextResponse.json(
-      { error: "తెలుగు విభాగం పేరు, లింకు పేరు తప్పనిసరి." },
+      { error: "A Telugu category name and slug are required." },
       { status: 400 },
     );
   }

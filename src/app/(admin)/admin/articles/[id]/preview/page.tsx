@@ -17,16 +17,16 @@ export default async function SavedArticlePreviewPage({
     <div className="grid gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black">కథనం ముందస్తు వీక్షణ</h1>
+          <h1 className="text-3xl font-black">Article Preview</h1>
           <p className="mt-2 text-sm text-zinc-600">
-            భద్రపరిచిన కథనం వీక్షణ: {article.title}
+            Saved Article Preview: {article.title}
           </p>
         </div>
         <Link
           className="rounded-md border border-zinc-300 px-4 py-2 text-sm font-semibold hover:bg-zinc-100"
           href={`/admin/articles/${article.id}`}
         >
-          కథనం సవరించండి
+          Edit Article
         </Link>
       </div>
       <div className="rounded-md border border-zinc-200 bg-white shadow-sm">

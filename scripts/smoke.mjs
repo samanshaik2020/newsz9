@@ -6,7 +6,7 @@ for (const path of ["/", ...trust.map((p) => "/" + p), "/latest", "/search?q=" +
   const response = await fetch(origin + path);
   assert.equal(response.status, 200, path);
   const html = await response.text();
-  assert.match(html, /<html[^>]*lang="te"/, path);
+  assert.match(html, /<html[^>]*lang="en"/, path);
   const footer = [...html.matchAll(/<footer\b[\s\S]*?<\/footer>/g)].at(-1)?.[0] ?? "";
   assert.ok(footer, `${path}: missing site footer`);
   assert.ok(!/mailto:|tel:|<address\b/i.test(footer), `${path}: footer must not include direct contact details`);

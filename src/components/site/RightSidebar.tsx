@@ -24,7 +24,7 @@ function SidebarPanel({
 export function RightSidebar({ articles }: { articles: ArticleListItem[] }) {
   return (
     <aside className="sticky-sidebar hidden content-start gap-5 lg:grid">
-      <SidebarPanel title="ఎక్కువ మంది చదువుతున్నవి">
+      <SidebarPanel title="Most Read">
         <div className="grid">
           {articles.slice(0, 10).map((article, index) => {
             const isTelugu =

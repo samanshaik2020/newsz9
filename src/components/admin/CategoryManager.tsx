@@ -1,4 +1,5 @@
 "use client";
+import { categoryDisplayName } from "@/lib/language";
 
 import { useState } from "react";
 import { Plus, Save, Trash2 } from "lucide-react";
@@ -52,20 +53,20 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error ?? "విభాగాన్ని భద్రపరచలేకపోయాం.");
+      setMessage(payload.error ?? "Could not save the category.");
       return;
     }
 
-    setMessage(editingId ? "విభాగం సవరించబడింది." : "విభాగం సృష్టించబడింది.");
+    setMessage(editingId ? "Category updated." : "Category created.");
     resetForm();
     router.refresh();
   }
 
   async function deleteCategory(id: string) {
     const confirmed = await confirmDialog({
-      title: "విభాగం తొలగింపు",
-      message: "ఈ విభాగాన్ని తొలగిస్తే దాని కథనాలకు విభాగాన్ని తిరిగి కేటాయించాలి. తొలగించాలా?",
-      confirmLabel: "తొలగించండి",
+      title: "Delete Category",
+      message: "Deleting this category will require assigning its articles to another category. Delete it?",
+      confirmLabel: "Delete",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -76,11 +77,11 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      addToast(payload.error ?? "విభాగాన్ని తొలగించలేకపోయాం.", "error");
+      addToast(payload.error ?? "Could not delete the category.", "error");
       return;
     }
 
-    addToast("విభాగం తొలగించబడింది.", "success");
+    addToast("Category deleted.", "success");
     router.refresh();
   }
 
@@ -88,7 +89,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
     <div className="grid gap-6 lg:grid-cols-[360px_1fr]">
       <section className="grid content-start gap-4 rounded-md border border-zinc-200 bg-white p-5">
         <h2 className="text-lg font-black">
-          {editingId ? "విభాగం సవరించండి" : "కొత్త విభాగం"}
+          {editingId ? "Edit Category" : "New Category"}
         </h2>
         <input
           className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm outline-none focus:border-red-700"
@@ -99,7 +100,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
               slug: editingId ? form.slug : slugify(event.target.value),
             })
           }
-          placeholder="విభాగం పేరు తెలుగులో"
+          placeholder="Category name in Telugu"
           value={form.name}
         />
         <input
@@ -118,24 +119,24 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
           value={form.language}
         >
 
-          <option value="te">తెలుగు</option>
+          <option value="te">Telugu</option>
         </select>
         <textarea
           className="min-h-24 rounded-md border border-zinc-300 px-4 py-3 text-sm outline-none focus:border-red-700"
           onChange={(event) =>
             setForm({ ...form, description: event.target.value })
           }
-          placeholder="వివరణ"
+          placeholder="Description"
           value={form.description ?? ""}
         />
         <div className="flex flex-wrap gap-2">
           <Button onClick={saveCategory} type="button">
             {editingId ? <Save aria-hidden="true" /> : <Plus aria-hidden="true" />}
-            {editingId ? "మార్చండి" : "సృష్టించండి"}
+            {editingId ? "Update" : "Create"}
           </Button>
           {editingId ? (
             <Button onClick={resetForm} type="button" variant="outline">
-              రద్దు
+              Cancel
             </Button>
           ) : null}
         </div>
@@ -148,7 +149,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
             key={category.id}
           >
             <div>
-              <p className="font-bold">{category.name}</p>
+              <p className="font-bold">{categoryDisplayName(category)}</p>
               <p className="text-sm text-zinc-500">/{category.slug}</p>
             </div>
             <span className="text-sm uppercase text-zinc-500">
@@ -161,7 +162,7 @@ export function CategoryManager({ categories }: { categories: Category[] }) {
                 type="button"
                 variant="outline"
               >
-                సవరించండి
+                Edit
               </Button>
               <Button
                 onClick={() => deleteCategory(category.id)}

@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import Image from "@/components/NewsImage";
 import Link from "next/link";
 import { cn, containsTeluguText, formatDate, getImageSrc } from "@/lib/utils";
@@ -33,13 +34,13 @@ function CompactHeroItem({ article }: { article: ArticleListItem }) {
           />
         ) : (
           <span className="grid h-full place-items-center text-[10px] font-black uppercase text-zinc-500">
-            వార్తలు
+            News
           </span>
         )}
       </Link>
       <div className="min-w-0">
         <p className="category-label text-[10px] font-black uppercase text-[var(--color-news-red)]">
-          {article.categories?.name ?? "వార్తలు"}
+          {categoryDisplayName(article.categories)}
         </p>
         <h3 className="mt-1 text-sm font-black leading-snug text-zinc-950">
           <Link className="line-clamp-3 hover:text-[var(--color-news-red)]" href={`/article/${article.slug}`}>
@@ -48,7 +49,7 @@ function CompactHeroItem({ article }: { article: ArticleListItem }) {
         </h3>
         <VerifiedAuthor
           className="mt-2 max-w-full text-[11px]"
-          authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "సంపాదక బృందం"}
+          authorId={article.authors?.role !== "bot" ? article.author_id : null} name={article.authors?.name ?? "Editorial Team"}
         />
       </div>
     </article>
@@ -89,11 +90,11 @@ export function HeroSplit({
             />
           ) : (
             <span className="grid h-full place-items-center text-sm font-black uppercase text-zinc-500">
-              న్యూస్‌జెడ్‌9
+              NEWSZ9
             </span>
           )}
           <span className="category-label absolute left-3 top-3 bg-[var(--color-news-red)] px-2.5 py-1 text-[11px] font-black uppercase text-white">
-            {featured.categories?.name ?? "ప్రధాన వార్త"}
+            {categoryDisplayName(featured.categories, "Top Story")}
           </span>
         </Link>
         <h1 className="mt-4 text-2xl font-black leading-tight text-zinc-950 sm:text-4xl">
@@ -107,7 +108,7 @@ export function HeroSplit({
           </p>
         ) : null}
         <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-zinc-500">
-          <VerifiedAuthor authorId={featured.authors?.role !== "bot" ? featured.author_id : null} name={featured.authors?.name ?? "సంపాదక బృందం"} />
+          <VerifiedAuthor authorId={featured.authors?.role !== "bot" ? featured.author_id : null} name={featured.authors?.name ?? "Editorial Team"} />
           <span aria-hidden="true">|</span>
           <time dateTime={featured.published_at ?? featured.created_at}>
             {formatDate(featured.published_at ?? featured.created_at)}
@@ -118,10 +119,10 @@ export function HeroSplit({
       <div className="border-t-[3px] border-[var(--color-news-red)] bg-white">
         <div className="flex items-center justify-between border-b border-zinc-200 py-2">
           <h2 className="section-heading__title border-l-0 pl-0 text-lg">
-            ముఖ్య వార్తలు
+            Top News
           </h2>
           <Link className="section-heading__link" href="/latest">
-            మరిన్ని చూడండి
+            View More
           </Link>
         </div>
         <div>

@@ -51,20 +51,20 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      setMessage(payload.error ?? "తాజా సమాచారాన్ని భద్రపరచలేకపోయాం.");
+      setMessage(payload.error ?? "Could not save the breaking news item.");
       return;
     }
 
-    setMessage(editingId ? "తాజా సమాచారం సవరించబడింది." : "తాజా సమాచారం జోడించబడింది.");
+    setMessage(editingId ? "Breaking news item updated." : "Breaking news item added.");
     resetForm();
     router.refresh();
   }
 
   async function deleteItem(id: string) {
     const confirmed = await confirmDialog({
-      title: "తాజా సమాచారం తొలగింపు",
-      message: "ఈ తాజా సమాచారాన్ని శాశ్వతంగా తొలగించాలా?",
-      confirmLabel: "తొలగించండి",
+      title: "Delete Breaking News",
+      message: "Permanently delete this breaking news item?",
+      confirmLabel: "Delete",
       variant: "danger",
     });
     if (!confirmed) return;
@@ -75,11 +75,11 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
     const payload = (await response.json()) as { error?: string };
 
     if (!response.ok) {
-      addToast(payload.error ?? "తాజా సమాచారాన్ని తొలగించలేకపోయాం.", "error");
+      addToast(payload.error ?? "Could not delete the breaking news item.", "error");
       return;
     }
 
-    addToast("తాజా సమాచారం తొలగించబడింది.", "success");
+    addToast("Breaking news item deleted.", "success");
     router.refresh();
   }
 
@@ -87,14 +87,14 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
     <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
       <section className="grid content-start gap-4 rounded-md border border-zinc-200 bg-white p-5">
         <h2 className="text-lg font-black">
-          {editingId ? "తాజా సమాచారం సవరించండి" : "కొత్త తాజా సమాచారం"}
+          {editingId ? "Edit Breaking News" : "New Breaking News"}
         </h2>
         <input
           className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm outline-none focus:border-red-700"
           onChange={(event) =>
             setForm({ ...form, headline: event.target.value })
           }
-          placeholder="తెలుగులో తాజా సమాచారం"
+          placeholder="Breaking news headline in Telugu"
           value={form.headline}
         />
         <input
@@ -111,10 +111,10 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
             }
             type="checkbox"
           />
-          చేతనం
+          Enabled
         </label>
         <label className="grid gap-2 text-sm font-bold text-zinc-800">
-          ముగిసే సమయం
+          Expires At
           <input
             className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
             onChange={(event) =>
@@ -127,11 +127,11 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
         <div className="flex flex-wrap gap-2">
           <Button onClick={saveItem} type="button">
             {editingId ? <Save aria-hidden="true" /> : <Plus aria-hidden="true" />}
-            {editingId ? "మార్చండి" : "సృష్టించండి"}
+            {editingId ? "Update" : "Create"}
           </Button>
           {editingId ? (
             <Button onClick={resetForm} type="button" variant="outline">
-              రద్దు
+              Cancel
             </Button>
           ) : null}
         </div>
@@ -145,10 +145,10 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
           >
             <div>
               <p className="font-bold">{item.headline}</p>
-              <p className="text-sm text-zinc-500">{item.url ?? "లింకు లేదు"}</p>
+              <p className="text-sm text-zinc-500">{item.url ?? "No link"}</p>
             </div>
             <span className={item.is_active ? "text-sm text-green-700" : "text-sm text-zinc-500"}>
-              {item.is_active ? "చేతనం" : "నిలిపివేత"}
+              {item.is_active ? "Enabled" : "Disabled"}
             </span>
             <div className="flex justify-start gap-2 md:justify-end">
               <Button
@@ -157,7 +157,7 @@ export function BreakingNewsManager({ items }: { items: BreakingNewsItem[] }) {
                 type="button"
                 variant="outline"
               >
-                సవరించండి
+                Edit
               </Button>
               <Button
                 onClick={() => deleteItem(item.id)}

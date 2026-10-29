@@ -53,7 +53,7 @@ export function ToastContainer() {
               {toast.message}
             </p>
             <button
-              aria-label="మూసివేయండి"
+              aria-label="Close"
               className="shrink-0 rounded-md p-0.5 text-zinc-400 transition-colors hover:text-zinc-700"
               onClick={() => removeToast(toast.id)}
               type="button"

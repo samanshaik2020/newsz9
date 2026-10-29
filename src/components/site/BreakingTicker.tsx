@@ -39,7 +39,7 @@ export function BreakingTicker({ items }: { items: BreakingNewsItem[] }) {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-white opacity-70" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-white" />
           </span>
-          తాజా సమాచారం
+          Breaking News
         </div>
         <div className="breaking-marquee min-w-0 flex-1 text-sm font-bold">
           <div className="flex overflow-x-auto py-3">

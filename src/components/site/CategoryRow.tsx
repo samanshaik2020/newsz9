@@ -1,5 +1,5 @@
+import { categoryDisplayName } from "@/lib/language";
 import type { ArticleListItem, Category } from "@/types";
-import { cn, containsTeluguText } from "@/lib/utils";
 import { ArticleCard } from "./ArticleCard";
 
 export function CategoryRow({
@@ -19,13 +19,10 @@ export function CategoryRow({
     <section className="grid gap-1 border-t-2 border-zinc-950 pt-1">
       <div className="flex items-end justify-between border-b border-zinc-200 bg-zinc-50 px-3 py-2">
         <h2
-          className={cn(
-            "text-xl font-black",
-            containsTeluguText(category.name) && "telugu-copy",
-          )}
-          lang={containsTeluguText(category.name) ? "te" : undefined}
+          className="text-xl font-black"
+          lang="en"
         >
-          {category.name}
+          {categoryDisplayName(category)}
         </h2>
       </div>
       <div className="grid gap-x-6 md:grid-cols-3">

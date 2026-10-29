@@ -29,9 +29,9 @@ export async function GET() {
   const feed = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>న్యూస్‌జెడ్‌9</title>
+    <title>NEWSZ9</title>
     <link>${siteUrl}</link>
-    <description>తెలుగు పాఠకుల కోసం తాజా వార్తలు, నేపథ్య వివరాలు.</description>
+    <description>Latest news and background for Telugu readers.</description>
     <language>te-in</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml" />

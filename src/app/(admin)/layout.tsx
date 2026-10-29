@@ -9,7 +9,7 @@ import {
   isValidAdminSession,
 } from "@/lib/admin-auth";
 import type { Metadata } from "next";
-export const metadata: Metadata = { title: "నిర్వాహక కేంద్రం | న్యూస్‌జెడ్‌9", robots: { index: false, follow: false } };
+export const metadata: Metadata = { title: "Admin Panel | NEWSZ9", robots: { index: false, follow: false } };
 
 export default async function AdminLayout({
   children,

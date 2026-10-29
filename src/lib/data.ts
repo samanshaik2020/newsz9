@@ -45,7 +45,7 @@ export async function getAllPublicArticles(): Promise<ArticleListItem[]> {
       .lte("published_at", new Date().toISOString()).order("id").range(offset, offset + 999);
     let data: unknown = result.data; let error = result.error;
     if (error?.code === "42703") { const legacy = await s.from("articles").select(listSelect).eq("status", "published").eq("language", "te").lte("published_at", new Date().toISOString()).order("id").range(offset, offset + 999); data = legacy.data; error = legacy.error; }
-    if (error) throw new Error("ప్రచురిత కథనాల జాబితా అందుబాటులో లేదు.");
+    if (error) throw new Error("The published articles list is unavailable.");
     const batch = (data ?? []) as ArticleListItem[]; all.push(...batch); if (batch.length < 1000) break;
   }
   return publicRows(all);
@@ -111,7 +111,7 @@ export async function getAdminArticleStats(adminCategories: Category[]): Promise
   const rows: Article[] = [];
   for (let offset = 0; ; offset += 1000) {
     const { data, error } = await s.from("articles").select("status,category_id").order("id").range(offset, offset + 999);
-    if (error) throw new Error("కథనాల గణాంకాలు అందుబాటులో లేవు.");
+    if (error) throw new Error("Article statistics are unavailable.");
     rows.push(...data as Article[]); if (data.length < 1000) break;
   }
   return buildAdminArticleStats(rows, adminCategories);

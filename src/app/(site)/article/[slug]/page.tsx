@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
@@ -23,7 +24,7 @@ export async function generateMetadata({
   const article = await getArticleBySlug(slug);
 
   if (!article) {
-    return { title: "కథనం కనిపించలేదు | న్యూస్‌జెడ్‌9", robots: { index: false } };
+    return { title: "Article Not Found | NEWSZ9", robots: { index: false } };
   }
 
   const description = article.summary
@@ -34,25 +35,25 @@ export async function generateMetadata({
   const articleUrl = `${siteUrl}/article/${article.slug}`;
 
   return {
-    title: `${article.title} | న్యూస్‌జెడ్‌9`,
+    title: `${article.title} | NEWSZ9`,
     description,
     keywords: [
       article.categories?.name,
-      "న్యూస్‌జెడ్‌9",
-      "తాజా వార్తలు",
-      article.language === "te" ? "తెలుగు వార్తలు" : undefined,
+      "NEWSZ9",
+      "Latest News",
+      article.language === "te" ? "Telugu News" : undefined,
     ].filter(Boolean) as string[],
     authors: article.authors ? [{ name: article.authors.name }] : undefined,
     openGraph: {
       title: article.title,
       description,
       url: articleUrl,
-      siteName: "న్యూస్‌జెడ్‌9",
+      siteName: "NEWSZ9",
       type: "article",
       publishedTime: article.published_at ?? undefined,
       modifiedTime: article.updated_at ?? undefined,
       authors: article.authors ? [article.authors.name] : undefined,
-      section: article.categories?.name ?? "వార్తలు",
+      section: article.categories?.name ?? "News",
       locale: "te_IN",
       ...(coverImage
         ? {
@@ -102,7 +103,7 @@ export default async function ArticlePage({
   // Breadcrumb trail
   const breadcrumbItems = [
     ...(article.categories
-      ? [{ label: article.categories.name, href: `/${article.categories.slug}` }]
+      ? [{ label: categoryDisplayName(article.categories), href: `/${article.categories.slug}` }]
       : []),
     { label: article.title },
   ];
@@ -120,10 +121,10 @@ export default async function ArticlePage({
     dateModified: article.updated_at ?? article.published_at ?? article.created_at,
     author: article.authors && article.authors.role !== "bot" && /[\u0C00-\u0C7F]/.test(article.authors.name)
       ? { "@type": "Person", name: article.authors.name, url: `${siteUrl}/author/${article.authors.id}` }
-      : { "@type": "Organization", name: "న్యూస్‌జెడ్‌9 సంపాదక బృందం", url: `${siteUrl}/about-us` },
+      : { "@type": "Organization", name: "NEWSZ9 Editorial Team", url: `${siteUrl}/about-us` },
     publisher: {
       "@type": "Organization",
-      name: "న్యూస్‌జెడ్‌9",
+      name: "NEWSZ9",
       url: siteUrl,
       logo: {
         "@type": "ImageObject",
@@ -165,7 +166,7 @@ export default async function ArticlePage({
       </div>
       <Suspense fallback={
         <div className="border-t border-zinc-200 bg-zinc-50 px-4 py-10 text-center text-sm text-zinc-500" role="status">
-          మరిన్ని కథనాలు లోడ్ అవుతున్నాయి…
+          Loading more articles…
         </div>
       }>
         <ArticleRecommendations article={article} />

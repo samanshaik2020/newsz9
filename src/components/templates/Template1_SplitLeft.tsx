@@ -1,3 +1,4 @@
+import { categoryDisplayName } from "@/lib/language";
 import Image from "@/components/NewsImage";
 import { ArticleAuthorFooter } from "@/components/site/ArticleAuthorFooter";
 import { VerifiedAuthor } from "@/components/site/VerifiedAuthor";
@@ -9,8 +10,8 @@ import type { Article } from "@/types";
 export default function Template1({ article }: { article: Article }) {
   const coverImage = getImageSrc(article.cover_image);
   const imageSrc = coverImage ?? NEWSZ9_WORDMARK.src;
-  const categoryName = article.categories?.name ?? "వార్తలు";
-  const authorName = article.authors?.name ?? "సంపాదక బృందం";
+  const categoryName = categoryDisplayName(article.categories);
+  const authorName = article.authors?.name ?? "Editorial Team";
 
   return (
     <article className="mx-auto max-w-6xl px-4 py-8">
