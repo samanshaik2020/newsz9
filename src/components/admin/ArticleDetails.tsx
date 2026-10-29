@@ -5,7 +5,8 @@ import type { ArticleFormInput } from "@/types";
 export function ArticleDetails({ value, onChange }: { value: ArticleFormInput; onChange: (value: ArticleFormInput) => void }) {
   const inputClass = "min-h-11 rounded border border-zinc-300 p-3 font-normal";
   return <section className="grid gap-5 rounded-lg border border-zinc-200 bg-zinc-50 p-5">
-    <h2 className="text-2xl font-bold">Article Details</h2>
+    <h2 className="text-2xl font-bold">Article Details (optional)</h2>
+    <p className="text-sm font-normal text-zinc-600">These details and checkboxes are optional. You can publish without completing them.</p>
     <label className="grid gap-2">Cover Image Description in Telugu<input className={inputClass} value={value.cover_alt ?? ""} onChange={(e) => onChange({ ...value, cover_alt: e.target.value })} /></label>
     <label className="grid gap-2">Image Source and Usage Rights<input className={inputClass} value={value.image_credit ?? ""} onChange={(e) => onChange({ ...value, image_credit: e.target.value })} placeholder="Original image or permission details" /></label>
     <label className="grid gap-2">Article Type<select className={inputClass} value={value.content_kind ?? "news"} onChange={(e) => onChange({ ...value, content_kind: e.target.value as ArticleFormInput["content_kind"] })}><option value="news">News</option><option value="analysis">Analysis</option><option value="opinion">Opinion</option><option value="sponsored">Sponsored Article</option></select></label>

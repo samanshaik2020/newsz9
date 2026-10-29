@@ -141,7 +141,7 @@ export function ArticleForm({
 
   async function handleSubmit() {
     if (form.status === "published") {
-      const issues = publicationIssues(form, authors.find((a) => a.id === selectedAuthorId), selectedCategory);
+      const issues = publicationIssues(form);
       if (issues.length) { setMessage(issues.join("\n")); addToast("Complete the required article details before publishing.", "error"); return; }
     }
     setIsSaving(true);
@@ -330,7 +330,7 @@ export function ArticleForm({
               {mode === "edit" ? "Edit Article" : "Write a New Article"}
             </h1>
             <p className="mt-2 text-sm text-zinc-600">
-              Choose an image, category, and layout. Add article details and preview your article.
+              Only Title and Full Article are required to publish. All other fields are optional, and the slug is generated automatically.
             </p>
           </div>
           {mode === "edit" ? (
@@ -343,14 +343,16 @@ export function ArticleForm({
           ) : null}
         </div>
         <div className="grid gap-4 rounded-md border border-zinc-200 bg-white p-5">
-          {replacementDraft && <aside className="rounded border border-amber-300 bg-amber-50 p-4"><p>A sourced Telugu rewrite draft is available for this article. After loading it, complete the author and image rights details. The current article changes only when you save.</p><button className="mt-3 rounded border bg-white px-4 py-2 font-bold" type="button" onClick={() => {
+          {replacementDraft && <aside className="rounded border border-amber-300 bg-amber-50 p-4"><p>A sourced Telugu rewrite draft is available for this article. After loading it, review the title and article content. The current article changes only when you save.</p><button className="mt-3 rounded border bg-white px-4 py-2 font-bold" type="button" onClick={() => {
             const { existing_article_id: _id, ...draft } = replacementDraft;
             void _id; // This identifies the existing record, not an editable article field.
             setForm({ ...form, ...draft, language: "te", status: "review", source_url: draft.sources[0]?.url ?? "" });
           }}>Load Rewrite Draft</button></aside>}
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Title
+            Title (required)
             <input
+              required
+              aria-required="true"
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
                 setForm({
@@ -367,7 +369,7 @@ export function ArticleForm({
             />
           </label>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Slug
+            Slug (auto-generated)
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal text-zinc-600 outline-none focus:border-red-700"
               onChange={(event) =>
@@ -378,7 +380,7 @@ export function ArticleForm({
             />
           </label>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Summary
+            Summary (optional)
             <textarea
               className="min-h-24 rounded-md border border-zinc-300 px-4 py-3 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
@@ -396,7 +398,7 @@ export function ArticleForm({
           <div className="grid gap-4 lg:grid-cols-[1fr_220px]">
             <div className="grid gap-3">
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                Upload Cover Image
+                Upload Cover Image (optional)
                 <input
                   accept="image/jpeg,image/png,image/webp,image/gif"
                   className="min-h-11 rounded-md border border-zinc-300 px-4 py-2 text-sm font-normal outline-none file:mr-3 file:rounded file:border-0 file:bg-zinc-950 file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-white focus:border-red-700"
@@ -406,7 +408,7 @@ export function ArticleForm({
                 />
               </label>
               <label className="grid gap-2 text-sm font-bold text-zinc-800">
-                Cover Image URL
+                Cover Image URL (optional)
                 <input
                   className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
                   onChange={(event) =>
@@ -524,7 +526,7 @@ export function ArticleForm({
             ) : null}
           </section>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Source URL
+            Source URL (optional)
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal outline-none focus:border-red-700"
               onChange={(event) =>
@@ -572,7 +574,7 @@ export function ArticleForm({
               </select>
             </label>
             <label className="grid gap-2 text-sm font-bold text-zinc-800">
-              Category
+              Category (optional)
               <select
                 className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
                 onChange={(event) =>
@@ -591,7 +593,7 @@ export function ArticleForm({
           </div>
           {/* Author selector */}
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
-            Author
+            Author (optional)
             <select
               className="min-h-11 rounded-md border border-zinc-300 px-3 text-sm font-normal"
               onChange={(event) => setSelectedAuthorId(event.target.value)}

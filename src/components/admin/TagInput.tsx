@@ -7,7 +7,7 @@ export function TagInput({ value, onChange }: { value: string; onChange: (value:
   const tags = parseTagKeywords(value);
   return (
     <div className="grid gap-2 text-sm font-bold text-zinc-800">
-      <label htmlFor="article-tags">Tags</label>
+      <label htmlFor="article-tags">Tags (optional)</label>
       <input
         id="article-tags"
         aria-describedby="article-tags-help"

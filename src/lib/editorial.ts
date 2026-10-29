@@ -1,6 +1,5 @@
-import type { Article, ArticleFormInput, ArticleListItem, Author, Category } from "../types/index.ts";
-import { containsTeluguText, getImageSrc, normalizeArticleContent, slugify, stripHtml } from "./utils.ts";
-import { publicAuthorName } from "./authors.ts";
+import type { Article, ArticleFormInput, ArticleListItem, Category, EditorialFields } from "../types/index.ts";
+import { getImageSrc, normalizeArticleContent, slugify, stripHtml } from "./utils.ts";
 
 export function normalizedText(value: string) {
   return stripHtml(value).normalize("NFKC").replace(/&(?:nbsp|amp|quot|lt|gt);|&#(?:\d+|x[\da-f]+);/gi, " ")
@@ -73,26 +72,30 @@ export function normalizeEditorialInput(body: Partial<ArticleFormInput>): Articl
   };
 }
 
-export function publicationIssues(input: ArticleFormInput, author?: Author | null, category?: Category | null): string[] {
+export function publicationIssues(input: ArticleFormInput): string[] {
   const issues: string[] = [];
   if (input.language !== "te") issues.push("Only Telugu articles can be published on this site.");
-  for (const [label, value] of [["Title", input.title], ["Summary", input.summary], ["Article", input.content], ["Image description", input.cover_alt]] as const) {
-    if (!value || !isTeluguCopy(value)) issues.push(`${label} must be completed in Telugu.`);
+  for (const [label, value] of [["Title", input.title], ["Full Article", input.content]] as const) {
+    if (!stripHtml(value).trim()) issues.push(`${label} is required.`);
+    else if (!isTeluguCopy(value)) issues.push(`${label} must be in Telugu.`);
   }
-  // These are newsroom standards, not Google eligibility thresholds.
-  const words = stripHtml(input.content).split(/\s+/).filter(Boolean).length;
-  if (words < 150) issues.push("Write at least 150 words with context, evidence, and useful details for readers. This is our editorial standard.");
-  if ((input.content.match(/<h2\b/gi) ?? []).length < 2) issues.push("Add at least two subheadings.");
-  if (/<h1\b/i.test(input.content)) issues.push("Use subheadings instead of repeating the main title in the article.");
-  if (!input.cover_image || !getImageSrc(input.cover_image)) issues.push("Add a cover image.");
-  if (!input.image_credit?.trim()) issues.push("Record the image source and usage permission.");
-  if (!category || category.language !== "te" || !containsTeluguText(category.name)) issues.push("Select a Telugu category.");
-  if (!author || author.role === "bot" || !isTeluguCopy(publicAuthorName(author.name)) || !author.bio || !isTeluguCopy(author.bio)) issues.push("Select a responsible author with a Telugu name and an accurate biography.");
-  if (!input.editorial_reviewed) issues.push("A human editor must verify the facts, rights, and title.");
-  if (input.content_kind === "sponsored" && (!input.sponsor_name || !isTeluguCopy(input.sponsor_name))) issues.push("Provide the sponsor name in Telugu for a sponsored article.");
-  const inlineImages = input.content.match(/<img\b[^>]*>/gi) ?? [];
-  if (inlineImages.some((tag) => !/\balt=["'][^"']*[\u0C00-\u0C7F][^"']*["']/i.test(tag))) issues.push("Provide a Telugu description for every image in the article.");
+  if (input.summary?.trim() && !isTeluguCopy(input.summary)) issues.push("Summary must be in Telugu when provided.");
   return issues;
+}
+
+type ArticleWriteInput = ArticleFormInput & Pick<Article, "published_at" | "updated_at">;
+
+export function articleWritePayload(input: ArticleWriteInput, existing?: Article | null): ArticleWriteInput {
+  const payload = { ...input };
+  const metadataKeys: (keyof EditorialFields)[] = ["cover_alt", "image_credit", "sources", "original_reporting", "editorial_reviewed", "ai_assisted", "reviewer_id", "content_kind", "sponsor_name", "correction_note"];
+  for (const key of metadataKeys) {
+    const value = payload[key];
+    const usesDefault = value == null || value === "" || value === false || (Array.isArray(value) && value.length === 0) || (key === "content_kind" && value === "news");
+    // Defaults need no database column on a legacy schema. Existing fields remain
+    // explicit on edits so clearing saved metadata still works.
+    if (usesDefault && (!existing || !Object.hasOwn(existing, key))) delete payload[key];
+  }
+  return payload;
 }
 
 export function publicationDates(existing?: Pick<Article, "published_at" | "updated_at"> | null, now = new Date()) {

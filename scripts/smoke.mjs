@@ -47,9 +47,9 @@ if (process.env.ADMIN_PASSWORD) {
   const secret = process.env.ADMIN_SESSION_SECRET ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
   const cookie = createHmac("sha256", secret).update(process.env.ADMIN_PASSWORD).digest("hex");
   const headers = { "Content-Type": "application/json", Cookie: `newsz9_admin=${cookie}` };
-  const rejected = await fetch(origin + "/api/admin/articles", { method: "POST", headers, body: JSON.stringify({ title: "తెలుగు వార్త", slug: "validation-only", content: "<p>పరిశీలన</p>", language: "te", status: "published" }) });
-  assert.equal(rejected.status, 422, "incomplete publication must fail before a database write");
-  const result = await rejected.json(); assert.ok(result.issues.length > 0);
+  const rejected = await fetch(origin + "/api/admin/articles", { method: "POST", headers, body: JSON.stringify({ title: "తెలుగు వార్త", slug: "validation-only", content: "", language: "te", status: "published" }) });
+  assert.equal(rejected.status, 400, "missing article content must fail before a database write");
+  const result = await rejected.json(); assert.match(result.error, /article content.*required/i);
   console.log("PASS server publication validation; no story written");
 }
 console.log("All smoke checks passed.");

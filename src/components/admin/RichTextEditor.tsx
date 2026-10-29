@@ -520,7 +520,7 @@ export function RichTextEditor({
 
   return (
     <div className="grid gap-2 text-sm font-bold text-zinc-800">
-      Full Article
+      Full Article (required)
       <div className="overflow-hidden rounded-md border border-zinc-300 focus-within:border-red-700">
         {/* ── Toolbar ── */}
         <div className="relative flex flex-wrap items-center gap-0.5 border-b border-zinc-200 bg-zinc-50 px-2 py-1.5">
@@ -770,6 +770,7 @@ export function RichTextEditor({
           contentEditable
           role="textbox"
           aria-label="Full Article"
+          aria-required="true"
           aria-multiline="true"
           suppressContentEditableWarning
           data-placeholder={placeholder}

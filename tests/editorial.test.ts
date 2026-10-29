@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { composeHomepage, isPublicArticle, isTeluguCopy, normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "../src/lib/editorial.ts";
+import { articleWritePayload, composeHomepage, isPublicArticle, isTeluguCopy, normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "../src/lib/editorial.ts";
 import { slugify } from "../src/lib/utils.ts";
-import type { ArticleFormInput, ArticleListItem, Author, Category } from "../src/types/index.ts";
+import type { Article, ArticleFormInput, ArticleListItem, Author, Category } from "../src/types/index.ts";
 import { authorDisplayName, publicAuthor } from "../src/lib/authors.ts";
 
 const author: Author = { id: "writer", name: "గోల్డీ అజిత్", bio: "తెలుగు కథనాల రచనకు బాధ్యత వహిస్తారు.", role: "editor" };
@@ -29,29 +29,61 @@ test("public content excludes drafts, English, null, invalid and future dates", 
   assert.equal(isPublicArticle(base, now), true);
   for (const change of [{ status: "draft" as const }, { language: "en" as const }, { title: "English only" }, { published_at: null }, { published_at: "bad-date" }, { published_at: "2027-01-01T00:00:00Z" }]) assert.equal(isPublicArticle({ ...base, ...change }, now), false);
 });
-test("editorial gate accepts complete reporting and rejects missing review and English copy", () => {
-  assert.deepEqual(publicationIssues(submission(), author, category), []);
-  const issues = publicationIssues({ ...submission(), sources: [], editorial_reviewed: false, cover_alt: "English description", original_reporting: "" }, { ...author, role: "bot" }, category);
-  assert.ok(issues.length >= 3);
+test("publishing requires a Telugu title and nonempty article content", () => {
+  assert.deepEqual(publicationIssues(submission()), []);
+  const issues = publicationIssues({ ...submission(), title: "", content: "<p><br></p>" });
+  assert.deepEqual(issues, ["Title is required.", "Full Article is required."]);
   assert.ok(issues.every((issue) => !/[\u0C00-\u0C7F]/.test(issue)));
+  assert.ok(publicationIssues({ ...submission(), content: "English article content" }).some((issue) => issue.includes("Full Article")));
   assert.equal(isTeluguCopy("This is an English news article."), false);
   assert.equal(isTeluguCopy("తెలుగు వార్తలు ప్రజలకు ఉపయోగపడాలి."), true);
 });
-test("removed source, research, reviewer, and correction fields are optional", () => {
-  const input = { ...submission(), sources: [], original_reporting: null, reviewer_id: null, correction_note: null };
-  assert.deepEqual(publicationIssues(input, author, category), []);
-  const health = { ...category, slug: "health", name: "ఆరోగ్యం" };
-  assert.deepEqual(publicationIssues(input, author, health), []);
+test("title and short article content can publish without any secondary fields", () => {
+  const input = normalizeEditorialInput({ title: "స్థానిక వార్త", content: "<p>స్థానిక ప్రజలకు తాజా సమాచారం.</p>", status: "published" });
+  assert.deepEqual(publicationIssues(input), []);
+  assert.equal(input.slug, "స్థానిక-వార్త");
+  assert.equal(input.author_id, null);
+  assert.equal(input.category_id, null);
+  assert.equal(input.cover_image, null);
+  assert.equal(input.summary, "");
+  assert.equal(input.editorial_reviewed, false);
+  assert.equal(input.ai_assisted, false);
+});
+
+test("empty optional metadata is omitted for legacy database inserts", () => {
+  const input = normalizeEditorialInput({ title: "స్థానిక వార్త", content: "<p>స్థానిక ప్రజలకు తాజా సమాచారం.</p>", status: "published" });
+  const payload = articleWritePayload({ ...input, published_at: "2026-10-29T04:00:00Z" });
+  for (const key of ["cover_alt", "image_credit", "sources", "original_reporting", "editorial_reviewed", "ai_assisted", "reviewer_id", "content_kind", "sponsor_name", "correction_note"]) assert.equal(Object.hasOwn(payload, key), false, key);
+  assert.equal(payload.title, input.title);
+  assert.equal(payload.content, input.content);
+  assert.equal(payload.published_at, "2026-10-29T04:00:00Z");
+});
+
+test("provided metadata is kept and existing metadata can still be cleared", () => {
+  const input = normalizeEditorialInput({ ...submission(), cover_alt: "", image_credit: "", editorial_reviewed: false });
+  const existing = { ...submission(), id: "existing", views: 0, created_at: "2026-10-01T04:00:00Z", published_at: "2026-10-01T04:00:00Z" } as Article;
+  const payload = articleWritePayload({ ...input, published_at: existing.published_at }, existing);
+  assert.equal(Object.hasOwn(payload, "cover_alt"), true);
+  assert.equal(payload.cover_alt, null);
+  assert.equal(payload.image_credit, null);
+  assert.equal(payload.editorial_reviewed, false);
+  const newPayload = articleWritePayload({ ...normalizeEditorialInput({ ...submission(), ai_assisted: true }), published_at: null });
+  assert.equal(newPayload.ai_assisted, true);
+  assert.equal(newPayload.cover_alt, submission().cover_alt);
+});
+
+test("a supplied summary remains consistent with the Telugu reader pages", () => {
+  assert.ok(publicationIssues({ ...submission(), summary: "English summary" }).some((issue) => issue.includes("Summary")));
+  assert.deepEqual(publicationIssues({ ...submission(), summary: "" }), []);
 });
 test("first publication date is preserved during edits and future imported dates are repaired", () => {
   const now = new Date("2026-10-27T04:00:00Z");
   assert.equal(publicationDates({ published_at: "2026-09-25T04:00:00Z" }, now).published_at, "2026-09-25T04:00:00Z");
   assert.equal(publicationDates({ published_at: "2027-01-01T00:00:00Z" }, now).published_at, now.toISOString());
 });
-test("sponsored reporting needs disclosure and optional source links are sanitized", () => {
+test("sponsor details are optional and unsafe optional source links are sanitized", () => {
   const input = normalizeEditorialInput({ ...submission(), content_kind: "sponsored", sources: [{ title: "మూలం", url: "javascript:alert(1)" }] });
-  const issues = publicationIssues(input, author, category);
-  assert.ok(issues.some((i) => i.includes("sponsor name")));
+  assert.deepEqual(publicationIssues(input), []);
   assert.equal(input.sources?.[0].url, "");
 });
 test("Telugu headlines generate nonempty stable URLs", () => {

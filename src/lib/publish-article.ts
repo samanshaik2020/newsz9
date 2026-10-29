@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Article, ArticleFormInput, Author, Category } from "@/types";
-import { normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "@/lib/editorial";
+import type { Article, ArticleFormInput } from "@/types";
+import { articleWritePayload, normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "@/lib/editorial";
 import { clearArticleCaches } from "@/lib/cache";
 import { MAX_ARTICLE_TAGS, parseTagKeywords, resolveKeywordTagIds } from "@/lib/tags";
 
@@ -30,12 +30,7 @@ export async function saveEditorialArticle(s: SupabaseClient, request: Request, 
     if (existing.published_at && input.slug !== existing.slug) return NextResponse.json({ error: "The URL of a published article must remain unchanged. Set up a permanent redirect if a change is necessary." }, { status: 422 });
   }
   if (input.status === "published") {
-    const [authorResult, categoryResult] = await Promise.all([
-      input.author_id ? s.from("authors").select("*").eq("id", input.author_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
-      input.category_id ? s.from("categories").select("*").eq("id", input.category_id).maybeSingle() : Promise.resolve({ data: null, error: null }),
-    ]);
-    if (authorResult.error || categoryResult.error) return NextResponse.json({ error: "Could not verify the author or category details." }, { status: 503 });
-    const issues = publicationIssues(input, authorResult.data as Author | null, categoryResult.data as Category | null);
+    const issues = publicationIssues(input);
     if (issues.length) return NextResponse.json({ error: issues.join("\n"), issues }, { status: 422 });
     const contentKey = normalizedText(input.content), titleKey = normalizedText(input.title);
     for (let offset = 0; ; offset += 1000) {
@@ -49,7 +44,7 @@ export async function saveEditorialArticle(s: SupabaseClient, request: Request, 
   const dates = input.status === "published" ? publicationDates(existing, now) : { published_at: existing?.published_at ?? null, updated_at: existing?.updated_at ?? now.toISOString() };
   // Metadata-only edits do not pretend that the reporting has been refreshed.
   if (existing && existing.title === input.title && existing.summary === input.summary && existing.content === input.content) dates.updated_at = existing.updated_at ?? dates.updated_at;
-  const payload = { ...input, ...dates };
+  const payload = articleWritePayload({ ...input, ...dates }, existing);
   const result = id ? await s.from("articles").update(payload).eq("id", id).select("id,slug").single()
     : await s.from("articles").insert(payload).select("id,slug").single();
   if (result.error) return NextResponse.json({ error: result.error.code === "23505" ? "This slug or article already exists." : "Could not save the article. Apply the editorial database migration and try again." }, { status: 400 });

@@ -1,8 +1,8 @@
 # Article form update — 29 October 2026
 
-The admin form now keeps image details and article type, removes the requested source/research/reviewer/correction fields and checklist panel, and accepts comma-separated keywords as tags.
+Only Title and Full Article are required to publish. Summary, images, image details, category, author, article type, tags, and review/disclosure checkboxes are optional. Slugs are generated automatically. There is no minimum word count or required subheading count. The requested source/research/reviewer/correction fields and checklist panel are removed, and comma-separated keywords become tags.
 
-Apply `supabase/migrations/20261029_optional_editorial_fields.sql` to the configured Supabase project before using article saving. It adds missing article metadata columns and makes the removed fields optional in the publishing trigger. Existing articles and their metadata are preserved. This migration supports the existing legacy database directly; if the earlier editorial migration is also applied, run this one afterwards.
+Empty optional metadata is omitted from new writes so articles with only the main fields can also be saved against the legacy database. Apply `supabase/migrations/20261029_optional_editorial_fields.sql` when enabling storage of additional image/editorial metadata. It adds the missing columns and aligns the publication trigger with the optional fields. Existing articles and their metadata are preserved. If the earlier editorial migration is also applied, run this updated migration afterwards.
 
 The connected database was checked and is currently missing `articles.cover_alt`. The new migration has been prepared locally but has not yet been applied.
 
