@@ -98,6 +98,27 @@ export function articleWritePayload(input: ArticleWriteInput, existing?: Article
   return payload;
 }
 
+export function articleSaveFailure(error: { code?: string }) {
+  switch (error.code) {
+    case "23505":
+      return { status: 409, error: "This slug or article already exists." };
+    case "23503":
+      return { status: 422, error: "The selected author, category, or reviewer is no longer available. Please select an available option and try again." };
+    case "42501":
+      return { status: 403, error: "The database did not allow this article to be saved. Please contact the site administrator." };
+    case "PGRST204":
+    case "42703":
+      return { status: 503, error: "The article storage update is incomplete. Your writing is still in the editor. Please contact the site administrator." };
+    case "23502":
+    case "23514":
+    case "22P02":
+    case "P0001":
+      return { status: 422, error: "The database rejected some article details. Please check the fields and try again." };
+    default:
+      return { status: 500, error: "Could not save the article. Please try again. If the problem continues, contact the site administrator." };
+  }
+}
+
 export function publicationDates(existing?: Pick<Article, "published_at" | "updated_at"> | null, now = new Date()) {
   const previous = Date.parse(existing?.published_at ?? "");
   return { published_at: Number.isFinite(previous) && previous <= now.getTime() ? existing!.published_at : now.toISOString(), updated_at: now.toISOString() };

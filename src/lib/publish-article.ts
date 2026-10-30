@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Article, ArticleFormInput } from "@/types";
-import { articleWritePayload, normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "@/lib/editorial";
+import { articleSaveFailure, articleWritePayload, normalizeEditorialInput, normalizedText, publicationDates, publicationIssues } from "@/lib/editorial";
 import { clearArticleCaches } from "@/lib/cache";
 import { MAX_ARTICLE_TAGS, parseTagKeywords, resolveKeywordTagIds } from "@/lib/tags";
 
@@ -47,7 +47,11 @@ export async function saveEditorialArticle(s: SupabaseClient, request: Request, 
   const payload = articleWritePayload({ ...input, ...dates }, existing);
   const result = id ? await s.from("articles").update(payload).eq("id", id).select("id,slug").single()
     : await s.from("articles").insert(payload).select("id,slug").single();
-  if (result.error) return NextResponse.json({ error: result.error.code === "23505" ? "This slug or article already exists." : "Could not save the article. Apply the editorial database migration and try again." }, { status: 400 });
+  if (result.error) {
+    console.error("Article save failed", { code: result.error.code });
+    const failure = articleSaveFailure(result.error);
+    return NextResponse.json({ error: failure.error, code: result.error.code }, { status: failure.status });
+  }
   let tagWarning: string | undefined;
   if (keywordTags !== undefined || body.tag_ids !== undefined) {
     try {

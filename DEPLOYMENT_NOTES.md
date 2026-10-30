@@ -1,3 +1,11 @@
+# Article save repair
+
+The save failure was traced to the connected `articles` table missing all ten optional editorial/image metadata columns. Blank defaults were compatible with the legacy schema, but supplied image descriptions, image credits, review/disclosure flags, and article types could not be stored.
+
+`supabase/migrations/20261030_article_metadata_storage.sql` is the targeted repair. It adds the missing article columns and public author credentials/expertise fields, then reloads the PostgREST schema cache. It does not replace publication triggers, change policies, or rewrite article content. The live database repair is pending SQL access; this file alone does not apply it.
+
+Article save failures now return distinct statuses for missing columns, invalid references, permissions, duplicate records, and unexpected server errors. Internal database diagnostics are not returned to the editor. Local tests cover both title/content-only publishing and preserving supplied optional metadata.
+
 # Article form update — 29 October 2026
 
 Only Title and Full Article are required to publish. Summary, images, image details, category, author, article type, tags, and review/disclosure checkboxes are optional. Slugs are generated automatically. There is no minimum word count or required subheading count. The requested source/research/reviewer/correction fields and checklist panel are removed, and comma-separated keywords become tags.
