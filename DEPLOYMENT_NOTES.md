@@ -1,8 +1,14 @@
-# Article save repair
+# Article save repair — applied 30 October 2026
 
 The save failure was traced to the connected `articles` table missing all ten optional editorial/image metadata columns. Blank defaults were compatible with the legacy schema, but supplied image descriptions, image credits, review/disclosure flags, and article types could not be stored.
 
-`supabase/migrations/20261030_article_metadata_storage.sql` is the targeted repair. It adds the missing article columns and public author credentials/expertise fields, then reloads the PostgREST schema cache. It does not replace publication triggers, change policies, or rewrite article content. The live database repair is pending SQL access; this file alone does not apply it.
+Applied `supabase/migrations/20261030_article_metadata_storage.sql` through the Supabase SQL Editor to the live `newsz9` project (`qxlltybknuviixexruax`). It adds the ten missing article columns and author credentials/expertise fields, then reloads the PostgREST schema cache. Existing article content, publication rules, and table policies were preserved.
+
+Also applied `supabase/migrations/20261030120000_editorial_review_queue.sql` to restore the missing admin audit view. The view uses the caller's table permissions and is readable by `service_role`; anonymous and ordinary authenticated clients have no view access. No stories, author profiles, or category labels were rewritten.
+
+Live verification passed: the production article API created a private draft with all ten metadata fields, updated it to clear those fields, and the exact generated test draft was removed. Public article queries and the reviewer relationship resolve successfully. The editorial audit query returned 225 published articles, the production audit page loaded without its migration warning, and public access to the audit view was denied. The article count remained 225 after cleanup.
+
+The older `20261027_editorial_standards.sql` and `20261029_optional_editorial_fields.sql` migrations were not applied during this repair. The dated deployment guidance below describes earlier work; the two migrations above are the current live storage/audit repair.
 
 Article save failures now return distinct statuses for missing columns, invalid references, permissions, duplicate records, and unexpected server errors. Internal database diagnostics are not returned to the editor. Local tests cover both title/content-only publishing and preserving supplied optional metadata.
 
@@ -12,7 +18,7 @@ Only Title and Full Article are required to publish. Summary, images, image deta
 
 Empty optional metadata is omitted from new writes so articles with only the main fields can also be saved against the legacy database. Apply `supabase/migrations/20261029_optional_editorial_fields.sql` when enabling storage of additional image/editorial metadata. It adds the missing columns and aligns the publication trigger with the optional fields. Existing articles and their metadata are preserved. If the earlier editorial migration is also applied, run this updated migration afterwards.
 
-The connected database was checked and is currently missing `articles.cover_alt`. The new migration has been prepared locally but has not yet been applied.
+At the 29 October check, the connected database was missing `articles.cover_alt`. The missing metadata storage was repaired on 30 October as recorded above.
 
 # అమలు, మిగిలిన పనులు
 
