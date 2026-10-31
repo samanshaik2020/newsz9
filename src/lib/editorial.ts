@@ -1,5 +1,6 @@
 import type { Article, ArticleFormInput, ArticleListItem, Category, EditorialFields } from "../types/index.ts";
 import { getImageSrc, normalizeArticleContent, slugify, stripHtml } from "./utils.ts";
+import { generateArticleSlug } from "./article-slug.ts";
 
 export function normalizedText(value: string) {
   return stripHtml(value).normalize("NFKC").replace(/&(?:nbsp|amp|quot|lt|gt);|&#(?:\d+|x[\da-f]+);/gi, " ")
@@ -50,7 +51,7 @@ export function safeSourceUrl(value?: string | null) {
 export function normalizeEditorialInput(body: Partial<ArticleFormInput>): ArticleFormInput {
   return {
     title: typeof body.title === "string" ? body.title.trim() : "",
-    slug: slugify(typeof body.slug === "string" && body.slug ? body.slug : body.title ?? ""),
+    slug: typeof body.slug === "string" && body.slug.trim() ? slugify(body.slug) : generateArticleSlug(body.title ?? ""),
     summary: typeof body.summary === "string" ? body.summary.trim() : "",
     content: normalizeArticleContent(typeof body.content === "string" ? body.content : ""),
     cover_image: getImageSrc(body.cover_image), cover_alt: body.cover_alt?.trim() || null,

@@ -6,6 +6,7 @@ import { CategorySection } from "@/components/site/CategorySection";
 import { Footer } from "@/components/site/Footer";
 import { Header } from "@/components/site/Header";
 import { HeroSplit } from "@/components/site/HeroSplit";
+import { HomeRefresh } from "@/components/site/HomeRefresh";
 import { ArticleGrid } from "@/components/site/ArticleGrid";
 import { RightSidebar } from "@/components/site/RightSidebar";
 import { getBreakingNews, getCategories, getPublishedArticles } from "@/lib/data";
@@ -24,6 +25,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ l
     return b.url?.startsWith("/") && !validPath ? { ...b, url: null } : b;
   });
   return <div className="flex min-h-screen flex-col bg-white text-zinc-950">
+    <HomeRefresh />
     <Header categories={teluguCategories} /><BreakingTicker items={tickerItems} />
     <main id="main-content" className="flex-1">
       <div className={`mx-auto grid max-w-7xl gap-7 px-4 py-6 ${trending.length ? "lg:grid-cols-[minmax(0,7fr)_minmax(280px,3fr)]" : ""}`}>

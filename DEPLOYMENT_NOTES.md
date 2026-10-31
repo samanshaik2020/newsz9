@@ -1,3 +1,21 @@
+# Short Telugu article slugs — 31 October 2026
+
+New articles now generate readable Latin transliterations from Telugu headlines, capped at 60 characters and five title words. Long titles include a short deterministic suffix derived from the full headline so titles with identical opening words can have different slugs. For example, `స్థానిక వార్త` becomes `sthaanika-vaarta`. Copied links no longer expand into long percent-encoded Telugu strings. The editor and server use the same generator; custom slugs remain editable before publication.
+
+Published URLs remain unchanged and the published slug field is read-only. Edits preserve the original publication date. Category/tag slugs are unaffected. This follows [Google's URL structure guidance](https://developers.google.com/search/docs/crawling-indexing/url-structure) on descriptive URLs and audience-language words, including transliterations.
+
+Validation: 40 tests, lint for changed code, production build/type check, mocked publishing/URL-preservation checks, and the home-page freshness regression checks pass. No live articles or URLs were rewritten.
+
+# Home-page freshness repair — 31 October 2026
+
+Published-article lists now read the database on every request instead of using the separate two-minute Redis/process cache. This covers the home page, latest-news page, public articles API, and RSS source. New posts, edits, and withdrawals are visible on the next request even when another server instance or CMS makes the change. The home page refreshes its server-rendered content every minute while visible and checks again when a reader returns to a stale tab. Hidden tabs do not refresh.
+
+The public articles API sends `Cache-Control: no-store`. Database failures return a non-cacheable 503 instead of a successful empty feed; server-rendered pages also surface failures rather than presenting an empty publication. Publication status, Telugu-language filtering, future-date exclusion, stable article URLs, and original publication dates are preserved. Articles remain in the initial HTML for crawlers; this repair does not rewrite dates to make older reporting appear new.
+
+Validation: 35 existing tests, the production build/type check, lint for changed code, mocked publishing checks, the new `npm run test:freshness` regression checks, and production smoke checks pass. The freshness regression reproduces the prior failure by publishing a simulated story after the first list request without clearing local caches. The local production home page leads with the latest database article; its canonical URL, article dates/NewsArticle metadata, RSS entry, and sitemap entry were checked together. A browser test with simulated posts also confirmed that the open home page updates automatically after one minute. No live articles were created or edited for these checks. Deploy the updated application to apply this repair to the public site.
+
+Google references: [publication dates](https://developers.google.com/search/docs/appearance/publication-dates), [article structured data](https://developers.google.com/search/docs/appearance/structured-data/article), and [Google News policies](https://support.google.com/news/publisher-center/answer/6204050). The earlier publisher/content review items below still apply; this targeted repair is not a full compliance audit or a guarantee of indexing or AdSense approval.
+
 # Article save repair — applied 30 October 2026
 
 The save failure was traced to the connected `articles` table missing all ten optional editorial/image metadata columns. Blank defaults were compatible with the legacy schema, but supplied image descriptions, image credits, review/disclosure flags, and article types could not be stored.

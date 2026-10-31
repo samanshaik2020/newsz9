@@ -30,12 +30,13 @@ export async function getPublishedArticles(limit = 12, offset = 0, _language?: L
   noStore(); const s = maybeCreateClient(); if (!s) return [];
   limit = Math.min(1000, Math.max(1, Number.isFinite(limit) ? Math.trunc(limit) : 12));
   offset = Math.max(0, Number.isFinite(offset) ? Math.trunc(offset) : 0);
-  const rows = await getCached(`homepage:articles:v3:te:${limit}:${offset}`, async () => {
-    const { data } = await s.from("articles").select(listSelect).eq("status", "published").eq("language", "te")
-      .lte("published_at", new Date().toISOString()).order("published_at", { ascending: false }).order("id").range(offset, offset + limit - 1);
-    return (data ?? []) as unknown as ArticleListItem[];
-  }, 120);
-  return publicRows(rows);
+  // Latest lists must reflect new publications on every request, including writes
+  // from another server instance or directly through the CMS. noStore() alone
+  // does not bypass the separate Redis and process-memory caches.
+  const { data, error } = await s.from("articles").select(listSelect).eq("status", "published").eq("language", "te")
+    .lte("published_at", new Date().toISOString()).order("published_at", { ascending: false }).order("id").range(offset, offset + limit - 1);
+  if (error) throw new Error("The published articles list is unavailable.");
+  return publicRows((data ?? []) as unknown as ArticleListItem[]);
 }
 export async function getAllPublicArticles(): Promise<ArticleListItem[]> {
   noStore(); const s = maybeCreateClient(); if (!s) return [];

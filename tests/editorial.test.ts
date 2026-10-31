@@ -41,7 +41,7 @@ test("publishing requires a Telugu title and nonempty article content", () => {
 test("title and short article content can publish without any secondary fields", () => {
   const input = normalizeEditorialInput({ title: "స్థానిక వార్త", content: "<p>స్థానిక ప్రజలకు తాజా సమాచారం.</p>", status: "published" });
   assert.deepEqual(publicationIssues(input), []);
-  assert.equal(input.slug, "స్థానిక-వార్త");
+  assert.equal(input.slug, "sthaanika-vaarta");
   assert.equal(input.author_id, null);
   assert.equal(input.category_id, null);
   assert.equal(input.cover_image, null);

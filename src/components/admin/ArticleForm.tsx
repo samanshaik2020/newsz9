@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getImageSrc, normalizeArticleContent, slugify } from "@/lib/utils";
+import { generateArticleSlug } from "@/lib/article-slug";
 import { useConfirmStore } from "@/store/use-confirm-store";
 import { useToastStore } from "@/store/use-toast-store";
 import type {
@@ -88,6 +89,7 @@ export function ArticleForm({
     formFromArticle(article),
   );
   const [message, setMessage] = useState<string | null>(null);
+  const [slugEdited, setSlugEdited] = useState(Boolean(article?.slug));
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -177,7 +179,7 @@ export function ArticleForm({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         path: "/",
-        slug: form.slug,
+        slug: payload.article?.slug ?? form.slug,
         categorySlug: selectedCategory?.slug,
       }),
     });
@@ -359,9 +361,9 @@ export function ArticleForm({
                   ...form,
                   title: event.target.value,
                   slug:
-                    form.slug && mode === "edit"
+                    slugEdited || article?.published_at
                       ? form.slug
-                      : slugify(event.target.value),
+                      : generateArticleSlug(event.target.value),
                 })
               }
               placeholder="Article title"
@@ -372,12 +374,19 @@ export function ArticleForm({
             Slug (auto-generated)
             <input
               className="min-h-11 rounded-md border border-zinc-300 px-4 text-sm font-normal text-zinc-600 outline-none focus:border-red-700"
-              onChange={(event) =>
-                setForm({ ...form, slug: slugify(event.target.value) })
-              }
+              onChange={(event) => {
+                const slug = slugify(event.target.value);
+                setForm({ ...form, slug });
+                setSlugEdited(Boolean(slug));
+              }}
               placeholder="article-slug"
+              readOnly={Boolean(article?.published_at)}
+              aria-describedby="article-slug-help"
               value={form.slug}
             />
+            <span id="article-slug-help" className="text-xs font-normal text-zinc-500">
+              {article?.published_at ? "Published URLs stay fixed to keep existing links working." : "Short Latin spelling, up to 60 characters when generated automatically. You can also enter a custom slug."}
+            </span>
           </label>
           <label className="grid gap-2 text-sm font-bold text-zinc-800">
             Summary (optional)
